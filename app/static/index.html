@@ -257,9 +257,9 @@
         </div>
         <template x-for="(m, i) in chat.msgs" :key="i">
           <div :class="m.role === 'user' ? 'flex justify-end' : 'flex justify-start'">
-            <div class="max-w-[85%] rounded-2xl px-3 py-2 text-sm whitespace-pre-wrap"
+            <div class="max-w-[85%] rounded-2xl px-3 py-2 text-sm"
                  :class="m.role === 'user' ? 'bg-indigo-600 text-white' : 'bg-slate-100'">
-              <div x-text="m.content"></div>
+              <div class="whitespace-pre-wrap" x-text="m.content"></div>
               <div x-show="m.tools && m.tools.length" class="mt-1 text-[10px] text-slate-500" x-text="'checked: ' + [...new Set(m.tools)].join(', ')"></div>
             </div>
           </div>
