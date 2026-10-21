@@ -10,7 +10,7 @@ Roles: **Admin/timetable office**, **Department coordinator**, **Teacher**, **St
 Hackathon context: a working prototype is demoed **today at 4 PM**. Prototype scope (P0):
 seeded college data → CP-SAT generation → independent validator ("0 clashes") → grid views by
 section / teacher / room → quality metrics → free-room finder. Read-only chatbot is a stretch goal.
-Full plan (roadmap P1–P3, data model, permissions, chatbot design) lives in `docs/PLAN.md`.
+End-to-end plan (versions, status, finished product): `PLAN.md`. Detailed design (data model, permissions, chatbot, solver internals): `docs/DESIGN.md`.
 
 ## Stack
 - **Backend:** Python 3.12+ / FastAPI, Google OR-Tools **CP-SAT** solver.
@@ -61,5 +61,5 @@ python -m venv .venv && .venv/Scripts/python -m pip install -r requirements.txt 
 
 ## Conventions
 - Python: type hints, dataclasses for domain objects, small pure functions; no premature abstraction.
-- Keep P0 simple: if a feature is not in today's scope, note it in `docs/PLAN.md` instead of building it.
+- Keep P0 simple: if a feature is not in today's scope, note it in `PLAN.md` (versions table) instead of building it.
 - UI text is plain and friendly for non-technical coordinators and students.

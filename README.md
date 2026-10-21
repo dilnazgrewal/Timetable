@@ -3,6 +3,7 @@
 TimeWeave generates the whole college's weekly timetable in seconds with Google OR-Tools **CP-SAT**. Every result is checked by an **independent validator** that shares no code with the solver. The solver also minimises the idle gaps students sit through between lectures.
 
 Scope today:
+- **Print / Save as PDF:** one A4 page per section, teacher or room.
 - **Seed data:** 5 departments (CSE, IT, ECE, ME, CE) plus Applied Sciences, 20 sections, 39 teachers and 38 rooms.
 - **Grids:** by section, teacher or room, mobile-first.
 - **Metrics:** "0 clashes", idle periods, single-lecture days, teacher load, room use.
@@ -49,11 +50,11 @@ Other commands:
 6. **Teacher load tab:** balanced loads, with classroom and lab utilisation.
 7. **Phone width, Student role, Free rooms → "Right now":** empty rooms and how long they stay free.
 8. **Ask TimeWeave:** "When is Harpreet Kaur free on Wednesday?" The answer comes from tools only, and the assistant can't modify anything.
-9. **Roadmap** (`docs/PLAN.md`):
+9. **Roadmap** (`PLAN.md`):
    - Excel import, plus a validator for existing hand-made timetables.
    - Manual editor with live clash detection.
    - Absences with ranked substitutes.
    - Minimal-change repair with a diff preview.
    - Google login with roles.
 
-See `CLAUDE.md` for the architecture rules and `docs/PLAN.md` for the full design.
+See `CLAUDE.md` for the architecture rules and `PLAN.md` for the end-to-end plan (`docs/DESIGN.md` for design details).
