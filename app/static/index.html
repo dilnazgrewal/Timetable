@@ -12,13 +12,26 @@
   .chip { border-left-width: 4px; }
   .spin { animation: spin 1s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
+  .print-only { display: none; }
+  @media print {
+    @page { size: A4 landscape; margin: 8mm; }
+    body { background: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .print-grid { zoom: 0.82; }
+    .print-grid td, .print-grid th { padding: 3px 4px !important; }
+    .print-grid .chip { padding: 2px 5px !important; }
+    .no-print { display: none !important; }
+    .print-only { display: block !important; }
+    .print-grid { display: block !important; overflow: visible !important; border: 1px solid #cbd5e1; }
+    .print-grid table { min-width: 0 !important; font-size: 10px; }
+    .print-grid tr { break-inside: avoid; }
+  }
 </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen">
 <div x-data="app()" x-init="init()" x-cloak class="max-w-7xl mx-auto px-4 pb-16">
 
   <!-- header -->
-  <header class="flex flex-wrap items-center justify-between gap-3 py-4">
+  <header class="no-print flex flex-wrap items-center justify-between gap-3 py-4">
     <div class="flex items-center gap-3">
       <div class="h-10 w-10 rounded-xl bg-indigo-600 text-white grid place-items-center font-bold text-lg">TW</div>
       <div>
@@ -39,7 +52,7 @@
   </header>
 
   <!-- status / metrics -->
-  <section class="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-4">
+  <section class="no-print grid grid-cols-2 lg:grid-cols-5 gap-3 mb-4">
     <div class="rounded-xl p-3 border col-span-2 lg:col-span-1"
          :class="!tt.ready ? 'bg-white' : (tt.issues.length ? 'bg-red-50 border-red-200' : 'bg-emerald-50 border-emerald-200')">
       <div class="text-xs text-slate-500">Independent validator</div>
@@ -75,7 +88,7 @@
   </section>
 
   <!-- generate -->
-  <div x-show="role === 'admin' || role === 'coordinator'" class="flex flex-wrap items-center gap-3 mb-4">
+  <div x-show="role === 'admin' || role === 'coordinator'" class="no-print flex flex-wrap items-center gap-3 mb-4">
     <button @click="generate()" :disabled="generating"
             class="px-4 py-2 rounded-lg bg-indigo-600 text-white font-semibold hover:bg-indigo-700 disabled:opacity-60 flex items-center gap-2">
       <svg x-show="generating" class="spin h-4 w-4" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="40 60"/></svg>
@@ -86,7 +99,7 @@
   </div>
 
   <!-- tabs -->
-  <nav class="flex gap-1 border-b mb-4 overflow-x-auto">
+  <nav class="no-print flex gap-1 border-b mb-4 overflow-x-auto">
     <template x-for="t in tabs()" :key="t.id">
       <button @click="tab = t.id; if (t.id === 'rooms') findRooms()" class="px-3 py-2 text-sm font-medium -mb-px border-b-2 whitespace-nowrap"
               :class="tab === t.id ? 'border-indigo-600 text-indigo-700' : 'border-transparent text-slate-500 hover:text-slate-700'"
@@ -96,7 +109,7 @@
 
   <!-- timetable tab -->
   <section x-show="tab === 'timetable'">
-    <div class="flex flex-wrap items-end gap-3 mb-3">
+    <div class="no-print flex flex-wrap items-end gap-3 mb-3">
       <div x-show="role === 'admin' || role === 'coordinator'">
         <label class="block text-xs text-slate-500 mb-1">View by</label>
         <div class="flex rounded-lg border bg-white overflow-hidden text-sm">
@@ -118,8 +131,9 @@
           <template x-for="o in options()" :key="o.id"><option :value="o.id" x-text="o.label" :selected="o.id === entity"></option></template>
         </select>
       </div>
-      <div class="text-sm text-slate-500 ml-auto" x-show="tt.ready">
-        <span x-text="weeklyHours()"></span> periods / week
+      <div class="text-sm text-slate-500 ml-auto flex items-center gap-3" x-show="tt.ready">
+        <span><span x-text="weeklyHours()"></span> periods / week</span>
+        <button @click="window.print()" class="px-3 py-1.5 rounded-lg border bg-white text-slate-700 hover:bg-slate-50">🖨 Print / Save PDF</button>
       </div>
     </div>
 
@@ -127,8 +141,22 @@
       No timetable yet. Switch to <b>Timetable office</b> and press <b>Generate</b>.
     </div>
 
+    <!-- print header (only visible when printing / saving as PDF) -->
+    <div class="print-only mb-2">
+      <div style="display:flex; justify-content:space-between; align-items:flex-end">
+        <div>
+          <div style="font-size:18px; font-weight:700" x-text="printTitle()"></div>
+          <div style="font-size:11px; color:#475569" x-text="printSubtitle()"></div>
+        </div>
+        <div style="font-size:11px; color:#475569; text-align:right">
+          TimeWeave · generated <span x-text="new Date().toLocaleDateString()"></span><br>
+          <span x-text="tt.ready && !tt.issues.length ? '✔ Verified: 0 clashes' : ''"></span>
+        </div>
+      </div>
+    </div>
+
     <!-- mobile: one day at a time -->
-    <div x-show="tt.ready" class="sm:hidden">
+    <div x-show="tt.ready" class="no-print sm:hidden">
       <div class="flex gap-1 mb-3">
         <template x-for="(d, i) in meta?.days">
           <button @click="mobileDay = i" class="flex-1 py-1.5 rounded-lg text-sm"
@@ -152,7 +180,7 @@
     </div>
 
     <!-- desktop grid -->
-    <div x-show="tt.ready" class="hidden sm:block overflow-x-auto rounded-xl border bg-white">
+    <div x-show="tt.ready" class="print-grid hidden sm:block overflow-x-auto rounded-xl border bg-white">
       <table class="w-full text-sm table-fixed min-w-[760px]">
         <thead class="bg-slate-50">
           <tr>
@@ -275,7 +303,7 @@
     </div>
   </section>
 
-  <section x-show="tt.ready && tt.issues.length" class="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+  <section x-show="tt.ready && tt.issues.length" class="no-print mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">
     <template x-for="i in tt.issues.slice(0, 20)"><div x-text="i"></div></template>
   </section>
 </div>
@@ -350,6 +378,16 @@ function app() {
       if (!this.tt.ready) return [];
       return this.tt.entries.filter(e => e.day === d && p >= e.start && p < e.start + e.duration && this.match(e))
         .sort((a, b) => a.section.localeCompare(b.section));
+    },
+    printTitle() {
+      const o = this.options().find(o => o.id === this.entity);
+      const kind = { section: 'Class timetable', teacher: 'Teacher timetable', room: 'Room timetable' }[this.viewBy];
+      return `${kind}: ${o ? o.label : this.entity}`;
+    },
+    printSubtitle() {
+      const d = this.meta?.departments.find(d => d.code === this.dept);
+      return `${d ? d.name : 'Shared / central rooms'} · ${this.weeklyHours()} periods / week · ` +
+             `lunch: a free hour between ${this.meta?.lunch.start} and ${this.meta?.lunch.end}`;
     },
     isLunch(d, p) {
       // the first free period in the lunch window is shown as that section's / teacher's lunch break
