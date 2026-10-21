@@ -105,7 +105,7 @@ def build_college() -> College:
     for d in ["CSE", "IT", "ECE", "ME", "CE"]:
         dept_teachers[d] = [new_teacher(d) for _ in range(TEACHERS_PER_DEPT)]
     # realism: one CSE teacher has PhD coursework on Friday afternoons
-    dept_teachers["CSE"][2].unavailable = [(4, p) for p in range(4, 7)]
+    dept_teachers["CSE"][2].unavailable = [(4, p) for p in range(5, 8)]
     as_teachers = [new_teacher("AS") for _ in range(3)]
     visiting = new_teacher("CSE", "Visiting", [(d, p) for d in (0, 2, 4) for p in range(len(PERIODS))])
     visiting.name = "Er. Kavya Malhotra (Visiting)"

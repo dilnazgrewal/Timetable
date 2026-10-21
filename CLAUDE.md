@@ -38,15 +38,14 @@ python -m venv .venv && .venv/Scripts/python -m pip install -r requirements.txt 
    (cancel, substitute, swap, room_change, move, booking). Readers use `effective(date)` only.
 
 ## Domain glossary
-- **Period model:** 7 teaching periods/day, 60 min: P1 8:30, P2 9:30, P3 10:30, P4 11:30, **LUNCH 12:30–1:30 (never schedulable)**,
-  P5 1:30, P6 2:30, P7 3:30. Internally periods are indexed 0–6; lunch is a break between index 3 and 4.
+- **Period model:** 8 periods/day, 60 min, 8:30–4:30 (P1 8:30 … P8 3:30). **Lunch is flexible:** every batch and teacher gets at least one free period in the lunch window P4–P6 (11:30–2:30); the solver picks which, and that one free period is not counted as idle time.
 - **Batch:** the atomic student group (e.g. CSE-3A-G1). A whole-section class occupies all its batches; a lab occupies one batch;
   an elective occupies batches from several sections. No-overlap is enforced per batch.
 - **Lesson:** a teaching assignment (subject + teacher(s) + audience batches + sessions/week + duration).
 - **Session:** one weekly occurrence of a lesson; the solver places sessions.
 - **Entry:** a placed session (day, start period, duration, room).
 - **Home room:** each section has a fixed classroom; only labs (and shared halls) get rooms assigned by the solver.
-- Labs are 2-period contiguous blocks that cannot span lunch.
+- Labs are 2-period contiguous blocks.
 
 ## Solver model (summary)
 - Bool `x[s,d,p]` per valid start; labs with several candidate rooms get `y[s,d,p,r]`.

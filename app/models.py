@@ -9,13 +9,15 @@ PERIODS = [
     ("P2", "09:30", "10:30"),
     ("P3", "10:30", "11:30"),
     ("P4", "11:30", "12:30"),
-    ("P5", "13:30", "14:30"),
-    ("P6", "14:30", "15:30"),
-    ("P7", "15:30", "16:30"),
+    ("P5", "12:30", "13:30"),
+    ("P6", "13:30", "14:30"),
+    ("P7", "14:30", "15:30"),
+    ("P8", "15:30", "16:30"),
 ]
-LUNCH = ("12:30", "13:30")
-LUNCH_AFTER = 3  # lunch sits between period index 3 and 4
-RUNS = [(0, 4), (4, 7)]  # contiguous teaching runs [start, end); blocks never span lunch
+# Lunch is not a fixed slot: every batch and teacher gets at least one free period in this
+# window each day (11:30–14:30), and the solver picks which one.
+LUNCH_WINDOW = (3, 4, 5)
+RUNS = [(0, 8)]  # contiguous teaching runs [start, end); no fixed breaks
 MAX_BATCH_PER_DAY = 6
 
 

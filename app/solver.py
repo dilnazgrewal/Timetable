@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 
 from ortools.sat.python import cp_model
 
-from app.models import DAYS, MAX_BATCH_PER_DAY, PERIODS, RUNS, College, Entry
+from app.models import DAYS, LUNCH_WINDOW, MAX_BATCH_PER_DAY, PERIODS, RUNS, College, Entry
 
 W_STUDENT_GAP = 10
 W_LONELY_DAY = 6
@@ -126,12 +126,23 @@ def solve(college: College, time_limit: float = 30.0, optimize: bool = True, wor
 
     teachers = {l.teacher for l in college.lessons}
     batches = sorted({b for l in college.lessons for b in l.batches})
+
+    def lunch_break(table: dict, who: str, d: int) -> None:
+        # at least one free period inside the lunch window (cover per slot is already <= 1)
+        vs = [v for q in LUNCH_WINDOW for v in table.get((who, d, q), [])]
+        if vs:
+            m.Add(sum(vs) <= len(LUNCH_WINDOW) - 1)
+
     for t in teachers:
         cap = college.teacher_by_id[t].max_per_day
         for d in range(n_days):
             vs = [v for q in range(n_per) for v in teacher_cover.get((t, d, q), [])]
             if vs:
                 m.Add(sum(vs) <= cap)
+            lunch_break(teacher_cover, t, d)
+    for b in batches:
+        for d in range(n_days):
+            lunch_break(batch_cover, b, d)
 
     def occupancy(table: dict, who: str, d: int) -> list:
         occ = []
@@ -147,12 +158,15 @@ def solve(college: College, time_limit: float = 30.0, optimize: bool = True, wor
         for q in range(len(o)):
             m.AddMaxEquality(started[q], o[: q + 1])
             m.AddMaxEquality(pending[q], o[q:])
-        gaps = []
+        gaps = {}
         for q in range(1, len(o) - 1):
             g = m.NewBoolVar("")
             m.Add(g >= started[q] + pending[q] - o[q] - 1)
-            gaps.append(g)
-        return gaps
+            gaps[q] = g
+        # one free period inside the lunch window is the lunch break, not idle time
+        lunch = m.NewBoolVar("")
+        m.Add(lunch <= sum(gaps[q] for q in LUNCH_WINDOW if q in gaps))
+        return list(gaps.values()), lunch
 
     objective = []
     for b in batches:
@@ -162,7 +176,8 @@ def solve(college: College, time_limit: float = 30.0, optimize: bool = True, wor
                 m.Add(sum(vs) <= MAX_BATCH_PER_DAY)
             if optimize:
                 o = occupancy(batch_cover, b, d)
-                objective += [W_STUDENT_GAP * g for g in idle_gaps(o)]
+                gaps, lunch = idle_gaps(o)
+                objective += [W_STUDENT_GAP * g for g in gaps] + [-W_STUDENT_GAP * lunch]
                 lonely = m.NewBoolVar("")
                 has = m.NewBoolVar("")
                 m.AddMaxEquality(has, o)
@@ -172,7 +187,8 @@ def solve(college: College, time_limit: float = 30.0, optimize: bool = True, wor
         for t in teachers:
             for d in range(n_days):
                 o = occupancy(teacher_cover, t, d)
-                objective += [W_TEACHER_GAP * g for g in idle_gaps(o)]
+                gaps, lunch = idle_gaps(o)
+                objective += [W_TEACHER_GAP * g for g in gaps] + [-W_TEACHER_GAP * lunch]
                 for a, b in RUNS:
                     for q in range(a, b - 3):
                         streak = m.NewBoolVar("")

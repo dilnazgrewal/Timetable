@@ -4,7 +4,7 @@ from dataclasses import replace
 
 import pytest
 
-from app.models import Entry
+from app.models import LUNCH_WINDOW, PERIODS, Entry
 from app.seed import build_college
 from app.solver import prechecks, solve
 from app.validator import validate
@@ -51,10 +51,20 @@ def test_detects_room_clash(college, entries):
     assert any(i.startswith("CLASH Room") for i in validate(college, mutated))
 
 
-def test_detects_lab_crossing_lunch(college, entries):
+def test_detects_block_past_end_of_day(college, entries):
     lab = _first(entries, college, "lab")
-    mutated = [replace(lab, start=3) if e is lab else e for e in entries]
-    assert any("crosses lunch" in i for i in validate(college, mutated))
+    mutated = [replace(lab, start=7) if e is lab else e for e in entries]
+    assert any("past the end of the day" in i for i in validate(college, mutated))
+
+
+def test_every_batch_and_teacher_gets_lunch(college, entries):
+    assert not [i for i in validate(college, entries) if i.startswith("NO LUNCH")]
+
+
+def test_detects_missing_lunch(college):
+    theory = [l for l in college.lessons if l.section == "CSE-3A" and l.kind == "theory"][:3]
+    packed = [Entry(l.id, 0, 0, p, 1, l.rooms[0]) for l, p in zip(theory, LUNCH_WINDOW)]
+    assert any(i.startswith("NO LUNCH Students") for i in validate(college, packed))
 
 
 def test_detects_unavailable_teacher(college, entries):
@@ -77,7 +87,7 @@ def test_detects_wrong_room_type(college, entries):
 def test_precheck_explains_overloaded_teacher():
     c = build_college()
     t = next(t for t in c.teachers if t.kind == "Visiting")
-    t.unavailable = [(d, p) for d in range(5) for p in range(7) if d != 1]  # only Tuesday left
+    t.unavailable = [(d, p) for d in range(5) for p in range(len(PERIODS)) if d != 1]  # only Tuesday left
     t.max_per_day = 3  # 4 hours assigned, at most 3 possible
     msgs = prechecks(c)
     assert any(t.name in m and "assigned" in m for m in msgs)

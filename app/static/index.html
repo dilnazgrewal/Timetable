@@ -138,12 +138,12 @@
       <div class="space-y-2">
         <template x-for="(p, pi) in meta?.periods">
           <div>
-            <div x-show="pi === meta.lunch.after + 1" class="text-center text-xs text-slate-400 py-1">— Lunch 12:30–1:30 —</div>
             <div class="flex gap-2 items-stretch">
               <div class="w-14 shrink-0 text-xs text-slate-500 pt-2"><div class="font-semibold" x-text="p.label"></div><div x-text="p.start"></div></div>
               <div class="flex-1 space-y-1">
                 <template x-for="e in cell(mobileDay, pi)"><div x-html="chip(e, pi)"></div></template>
-                <div x-show="!cell(mobileDay, pi).length" class="rounded-lg border border-dashed text-xs text-slate-400 px-2 py-2">free</div>
+                <div x-show="isLunch(mobileDay, pi)" class="rounded-lg border border-amber-200 bg-amber-50 text-xs text-amber-700 px-2 py-2">🍽 Lunch break</div>
+                <div x-show="!cell(mobileDay, pi).length && !isLunch(mobileDay, pi)" class="rounded-lg border border-dashed text-xs text-slate-400 px-2 py-2">free</div>
               </div>
             </div>
           </div>
@@ -162,22 +162,23 @@
         </thead>
         <tbody>
           <template x-for="(p, pi) in meta?.periods">
-            <tr class="border-t align-top" :class="pi === meta.lunch.after + 1 ? 'border-t-[10px] border-t-amber-50' : ''">
+            <tr class="border-t align-top" :class="meta.lunch.window.includes(pi) ? 'bg-amber-50/30' : ''">
               <td class="p-2 text-xs text-slate-500">
                 <div class="font-semibold text-slate-700" x-text="p.label"></div>
                 <div x-text="p.start + '–' + p.end"></div>
-                <div x-show="pi === meta.lunch.after + 1" class="text-amber-600 mt-1">after lunch</div>
+                <div x-show="meta.lunch.window.includes(pi)" class="text-amber-600 mt-1">lunch window</div>
               </td>
               <template x-for="(d, di) in meta?.days">
                 <td class="p-1.5"><div class="space-y-1">
                   <template x-for="e in cell(di, pi)"><div x-html="chip(e, pi)"></div></template>
+                  <div x-show="isLunch(di, pi)" class="rounded-md px-2 py-2 text-xs bg-amber-50 text-amber-700 border border-amber-200">🍽 Lunch break</div>
                 </div></td>
               </template>
             </tr>
           </template>
         </tbody>
       </table>
-      <div class="text-xs text-slate-400 px-3 py-2 border-t">Lunch 12:30–1:30 is protected and never scheduled. Labs are 2-period blocks; G1/G2 are lab batches.</div>
+      <div class="text-xs text-slate-400 px-3 py-2 border-t">Lunch is flexible: every section and teacher gets a free hour somewhere between 11:30 and 2:30, chosen by the solver. Labs are 2-period blocks; G1/G2 are lab batches.</div>
     </div>
   </section>
 
@@ -349,6 +350,12 @@ function app() {
       if (!this.tt.ready) return [];
       return this.tt.entries.filter(e => e.day === d && p >= e.start && p < e.start + e.duration && this.match(e))
         .sort((a, b) => a.section.localeCompare(b.section));
+    },
+    isLunch(d, p) {
+      // the first free period in the lunch window is shown as that section's / teacher's lunch break
+      if (!this.tt.ready || this.viewBy === 'room' || !this.meta.lunch.window.includes(p)) return false;
+      if (!this.tt.entries.some(e => e.day === d && this.match(e))) return false;
+      return this.meta.lunch.window.find(q => !this.cell(d, q).length) === p;
     },
     weeklyHours() {
       const set = new Set();

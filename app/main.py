@@ -14,7 +14,7 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from app.chat import Assistant
-from app.models import DAYS, LUNCH, LUNCH_AFTER, PERIODS, Entry
+from app.models import DAYS, LUNCH_WINDOW, PERIODS, Entry
 from app.seed import build_college
 from app.solver import solve
 from app.validator import metrics, validate
@@ -65,7 +65,7 @@ def meta() -> dict:
     return {
         "days": DAYS,
         "periods": [{"label": p, "start": s, "end": e} for p, s, e in PERIODS],
-        "lunch": {"after": LUNCH_AFTER, "start": LUNCH[0], "end": LUNCH[1]},
+        "lunch": {"window": list(LUNCH_WINDOW), "start": PERIODS[LUNCH_WINDOW[0]][1], "end": PERIODS[LUNCH_WINDOW[-1]][2]},
         "departments": [asdict(d) for d in COLLEGE.departments],
         "sections": [{**asdict(s), "batches": s.batches} for s in COLLEGE.sections],
         "teachers": [asdict(t) for t in COLLEGE.teachers],

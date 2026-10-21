@@ -59,7 +59,7 @@ def _system() -> str:
         "a room, time, teacher or class. If a name is ambiguous, list the matches and ask which one. If the "
         "tools cannot answer, say so. You cannot change the timetable: if asked to, explain that changes go "
         "through the coordinator's editor with a preview and confirmation.\n"
-        f"Week: {', '.join(DAYS)}. Periods: {periods}. Lunch 12:30-13:30 (so 'after lunch' = P5). "
+        f"Week: {', '.join(DAYS)}. Periods: {periods}. Lunch is flexible: each class and teacher gets a free hour somewhere in 11:30-14:30 (P4-P6); 'after lunch' means after that class's own break, so check its schedule. "
         f"Now: {now:%A %H:%M}. Keep answers short and friendly, suitable for a phone screen."
     )
 

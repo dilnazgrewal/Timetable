@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 
-from app.models import DAYS, MAX_BATCH_PER_DAY, PERIODS, College, Entry, run_of
+from app.models import DAYS, LUNCH_WINDOW, MAX_BATCH_PER_DAY, PERIODS, College, Entry, run_of
 
 
 def _slot(d: int, p: int) -> str:
@@ -35,7 +35,7 @@ def validate(college: College, entries: list[Entry]) -> list[str]:
             issues.append(f"{l.id}: duration {e.duration} != required {l.duration}")
         run = run_of(e.start)
         if run is None or e.start + e.duration > run[1]:
-            issues.append(f"{l.id}: block at {_slot(e.day, e.start)} crosses lunch or the end of the day")
+            issues.append(f"{l.id}: block at {_slot(e.day, e.start)} runs past the end of the day")
         if room is None:
             issues.append(f"{l.id}: unknown room {e.room}")
         else:
@@ -63,6 +63,14 @@ def validate(college: College, entries: list[Entry]) -> list[str]:
             if len(ids) > 1:
                 name = college.teacher_by_id[who].name if kind == "Teacher" else who
                 issues.append(f"CLASH {kind} {name} at {_slot(d, p)}: {', '.join(ids)}")
+
+    lunch_label = f"{PERIODS[LUNCH_WINDOW[0]][1]}–{PERIODS[LUNCH_WINDOW[-1]][2]}"
+    for kind, table in (("Teacher", teacher_at), ("Students", batch_at)):
+        days = {(who, d) for (who, d, _p) in table}
+        for who, d in days:
+            if all(table.get((who, d, p)) for p in LUNCH_WINDOW):
+                name = college.teacher_by_id[who].name if kind == "Teacher" else who
+                issues.append(f"NO LUNCH {kind} {name} on {DAYS[d]}: busy all of {lunch_label}")
 
     for (t, d), n in teacher_day.items():
         if n > college.teacher_by_id[t].max_per_day:
@@ -92,7 +100,9 @@ def metrics(college: College, entries: list[Entry]) -> dict:
         if not slots:
             continue
         active_days += 1
-        gap = (max(slots) - min(slots) + 1) - len(slots)
+        free_inside = set(range(min(slots), max(slots) + 1)) - slots
+        # one free period in the lunch window is the lunch break, not idle time
+        gap = len(free_inside) - (1 if free_inside & set(LUNCH_WINDOW) else 0)
         idle += gap
         worst = max(worst, gap)
         lonely += len(slots) == 1
