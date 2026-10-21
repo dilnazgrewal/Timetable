@@ -44,7 +44,7 @@ Other commands:
 ## Demo script (3 min)
 1. **The pain:** a hand-made timetable takes weeks, still clashes, and leaves students waiting 3 hours between lectures.
 2. **Generate:** press **Regenerate whole college**. All 394 sessions are placed in about 40 s (the saved timetable loads instantly, so regenerating is optional).
-3. **Trust:** the green **✔ 0 clashes** badge comes from the independent validator. Idle periods per day drop from **1.2 → 0**, and single-lecture days drop from **5 → 1**, compared with an unoptimised solution.
+3. **Trust:** the green **✔ 0 clashes** badge comes from the independent validator. Idle periods per day drop from **1.2 → 0.07**, and single-lecture days drop from **5 → 3**, compared with an unoptimised solution.
 4. **Section view, CSE 3rd yr A:** compact days, each section's own 🍽 lunch hour somewhere in 11:30–2:30, and labs as 2-hour G1/G2 blocks in the shared computer labs.
 5. **Teacher view:** open *Er. Kavya Malhotra (Visiting)*, who teaches only Tue/Thu. Then open a CSE teacher who also teaches IT, which shows sharing across departments. Then press **🖨 Print / Save PDF** to get a one-page A4 timetable.
 6. **Teacher load tab:** balanced loads, with classroom and lab utilisation.

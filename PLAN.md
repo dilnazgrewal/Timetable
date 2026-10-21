@@ -112,7 +112,7 @@ One web app where the timetable office, department coordinators, teachers and st
 | Flexible lunch: a free hour anywhere in 11:30–14:30, chosen per section and teacher | ✅ |
 | Plain-English pre-checks for impossible inputs | ✅ |
 | Independent validator: "✔ 0 clashes" badge, re-run on every load | ✅ |
-| Quality metrics vs an unoptimised baseline (idle periods 1.2 → 0 per day; single-lecture days 5 → 1) | ✅ |
+| Quality metrics vs an unoptimised baseline (idle periods 1.2 → 0.07 per day; single-lecture days 5 → 3) | ✅ |
 | Grid views by section, teacher or room; phone layout with day tabs | ✅ |
 | Free-room finder with a "Right now" button and "free until" times | ✅ |
 | Teacher-load bars, classroom and lab utilisation % | ✅ |

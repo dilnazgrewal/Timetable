@@ -337,6 +337,9 @@ function app() {
       this.setNow();
       const wd = new Date().getDay();
       this.mobileDay = wd >= 1 && wd <= 5 ? wd - 1 : 0;
+      // deep links: #rooms, #load, #ask open that tab directly (handy for QR codes and screenshots)
+      const h = location.hash.slice(1);
+      if (['rooms', 'load', 'ask'].includes(h)) { this.tab = h; if (h === 'rooms') this.findRooms(); }
     },
     async load() { this.tt = await (await fetch('/api/timetable')).json(); if (!this.tt.ready) this.tt = { ready: false, issues: [], entries: [] }; },
     tabs() {
