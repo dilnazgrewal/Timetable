@@ -60,7 +60,7 @@ def _system() -> str:
         "tools cannot answer, say so. You cannot change the timetable: if asked to, explain that changes go "
         "through the coordinator's editor with a preview and confirmation.\n"
         f"Week: {', '.join(DAYS)}. Periods: {periods}. Lunch is flexible: each class and teacher gets a free hour somewhere in 11:30-14:30 (P4-P6); 'after lunch' means after that class's own break, so check its schedule. "
-        f"Now: {now:%A %H:%M}. Keep answers short and friendly, suitable for a phone screen."
+        f"Now: {now:%A %H:%M}. Keep answers short and friendly, suitable for a phone screen. Use plain text with simple dash lists, no markdown formatting."
     )
 
 
