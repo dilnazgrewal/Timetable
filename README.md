@@ -46,7 +46,7 @@ Other commands:
 2. **Generate:** press **Regenerate whole college**. All 394 sessions are placed in about 20 s.
 3. **Trust:** the green **✔ 0 clashes** badge comes from the independent validator. Idle periods per day drop from **1.47 → 0**, and single-lecture days drop from **5 → 0**, compared with an unoptimised solution.
 4. **Section view, CSE 3rd yr A:** compact days, protected lunch, and labs as 2-hour G1/G2 blocks in the shared computer labs.
-5. **Teacher view:** open *Er. Kavya Malhotra (Visiting)*, who teaches only Tue/Thu. Then open a CSE teacher who also teaches IT, which shows sharing across departments.
+5. **Teacher view:** open *Er. Kavya Malhotra (Visiting)*, who teaches only Tue/Thu. Then open a CSE teacher who also teaches IT, which shows sharing across departments. Then press **🖨 Print / Save PDF** to get a one-page A4 timetable.
 6. **Teacher load tab:** balanced loads, with classroom and lab utilisation.
 7. **Phone width, Student role, Free rooms → "Right now":** empty rooms and how long they stay free.
 8. **Ask TimeWeave:** "When is Harpreet Kaur free on Wednesday?" The answer comes from tools only, and the assistant can't modify anything.
