@@ -2,19 +2,25 @@
 from __future__ import annotations
 
 import json
+import os
 import threading
 from dataclasses import asdict
 from pathlib import Path
 
+import anthropic
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
+from pydantic import BaseModel
 
+from app.chat import Assistant
 from app.models import DAYS, LUNCH, LUNCH_AFTER, PERIODS, Entry
 from app.seed import build_college
 from app.solver import solve
 from app.validator import metrics, validate
 
 ROOT = Path(__file__).resolve().parent.parent
+load_dotenv(ROOT / ".env")
 CACHE = ROOT / "data" / "solution.json"
 STATIC = Path(__file__).resolve().parent / "static"
 
@@ -121,3 +127,27 @@ def free_rooms(day: int, period: int, min_capacity: int = 0, kind: str = "") -> 
         rooms.append({**asdict(r), "free_until": PERIODS[next_use][1] if next_use is not None else "16:30"})
     rooms.sort(key=lambda r: (r["kind"] != "Classroom", r["id"]))
     return {"day": DAYS[day], "period": PERIODS[period][0], "free": rooms, "busy_count": len(busy)}
+
+
+ASSISTANT = Assistant(COLLEGE, lambda: STATE.get("entries") or [])
+
+
+class ChatRequest(BaseModel):
+    messages: list[dict]
+
+
+@app.post("/api/chat")
+def chat(req: ChatRequest) -> dict:
+    if not (os.getenv("ANTHROPIC_API_KEY") or os.getenv("ANTHROPIC_AUTH_TOKEN")):
+        return {"answer": "The assistant isn't configured: add ANTHROPIC_API_KEY to the .env file.", "tools_used": []}
+    try:
+        return ASSISTANT.ask(req.messages)
+    except anthropic.AuthenticationError:
+        return {"answer": "The assistant isn't configured: add ANTHROPIC_API_KEY to the .env file.", "tools_used": []}
+    except anthropic.APIConnectionError:
+        return {"answer": "I can't reach the AI service right now. The timetable and room finder still work.",
+                "tools_used": []}
+    except anthropic.APIStatusError as e:
+        return {"answer": f"The AI service returned an error ({e.status_code}). Please try again.", "tools_used": []}
+    except anthropic.AnthropicError:  # e.g. no credentials configured at all
+        return {"answer": "The assistant isn't configured: add ANTHROPIC_API_KEY to the .env file.", "tools_used": []}

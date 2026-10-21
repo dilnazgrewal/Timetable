@@ -244,6 +244,36 @@
     </div>
   </section>
 
+  <!-- assistant tab -->
+  <section x-show="tab === 'ask'">
+    <div class="rounded-xl border bg-white p-4 flex flex-col" style="min-height: 26rem">
+      <div class="mb-3">
+        <h2 class="font-semibold">Ask about the timetable</h2>
+        <p class="text-xs text-slate-500">Answers come only from the live timetable through read-only tools. The assistant can't change anything.</p>
+      </div>
+      <div class="flex-1 space-y-3 overflow-y-auto max-h-[28rem] pr-1">
+        <div x-show="!chat.msgs.length" class="flex flex-wrap gap-2">
+          <template x-for="s in suggestions"><button @click="send(s)" class="text-sm px-3 py-1.5 rounded-full border hover:bg-indigo-50 hover:border-indigo-300" x-text="s"></button></template>
+        </div>
+        <template x-for="(m, i) in chat.msgs" :key="i">
+          <div :class="m.role === 'user' ? 'flex justify-end' : 'flex justify-start'">
+            <div class="max-w-[85%] rounded-2xl px-3 py-2 text-sm whitespace-pre-wrap"
+                 :class="m.role === 'user' ? 'bg-indigo-600 text-white' : 'bg-slate-100'">
+              <div x-text="m.content"></div>
+              <div x-show="m.tools && m.tools.length" class="mt-1 text-[10px] text-slate-500" x-text="'checked: ' + [...new Set(m.tools)].join(', ')"></div>
+            </div>
+          </div>
+        </template>
+        <div x-show="chat.busy" class="text-sm text-slate-400">Checking the timetable…</div>
+        <div x-ref="chatEnd"></div>
+      </div>
+      <form @submit.prevent="send()" class="mt-3 flex gap-2">
+        <input x-model="chat.input" placeholder="e.g. Is Lab CL-2 free after lunch?" class="flex-1 border rounded-lg px-3 py-2 text-sm">
+        <button :disabled="chat.busy" class="px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-semibold disabled:opacity-60">Ask</button>
+      </form>
+    </div>
+  </section>
+
   <section x-show="tt.ready && tt.issues.length" class="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">
     <template x-for="i in tt.issues.slice(0, 20)"><div x-text="i"></div></template>
   </section>
@@ -255,6 +285,22 @@ function app() {
     meta: null, tt: { ready: false, issues: [], entries: [] }, role: 'admin', tab: 'timetable',
     viewBy: 'section', dept: 'CSE', entity: 'CSE-3A', generating: false, elapsed: 0, problems: [],
     mobileDay: 0, fr: { day: 0, period: 0, kind: '', res: null },
+    chat: { msgs: [], input: '', busy: false },
+    suggestions: ['Is CL-2 free after lunch on Friday?', 'When is Harpreet Kaur free on Wednesday?',
+                  'What does CSE-3A have on Monday?', 'Find me an empty classroom right now'],
+    async send(text) {
+      const q = (text ?? this.chat.input).trim();
+      if (!q || this.chat.busy) return;
+      this.chat.msgs.push({ role: 'user', content: q }); this.chat.input = ''; this.chat.busy = true;
+      this.$nextTick(() => this.$refs.chatEnd?.scrollIntoView({ behavior: 'smooth' }));
+      try {
+        const r = await (await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messages: this.chat.msgs.map(m => ({ role: m.role, content: m.content })) }) })).json();
+        this.chat.msgs.push({ role: 'assistant', content: r.answer || r.detail || 'Something went wrong.', tools: r.tools_used || [] });
+      } catch (err) { this.chat.msgs.push({ role: 'assistant', content: 'Could not reach the server.', tools: [] }); }
+      this.chat.busy = false;
+      this.$nextTick(() => this.$refs.chatEnd?.scrollIntoView({ behavior: 'smooth' }));
+    },
 
     async init() {
       this.meta = await (await fetch('/api/meta')).json();
@@ -268,6 +314,7 @@ function app() {
       const t = [{ id: 'timetable', label: this.role === 'student' ? 'My timetable' : this.role === 'teacher' ? 'My schedule' : 'Timetable' },
                  { id: 'rooms', label: 'Free rooms' }];
       if (this.role === 'admin' || this.role === 'coordinator') t.push({ id: 'load', label: 'Teacher load' });
+      t.push({ id: 'ask', label: 'Ask TimeWeave ✨' });
       return t;
     },
     applyRole() {
