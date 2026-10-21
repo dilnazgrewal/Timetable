@@ -2,137 +2,83 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>TimeWeave: Day 1 Progress (one page)</title>
+<title>TimeWeave: Day 1 Progress</title>
 <style>
-  @page { size: A4; margin: 9mm 10mm; }
+  @page { size: A4; margin: 14mm 15mm; }
   * { box-sizing: border-box; }
-  body { font-family: "Segoe UI", system-ui, sans-serif; color: #1e293b; font-size: 8.6pt; line-height: 1.32; margin: 0;
+  body { font-family: "Segoe UI", system-ui, sans-serif; color: #1e293b; font-size: 10.5pt; line-height: 1.45; margin: 0;
          -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  h2 { font-size: 10.5pt; color: #312e81; margin: 0 0 4px; border-bottom: 1.5px solid #c7d2fe; padding-bottom: 2px; }
-  ul { margin: 0 0 0 14px; padding: 0; } li { margin: 1px 0; }
-  .head { display: flex; align-items: center; gap: 10px; }
-  .logo { width: 34px; height: 34px; border-radius: 9px; background: #4f46e5; color: #fff; font-weight: 800; font-size: 13pt;
+  h2 { font-size: 12pt; color: #312e81; margin: 0 0 6px; }
+  ul { margin: 0; padding-left: 16px; } li { margin: 3px 0; }
+  .head { display: flex; align-items: center; gap: 12px; }
+  .logo { width: 40px; height: 40px; border-radius: 10px; background: #4f46e5; color: #fff; font-weight: 800; font-size: 15pt;
           display: flex; align-items: center; justify-content: center; }
-  .title { font-size: 17pt; font-weight: 800; line-height: 1; }
-  .sub { color: #64748b; font-size: 8.8pt; }
-  .meta { margin-left: auto; text-align: right; font-size: 8.4pt; color: #475569; }
-  .intro { margin: 6px 0; }
-  .stats { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; margin: 6px 0 8px; }
-  .stat { border: 1px solid #e2e8f0; border-radius: 7px; padding: 4px 6px; background: #f8fafc; }
-  .stat .n { font-size: 11.5pt; font-weight: 800; color: #1e1b4b; white-space: nowrap; }
-  .stat .l { font-size: 7.2pt; color: #64748b; line-height: 1.2; }
+  .title { font-size: 20pt; font-weight: 800; line-height: 1.1; }
+  .meta { margin-left: auto; text-align: right; font-size: 9.5pt; color: #64748b; }
+  .lead { margin: 14px 0; font-size: 11pt; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 18px; }
+  .stat { border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px 10px; }
+  .stat .n { font-size: 16pt; font-weight: 800; color: #1e1b4b; }
+  .stat .l { font-size: 8.5pt; color: #64748b; }
   .ok { background: #ecfdf5; border-color: #a7f3d0; } .ok .n { color: #047857; }
-  .cols { display: grid; grid-template-columns: 1.15fr 1fr; gap: 10px; }
-  .card { border: 1px solid #e2e8f0; border-radius: 8px; padding: 6px 8px; margin-bottom: 7px; }
-  .feat li { list-style: none; margin-left: -14px; }
-  .feat li b { color: #0f172a; }
-  .tick { color: #047857; font-weight: 700; }
-  .half { color: #b45309; font-weight: 700; }
-  .flow { display: flex; flex-direction: column; gap: 2px; }
-  .f { display: grid; grid-template-columns: 78px 1fr; border-radius: 5px; overflow: hidden; border: 1px solid #c7d2fe; }
-  .f .k { background: #4f46e5; color: #fff; font-weight: 700; padding: 2px 5px; font-size: 7.6pt; }
-  .f .v { padding: 2px 5px; font-size: 7.6pt; }
-  .f.g { border-color: #a7f3d0; } .f.g .k { background: #059669; }
-  .f.d .k { background: #0f172a; }
-  .shot { width: 100%; border: 1px solid #cbd5e1; border-radius: 6px; display: block; }
-  .cap { font-size: 7.2pt; color: #64748b; margin-top: 2px; }
-  table { border-collapse: collapse; width: 100%; font-size: 7.8pt; }
-  td { border-top: 1px solid #e2e8f0; padding: 2px 4px; vertical-align: top; }
-  .foot { margin-top: 4px; font-size: 7.6pt; color: #64748b; display: flex; justify-content: space-between; }
-  code { font-family: Consolas, monospace; font-size: 7.6pt; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-bottom: 16px; }
+  .flow { font-size: 10pt; }
+  .flow div { padding: 4px 10px; border-left: 3px solid #6366f1; margin-bottom: 4px; background: #f8fafc; }
+  .flow .g { border-color: #059669; background: #ecfdf5; }
+  .shot { width: 100%; height: 92mm; object-fit: cover; object-position: top; border: 1px solid #cbd5e1; border-radius: 8px; display: block; }
+  .cap { font-size: 8.5pt; color: #64748b; margin: 3px 0 16px; }
+  .next li { margin: 2px 0; }
 </style>
 </head>
 <body>
   <div class="head">
     <div class="logo">TW</div>
-    <div>
-      <div class="title">TimeWeave: Day 1 Progress</div>
-      <div class="sub">Clash-free college timetables, generated in seconds</div>
-    </div>
-    <div class="meta"><b>Dilnaz Grewal</b><br>Hackathon Day 1 · Wed 21 Oct 2026<br>github.com/dilnazgrewal/Timetable</div>
+    <div class="title">TimeWeave<br><span style="font-size:11pt; font-weight:500; color:#64748b">Day 1 progress report</span></div>
+    <div class="meta"><b style="color:#1e293b">Dilnaz Grewal</b><br>21 Oct 2026</div>
   </div>
 
-  <p class="intro"><b>Problem:</b> college timetables are built by hand over weeks. They still clash, leave students waiting hours between lectures, and break whenever one class moves.
-  <b>Built today:</b> a working prototype. It generates the whole college's timetable with Google OR-Tools <b>CP-SAT</b>, proves it clash-free with an <b>independent validator</b>, and shows it on desktop and phone, with a free-room finder, dashboards, an AI assistant and PDF printouts.</p>
+  <p class="lead">A working prototype that <b>generates a clash-free timetable for the whole college</b> in seconds and keeps students' days compact.</p>
 
   <div class="stats">
-    <div class="stat ok"><div class="n">✔ 0</div><div class="l">clashes (independent validator)</div></div>
-    <div class="stat"><div class="n">394/394</div><div class="l">sessions placed · 20 sections, 39 teachers, 38 rooms</div></div>
+    <div class="stat ok"><div class="n">✔ 0</div><div class="l">clashes, independently verified</div></div>
+    <div class="stat"><div class="n">394</div><div class="l">weekly classes scheduled (20 sections)</div></div>
     <div class="stat"><div class="n">~33 s</div><div class="l">to generate the whole college</div></div>
-    <div class="stat"><div class="n">1.2→0.07</div><div class="l">student idle periods/day (unoptimised → optimised)</div></div>
-    <div class="stat"><div class="n">5→3</div><div class="l">days with a single lecture</div></div>
-    <div class="stat ok"><div class="n">12/12</div><div class="l">automated tests passing</div></div>
+    <div class="stat"><div class="n">1.2 → 0.07</div><div class="l">idle periods per student per day</div></div>
   </div>
 
   <div class="cols">
-    <!-- LEFT -->
     <div>
-      <div class="card">
-        <h2>Features completed today (v0.1)</h2>
-        <ul class="feat">
-          <li><span class="tick">✅</span> <b>Realistic college data:</b> CSE, IT, ECE, ME, CE and Applied Sciences; G1/G2 lab batches; shared computer labs; teachers shared across departments; a visiting teacher available Tue/Thu only.</li>
-          <li><span class="tick">✅</span> <b>One-click whole-college generation</b> (CP-SAT) with hard rules that are never broken: no teacher, student or room double-booking; availability; labs as 2-hour blocks in the right lab; daily limits.</li>
-          <li><span class="tick">✅</span> <b>Flexible lunch:</b> every section and teacher gets a free hour somewhere in 11:30–2:30, chosen by the solver.</li>
-          <li><span class="tick">✅</span> <b>Student-friendly days:</b> the solver minimises idle gaps, single-lecture days, teacher gaps and long streaks.</li>
-          <li><span class="tick">✅</span> <b>Pre-checks</b> explain impossible inputs in plain English before solving.</li>
-          <li><span class="tick">✅</span> <b>Independent validator</b> re-checks every timetable and shows "✔ 0 clashes".</li>
-          <li><span class="tick">✅</span> <b>Timetable grids</b> by section, teacher or room, with a one-day-at-a-time view on phones.</li>
-          <li><span class="tick">✅</span> <b>Free-room finder</b> with a "Right now" button and how long each room stays free.</li>
-          <li><span class="tick">✅</span> <b>Dashboards:</b> teaching load per teacher; classroom and lab utilisation.</li>
-          <li><span class="tick">✅</span> <b>AI assistant "Ask TimeWeave"</b> (Claude): answers from live data with 4 read-only tools and cannot change anything. Tested with the live API.</li>
-          <li><span class="tick">✅</span> <b>Print / Save as PDF:</b> one A4 page per section, teacher or room.</li>
-          <li><span class="half">🟡</span> <b>Roles</b> (office, coordinator, teacher, student) as a demo switcher; real login is planned for Day 3.</li>
-          <li><span class="tick">✅</span> <b>Docs and history:</b> CLAUDE.md, PLAN.md, DESIGN.md, README; 13 git commits.</li>
-        </ul>
-      </div>
-      <img class="shot" src="img/timetable.png" alt="Generated timetable for CSE 3rd year A">
-      <div class="cap">The generated timetable for CSE 3rd yr A: validator badge, metrics, labs for G1/G2, and each day's 🍽 lunch break.</div>
+      <h2>Built today</h2>
+      <ul>
+        <li>One-click timetable generation (Google OR-Tools)</li>
+        <li>Independent clash checker</li>
+        <li>Flexible lunch hour between 11:30 and 2:30</li>
+        <li>Views by section, teacher or room, on desktop and phone</li>
+        <li>Free-room finder</li>
+        <li>Teacher-load dashboard</li>
+        <li>AI assistant for timetable questions</li>
+        <li>Print / Save as PDF</li>
+      </ul>
     </div>
-
-    <!-- RIGHT -->
     <div>
-      <div class="card">
-        <h2>Architecture</h2>
-        <div class="flow">
-          <div class="f"><div class="k">Input</div><div class="v">Seed data now → Excel/CSV upload (Day 2)</div></div>
-          <div class="f"><div class="k">Pre-checks</div><div class="v">"Prof. X has 32 h but is free only 28 h"</div></div>
-          <div class="f"><div class="k">CP-SAT solver</div><div class="v">Hard rules + minimise gaps, single-lecture days and long streaks</div></div>
-          <div class="f g"><div class="k">Validator</div><div class="v">Separate code re-checks everything → "✔ 0 clashes"</div></div>
-          <div class="f"><div class="k">Saved timetable</div><div class="v">Weekly base (+ daily overrides from Day 3)</div></div>
-          <div class="f d"><div class="k">Outputs</div><div class="v">Grids · free rooms · dashboards · AI assistant · PDF</div></div>
-        </div>
-        <p style="margin:5px 0 0"><b>Stack:</b> Python, FastAPI, Google OR-Tools CP-SAT, Tailwind + Alpine.js (one page, phone-first), Claude API, pytest, git.</p>
-      </div>
-
-      <div class="card">
-        <h2>Testing: proof of no clashes (12/12 pass)</h2>
-        <ul>
-          <li>The generated timetable validates clean, and every session is placed exactly once.</li>
-          <li>Deliberately injected errors are all caught: student clash, room clash, wrong room type, unavailable teacher, missing lunch, lab running past the end of the day, missing session, unknown data.</li>
-          <li>An overloaded teacher is explained by the pre-check, and everyone gets a lunch hour.</li>
-          <li>Manual checks: the PDF fits one page, the free-room finder matches the grids, and the AI assistant's answer matches the grid.</li>
-        </ul>
-      </div>
-
-      <div class="card">
-        <h2>Next steps to submission</h2>
-        <table>
-          <tr><td style="width:23%"><b>Day 2</b><br>real data</td><td>Excel/CSV upload with row-level errors · check an existing hand-made timetable · drag-and-drop editor with live clash warnings · versions, rollback and audit log · Excel export</td></tr>
-          <tr><td><b>Day 3</b><br>daily operations</td><td>Teacher leave → ranked substitutes → coordinator confirms · student "Today" view · free rooms that account for bookings · Google login with roles · calendar feed</td></tr>
-          <tr><td><b>Day 4</b><br>submission</td><td>Minimal-change repair with a preview · chatbot proposes, a person confirms · "why no timetable" explanations · room QR pages · deploy</td></tr>
-        </table>
-      </div>
-
-      <div class="card" style="margin-bottom:0">
-        <h2>Deliberate Day 1 shortcuts</h2>
-        <ul>
-          <li>Data lives in memory plus a JSON file; a database comes on Day 2.</li>
-          <li>Roles are a demo switcher; real login comes on Day 3.</li>
-        </ul>
+      <h2>How it works</h2>
+      <div class="flow">
+        <div>College data</div>
+        <div>Solver: applies the rules and minimises gaps</div>
+        <div class="g">Validator: confirms 0 clashes</div>
+        <div>Timetable views · free rooms · AI assistant · PDF</div>
       </div>
     </div>
   </div>
 
-  <div class="foot"><span>Run: <code>pip install -r requirements.txt</code> → <code>uvicorn app.main:app --port 8000</code> → open <code>localhost:8000</code></span><span>Full plan: PLAN.md</span></div>
+  <img class="shot" src="img/timetable.png" alt="Generated timetable">
+  <div class="cap">The generated timetable for CSE 3rd year A</div>
+
+  <h2>Next</h2>
+  <ul class="next">
+    <li><b>Day 2:</b> Excel upload and a manual editor with clash warnings</li>
+    <li><b>Day 3:</b> substitutes for absent teachers, and login</li>
+    <li><b>Day 4:</b> safe edits with a preview, and deployment</li>
+  </ul>
 </body>
 </html>
