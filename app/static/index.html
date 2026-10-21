@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TimeWeave</title>
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+<style>
+  [x-cloak] { display: none !important; }
+  body { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .chip { border-left-width: 4px; }
+  .spin { animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+<div x-data="app()" x-init="init()" x-cloak class="max-w-7xl mx-auto px-4 pb-16">
+
+  <!-- header -->
+  <header class="flex flex-wrap items-center justify-between gap-3 py-4">
+    <div class="flex items-center gap-3">
+      <div class="h-10 w-10 rounded-xl bg-indigo-600 text-white grid place-items-center font-bold text-lg">TW</div>
+      <div>
+        <h1 class="text-xl font-bold leading-tight">TimeWeave</h1>
+        <p class="text-xs text-slate-500">Clash-free college timetables, generated in seconds</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 text-sm">
+      <span class="hidden sm:inline text-xs px-2 py-1 rounded bg-amber-100 text-amber-800">demo mode</span>
+      <label class="text-slate-500">Role</label>
+      <select x-model="role" @change="applyRole()" class="border rounded-lg px-2 py-1.5 bg-white">
+        <option value="admin">Timetable office</option>
+        <option value="coordinator">Dept coordinator</option>
+        <option value="teacher">Teacher</option>
+        <option value="student">Student</option>
+      </select>
+    </div>
+  </header>
+
+  <!-- status / metrics -->
+  <section class="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-4">
+    <div class="rounded-xl p-3 border col-span-2 lg:col-span-1"
+         :class="!tt.ready ? 'bg-white' : (tt.issues.length ? 'bg-red-50 border-red-200' : 'bg-emerald-50 border-emerald-200')">
+      <div class="text-xs text-slate-500">Independent validator</div>
+      <template x-if="tt.ready">
+        <div>
+          <div class="text-lg font-bold" :class="tt.issues.length ? 'text-red-700' : 'text-emerald-700'"
+               x-text="tt.issues.length ? '✖ ' + tt.issues.length + ' issues' : '✔ 0 clashes'"></div>
+          <div class="text-xs text-slate-500">teachers · students · rooms · labs · lunch</div>
+        </div>
+      </template>
+      <div x-show="!tt.ready" class="text-lg font-bold text-slate-400">not generated</div>
+    </div>
+    <div class="rounded-xl p-3 border bg-white">
+      <div class="text-xs text-slate-500">Scheduled</div>
+      <div class="text-lg font-bold"><span x-text="tt.ready ? tt.entries.length : 0"></span><span class="text-slate-400 text-sm"> / <span x-text="meta?.counts.sessions"></span> sessions</span></div>
+      <div class="text-xs text-slate-500"><span x-text="meta?.counts.sections"></span> sections · <span x-text="meta?.counts.teachers"></span> teachers · <span x-text="meta?.counts.rooms"></span> rooms</div>
+    </div>
+    <div class="rounded-xl p-3 border bg-white">
+      <div class="text-xs text-slate-500">Student idle periods / day</div>
+      <div class="text-lg font-bold" x-text="tt.ready ? tt.metrics.idle_per_day : '–'"></div>
+      <div class="text-xs text-slate-500" x-show="tt.baseline">without optimising: <b class="text-red-600" x-text="tt.baseline?.idle_per_day"></b></div>
+    </div>
+    <div class="rounded-xl p-3 border bg-white">
+      <div class="text-xs text-slate-500">Days with a single lecture</div>
+      <div class="text-lg font-bold" x-text="tt.ready ? tt.metrics.lonely_days : '–'"></div>
+      <div class="text-xs text-slate-500" x-show="tt.baseline">without optimising: <b class="text-red-600" x-text="tt.baseline?.lonely_days"></b></div>
+    </div>
+    <div class="rounded-xl p-3 border bg-white">
+      <div class="text-xs text-slate-500">Solver</div>
+      <div class="text-lg font-bold" x-text="tt.ready ? tt.status : '–'"></div>
+      <div class="text-xs text-slate-500" x-show="tt.ready">OR-Tools CP-SAT · <span x-text="tt.seconds"></span> s</div>
+    </div>
+  </section>
+
+  <!-- generate -->
+  <div x-show="role === 'admin' || role === 'coordinator'" class="flex flex-wrap items-center gap-3 mb-4">
+    <button @click="generate()" :disabled="generating"
+            class="px-4 py-2 rounded-lg bg-indigo-600 text-white font-semibold hover:bg-indigo-700 disabled:opacity-60 flex items-center gap-2">
+      <svg x-show="generating" class="spin h-4 w-4" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="40 60"/></svg>
+      <span x-text="generating ? 'Generating… ' + elapsed + ' s' : (tt.ready ? 'Regenerate whole college' : 'Generate whole college')"></span>
+    </button>
+    <span class="text-sm text-slate-500" x-show="generating">Placing every lecture and lab for all departments, then checking for clashes…</span>
+    <template x-for="p in problems"><div class="w-full text-sm bg-red-50 border border-red-200 text-red-800 rounded-lg px-3 py-2" x-text="p"></div></template>
+  </div>
+
+  <!-- tabs -->
+  <nav class="flex gap-1 border-b mb-4 overflow-x-auto">
+    <template x-for="t in tabs()" :key="t.id">
+      <button @click="tab = t.id; if (t.id === 'rooms') findRooms()" class="px-3 py-2 text-sm font-medium -mb-px border-b-2 whitespace-nowrap"
+              :class="tab === t.id ? 'border-indigo-600 text-indigo-700' : 'border-transparent text-slate-500 hover:text-slate-700'"
+              x-text="t.label"></button>
+    </template>
+  </nav>
+
+  <!-- timetable tab -->
+  <section x-show="tab === 'timetable'">
+    <div class="flex flex-wrap items-end gap-3 mb-3">
+      <div x-show="role === 'admin' || role === 'coordinator'">
+        <label class="block text-xs text-slate-500 mb-1">View by</label>
+        <div class="flex rounded-lg border bg-white overflow-hidden text-sm">
+          <template x-for="v in ['section','teacher','room']">
+            <button @click="viewBy = v; pickFirst()" class="px-3 py-1.5 capitalize"
+                    :class="viewBy === v ? 'bg-indigo-600 text-white' : 'hover:bg-slate-50'" x-text="v"></button>
+          </template>
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs text-slate-500 mb-1">Department</label>
+        <select x-model="dept" @change="pickFirst()" class="border rounded-lg px-2 py-1.5 bg-white text-sm">
+          <template x-for="d in deptOptions()"><option :value="d.code" x-text="d.code + ' – ' + d.name"></option></template>
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs text-slate-500 mb-1" x-text="viewBy === 'section' ? 'Section' : viewBy === 'teacher' ? 'Teacher' : 'Room'"></label>
+        <select x-model="entity" class="border rounded-lg px-2 py-1.5 bg-white text-sm max-w-[16rem]">
+          <template x-for="o in options()" :key="o.id"><option :value="o.id" x-text="o.label" :selected="o.id === entity"></option></template>
+        </select>
+      </div>
+      <div class="text-sm text-slate-500 ml-auto" x-show="tt.ready">
+        <span x-text="weeklyHours()"></span> periods / week
+      </div>
+    </div>
+
+    <div x-show="!tt.ready" class="rounded-xl border bg-white p-8 text-center text-slate-500">
+      No timetable yet. Switch to <b>Timetable office</b> and press <b>Generate</b>.
+    </div>
+
+    <!-- mobile: one day at a time -->
+    <div x-show="tt.ready" class="sm:hidden">
+      <div class="flex gap-1 mb-3">
+        <template x-for="(d, i) in meta?.days">
+          <button @click="mobileDay = i" class="flex-1 py-1.5 rounded-lg text-sm"
+                  :class="mobileDay === i ? 'bg-indigo-600 text-white' : 'bg-white border'" x-text="d"></button>
+        </template>
+      </div>
+      <div class="space-y-2">
+        <template x-for="(p, pi) in meta?.periods">
+          <div>
+            <div x-show="pi === meta.lunch.after + 1" class="text-center text-xs text-slate-400 py-1">— Lunch 12:30–1:30 —</div>
+            <div class="flex gap-2 items-stretch">
+              <div class="w-14 shrink-0 text-xs text-slate-500 pt-2"><div class="font-semibold" x-text="p.label"></div><div x-text="p.start"></div></div>
+              <div class="flex-1 space-y-1">
+                <template x-for="e in cell(mobileDay, pi)"><div x-html="chip(e, pi)"></div></template>
+                <div x-show="!cell(mobileDay, pi).length" class="rounded-lg border border-dashed text-xs text-slate-400 px-2 py-2">free</div>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <!-- desktop grid -->
+    <div x-show="tt.ready" class="hidden sm:block overflow-x-auto rounded-xl border bg-white">
+      <table class="w-full text-sm table-fixed min-w-[760px]">
+        <thead class="bg-slate-50">
+          <tr>
+            <th class="w-20 p-2 text-left text-xs text-slate-500 font-medium">Period</th>
+            <template x-for="d in meta?.days"><th class="p-2 text-left font-semibold" x-text="d"></th></template>
+          </tr>
+        </thead>
+        <tbody>
+          <template x-for="(p, pi) in meta?.periods">
+            <tr class="border-t align-top" :class="pi === meta.lunch.after + 1 ? 'border-t-[10px] border-t-amber-50' : ''">
+              <td class="p-2 text-xs text-slate-500">
+                <div class="font-semibold text-slate-700" x-text="p.label"></div>
+                <div x-text="p.start + '–' + p.end"></div>
+                <div x-show="pi === meta.lunch.after + 1" class="text-amber-600 mt-1">after lunch</div>
+              </td>
+              <template x-for="(d, di) in meta?.days">
+                <td class="p-1.5"><div class="space-y-1">
+                  <template x-for="e in cell(di, pi)"><div x-html="chip(e, pi)"></div></template>
+                </div></td>
+              </template>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+      <div class="text-xs text-slate-400 px-3 py-2 border-t">Lunch 12:30–1:30 is protected and never scheduled. Labs are 2-period blocks; G1/G2 are lab batches.</div>
+    </div>
+  </section>
+
+  <!-- free rooms tab -->
+  <section x-show="tab === 'rooms'">
+    <div class="rounded-xl border bg-white p-4 mb-3">
+      <h2 class="font-semibold mb-1">Find an empty room</h2>
+      <p class="text-sm text-slate-500 mb-3">Need a quiet place in a free period? Rooms with no class scheduled, and how long they stay free.</p>
+      <div class="flex flex-wrap gap-3 items-end">
+        <div><label class="block text-xs text-slate-500 mb-1">Day</label>
+          <select x-model.number="fr.day" @change="findRooms()" class="border rounded-lg px-2 py-1.5 bg-white text-sm">
+            <template x-for="(d, i) in meta?.days"><option :value="i" x-text="d" :selected="i === fr.day"></option></template>
+          </select></div>
+        <div><label class="block text-xs text-slate-500 mb-1">Period</label>
+          <select x-model.number="fr.period" @change="findRooms()" class="border rounded-lg px-2 py-1.5 bg-white text-sm">
+            <template x-for="(p, i) in meta?.periods"><option :value="i" x-text="p.label + ' · ' + p.start" :selected="i === fr.period"></option></template>
+          </select></div>
+        <div><label class="block text-xs text-slate-500 mb-1">Type</label>
+          <select x-model="fr.kind" @change="findRooms()" class="border rounded-lg px-2 py-1.5 bg-white text-sm">
+            <option value="">Any</option><option>Classroom</option><option>Lecture Theatre</option>
+            <option>Computer Lab</option><option>Seminar Hall</option><option>Study Area</option>
+          </select></div>
+        <button @click="setNow(); findRooms()" class="px-3 py-1.5 rounded-lg border text-sm hover:bg-slate-50">Right now</button>
+      </div>
+    </div>
+    <div x-show="fr.res" class="text-sm text-slate-500 mb-2">
+      <b class="text-emerald-700" x-text="fr.res?.free.length"></b> rooms free on <span x-text="fr.res?.day"></span> <span x-text="fr.res?.period"></span>
+      · <span x-text="fr.res?.busy_count"></span> in use
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+      <template x-for="r in fr.res?.free || []" :key="r.id">
+        <div class="rounded-xl border bg-white p-3">
+          <div class="flex justify-between items-start">
+            <div class="font-semibold" x-text="r.id"></div>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800" x-text="'free till ' + r.free_until"></span>
+          </div>
+          <div class="text-xs text-slate-500" x-text="r.kind + ' · seats ' + r.capacity + (r.dept ? ' · ' + r.dept : ' · central')"></div>
+        </div>
+      </template>
+    </div>
+  </section>
+
+  <!-- load tab -->
+  <section x-show="tab === 'load'">
+    <div class="rounded-xl border bg-white p-4">
+      <div class="flex flex-wrap justify-between gap-2 mb-3">
+        <h2 class="font-semibold">Teaching load per teacher (periods / week)</h2>
+        <div class="text-sm text-slate-500" x-show="tt.ready">
+          classrooms used <b x-text="tt.metrics?.util_classrooms + '%'"></b> · labs used <b x-text="tt.metrics?.util_labs + '%'"></b>
+        </div>
+      </div>
+      <div class="space-y-1">
+        <template x-for="t in (tt.metrics?.teacher_load || [])" :key="t.id">
+          <div class="flex items-center gap-2 text-sm cursor-pointer hover:bg-slate-50 rounded" @click="openTeacher(t)">
+            <div class="w-60 truncate" x-text="t.name"></div>
+            <div class="w-10 text-xs text-slate-500" x-text="t.dept"></div>
+            <div class="flex-1 bg-slate-100 rounded h-3 overflow-hidden">
+              <div class="h-3 rounded" :class="t.hours > 15 ? 'bg-amber-500' : 'bg-indigo-500'" :style="'width:' + (t.hours / 20 * 100) + '%'"></div>
+            </div>
+            <div class="w-8 text-right font-semibold" x-text="t.hours"></div>
+          </div>
+        </template>
+      </div>
+    </div>
+  </section>
+
+  <section x-show="tt.ready && tt.issues.length" class="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+    <template x-for="i in tt.issues.slice(0, 20)"><div x-text="i"></div></template>
+  </section>
+</div>
+
+<script>
+function app() {
+  return {
+    meta: null, tt: { ready: false, issues: [], entries: [] }, role: 'admin', tab: 'timetable',
+    viewBy: 'section', dept: 'CSE', entity: 'CSE-3A', generating: false, elapsed: 0, problems: [],
+    mobileDay: 0, fr: { day: 0, period: 0, kind: '', res: null },
+
+    async init() {
+      this.meta = await (await fetch('/api/meta')).json();
+      await this.load();
+      this.setNow();
+      const wd = new Date().getDay();
+      this.mobileDay = wd >= 1 && wd <= 5 ? wd - 1 : 0;
+    },
+    async load() { this.tt = await (await fetch('/api/timetable')).json(); if (!this.tt.ready) this.tt = { ready: false, issues: [], entries: [] }; },
+    tabs() {
+      const t = [{ id: 'timetable', label: this.role === 'student' ? 'My timetable' : this.role === 'teacher' ? 'My schedule' : 'Timetable' },
+                 { id: 'rooms', label: 'Free rooms' }];
+      if (this.role === 'admin' || this.role === 'coordinator') t.push({ id: 'load', label: 'Teacher load' });
+      return t;
+    },
+    applyRole() {
+      if (this.role === 'student') { this.viewBy = 'section'; }
+      if (this.role === 'teacher') { this.viewBy = 'teacher'; }
+      if (!this.tabs().some(t => t.id === this.tab)) this.tab = 'timetable';
+      this.pickFirst();
+    },
+    deptOptions() {
+      if (!this.meta) return [];
+      if (this.viewBy === 'section') return this.meta.departments.filter(d => d.code !== 'AS');
+      if (this.viewBy === 'room') return [...this.meta.departments.filter(d => d.code !== 'AS'), { code: 'CENTRAL', name: 'Shared / central' }];
+      return this.meta.departments;
+    },
+    options() {
+      if (!this.meta) return [];
+      if (this.viewBy === 'section') return this.meta.sections.filter(s => s.dept === this.dept).map(s => ({ id: s.id, label: s.name }));
+      if (this.viewBy === 'teacher') return this.meta.teachers.filter(t => t.dept === this.dept).map(t => ({ id: t.id, label: t.name }));
+      return this.meta.rooms.filter(r => (this.dept === 'CENTRAL' ? !r.dept : r.dept === this.dept)).map(r => ({ id: r.id, label: r.id + ' (' + r.kind + ')' }));
+    },
+    pickFirst() {
+      if (!this.deptOptions().some(d => d.code === this.dept)) this.dept = this.deptOptions()[0].code;
+      const o = this.options(); this.entity = o.length ? o[0].id : '';
+    },
+    openTeacher(t) { this.viewBy = 'teacher'; this.dept = t.dept; this.entity = t.id; this.tab = 'timetable'; },
+    match(e) {
+      if (this.viewBy === 'section') return e.section_id === this.entity;
+      if (this.viewBy === 'teacher') return e.teacher === this.entity;
+      return e.room === this.entity;
+    },
+    cell(d, p) {
+      if (!this.tt.ready) return [];
+      return this.tt.entries.filter(e => e.day === d && p >= e.start && p < e.start + e.duration && this.match(e))
+        .sort((a, b) => a.section.localeCompare(b.section));
+    },
+    weeklyHours() {
+      const set = new Set();
+      this.tt.entries.filter(e => this.match(e)).forEach(e => { for (let p = e.start; p < e.start + e.duration; p++) set.add(e.day + ':' + p); });
+      return set.size;
+    },
+    hue(code) { let h = 0; for (const c of code) h = (h * 31 + c.charCodeAt(0)) % 360; return h; },
+    chip(e, p) {
+      const h = this.hue(e.code + e.dept);
+      const lab = e.kind === 'lab';
+      const part = lab ? `<span class="text-[10px] text-slate-500">${p === e.start ? 'lab · 1/2' : 'lab · 2/2'}</span>` : '';
+      let sub;
+      if (this.viewBy === 'section') sub = `${e.teacher_name.replace(/^(Dr\.|Prof\.|Er\.) /, '')} · ${e.room}`;
+      else if (this.viewBy === 'teacher') sub = `${e.section} · ${e.room}`;
+      else sub = `${e.section} · ${e.teacher_name.replace(/^(Dr\.|Prof\.|Er\.) /, '')}`;
+      const batch = lab && this.viewBy === 'section' ? `<span class="ml-1 text-[10px] px-1 rounded bg-white/70 border">${e.batches[0].slice(-2)}</span>` : '';
+      return `<div class="chip rounded-md px-2 py-1 leading-tight" style="background:hsl(${h} 85% 95%);border-color:hsl(${h} 60% 50%)">
+        <div class="flex justify-between gap-1"><span class="font-semibold text-xs">${e.code}${batch}</span>${part}</div>
+        <div class="text-[11px] text-slate-700 truncate" title="${e.name}">${e.name}</div>
+        <div class="text-[10px] text-slate-500 truncate">${sub}</div></div>`;
+    },
+    async generate() {
+      this.generating = true; this.problems = []; this.elapsed = 0;
+      const timer = setInterval(() => this.elapsed++, 1000);
+      try {
+        const r = await (await fetch('/api/generate?time_limit=30', { method: 'POST' })).json();
+        if (r.ok === false) this.problems = r.problems || [r.detail || 'Generation failed'];
+        if (r.detail) this.problems = [r.detail];
+        await this.load();
+      } catch (err) { this.problems = ['Could not reach the server: ' + err]; }
+      clearInterval(timer); this.generating = false;
+    },
+    setNow() {
+      const now = new Date(), wd = now.getDay();
+      this.fr.day = wd >= 1 && wd <= 5 ? wd - 1 : 0;
+      const hm = now.getHours() * 60 + now.getMinutes();
+      const toMin = s => +s.slice(0, 2) * 60 + +s.slice(3);
+      const idx = (this.meta?.periods || []).findIndex(p => hm >= toMin(p.start) && hm < toMin(p.end));
+      this.fr.period = idx >= 0 ? idx : 0;
+    },
+    async findRooms() {
+      const q = `/api/free-rooms?day=${this.fr.day}&period=${this.fr.period}` + (this.fr.kind ? `&kind=${encodeURIComponent(this.fr.kind)}` : '');
+      this.fr.res = await (await fetch(q)).json();
+    },
+  };
+}
+</script>
+</body>
+</html>
