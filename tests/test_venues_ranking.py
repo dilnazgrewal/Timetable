@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 
 import app.store as store_mod
 from app.main import app
-from app.models import Override
+from app.models import Entry, Override
 from app.store import STORE
 
 
@@ -44,12 +44,15 @@ def test_fits_are_free_big_enough_and_closest_first(client):
     assert all(not m["fits"] and m["reason"] for m in res.json()["near_misses"])
 
 
-def test_room_with_a_class_is_not_offered(client):
+def test_room_with_a_class_is_not_offered(client, monkeypatch):
     on = next_weekday(0)
-    cls = next(o for o in STORE.effective(on)
-               if o.kind == "class" and STORE.college.room_by_id[o.room].bookable)
-    res = rank(client, date=on, periods=[cls.start], attendees=1, needs=[]).json()
-    assert cls.room not in [v["id"] for v in res["venues"]]
+    room = next(r for r in STORE.college.rooms if r.bookable)
+    lesson = STORE.college.lessons[0]
+    monkeypatch.setattr(STORE, "entries", [Entry(lesson.id, 0, 0, 2, 2, room.id)])  # a Monday class, P3-P4
+    res = rank(client, date=on, periods=[3, 4], attendees=1, needs=[]).json()
+    assert room.id not in [v["id"] for v in res["venues"]]
+    assert "Busy in P3–P4: class" in next(m for m in res["near_misses"] if m["id"] == room.id)["reason"]
+    assert room.id in [v["id"] for v in rank(client, date=on, periods=[5], attendees=1, needs=[]).json()["venues"]]
 
 
 def test_booking_override_takes_room_out(client):
