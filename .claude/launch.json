@@ -4,8 +4,20 @@
     {
       "name": "timeweave",
       "runtimeExecutable": ".venv/Scripts/python.exe",
-      "runtimeArgs": ["-m", "uvicorn", "app.main:app", "--port", "8000"],
-      "port": 8000
+      "runtimeArgs": ["-m", "uvicorn", "app.main:app", "--port", "8001"],
+      "port": 8001
+    },
+    {
+      "name": "timeweave-dashboards",
+      "runtimeExecutable": ".venv/Scripts/python.exe",
+      "runtimeArgs": ["-m", "uvicorn", "app.main:app", "--reload", "--port", "8011"],
+      "port": 8011
+    },
+    {
+      "name": "timeweave-venues",
+      "runtimeExecutable": ".venv/Scripts/python.exe",
+      "runtimeArgs": ["-m", "uvicorn", "app.main:app", "--reload", "--port", "8012"],
+      "port": 8012
     }
   ]
 }

@@ -6,14 +6,56 @@
 
 **Status legend:** ✅ done · 🟡 partly done · ⬜ not started
 
-**Timeline:** 4-day hackathon.
+**Submission: Tuesday 27 Oct 2026.** Day 1 (Wed 21 Oct) shipped the prototype (v0.1, Section 5). From Thu 22 Oct the plan is **v2**, below. It supersedes the older v0.2–v1.0 day split in Section 5.
 
-| Day | Date | Milestone |
-|---|---|---|
-| Day 1 | Wed 21 Oct 2026 | Prototype demo at 4 PM |
-| Day 2 | Thu 22 Oct | Real data in, editable |
-| Day 3 | Fri 23 Oct | Daily operations |
-| Day 4 | Sat 24 Oct | Submission (adjust if the official date differs) |
+---
+
+## 0. v2: from timetable maker to campus time and space platform (22–27 Oct)
+Most teams will build an optimised timetable generator. We also run on **GNDEC's real timetable** and solve the everyday problems around it.
+
+### Why GNDEC data matters
+- The CSE department generates its timetable with **FET** and publishes it at cse.gndec.ac.in. We import it, so the demo shows the real, current timetable.
+- **Real rooms:**
+  - Ground floor: G6, G7, G10–G18
+  - First floor: F105, F107
+  - Second floor: S202–S205, S213–S219
+  - Classrooms seat 75, each with a projector
+  - 13 labs, plus the WS Seminar Hall
+- **Real groups:** D1–D4 CS A–F, with lab groups A1/A2 and cross-section elective groups.
+- **Lunch already varies by year** (D2 at 11:30, D3 at 12:30), which backs our flexible lunch. Several rooms are unused all week, which backs the free-room feature.
+
+### v2 features and status
+| # | Feature | Lane | Status |
+|---|---|---|---|
+| A1 | GNDEC-shaped model: buildings and floors, room features, sittable/bookable flags, D-year group naming | A | 🟡 model done; real GNDEC rooms next |
+| A2 | **FET importer:** the real CSE timetable, re-checked by the validator | A | ⬜ |
+| A3 | GNDEC-shaped seed for the other departments, 9-slot day | A | ⬜ |
+| A4 | `effective(date)` = base + that date's overrides (cancel / substitute / room change / booking) | A | ✅ |
+| A5 | Demo accounts for every role + server-side permissions | A | ✅ |
+| B1 | Role dashboards; department → year → section → group filters for every department | B | ⬜ |
+| B2 | Find a teacher: their timetable, free slots, request a meeting | B | ⬜ |
+| B3 | Now / Next card | B | ⬜ |
+| C0 | Free rooms 2.0: by building and floor, sitting rooms only, "near me", booking-aware, chatbot | A + B | 🟡 API filters done (`on`, `sittable_only`, `building`, `floor`) |
+| D1 | Venue booking: requirement form → ranked suitable venues → request | C | ⬜ |
+| D2 | Approvals: club lead → faculty advisor → HOD (central halls → admin); approved booking leaves Free rooms | C | 🟡 rules in `auth.py` |
+| E1 | Event slot finder for organisations and T&P: common free time for a batch, plus a venue | C | ⬜ |
+| F | Substitutions, notifications (🔔 shell ✅), room QR page, insights heatmap, drag-and-drop editor + minimal-change repair, Excel import/export, venue calendar, PWA, deploy, optional Google login | A/B/C | ⬜ |
+
+### Parallel lanes (same folder, no branches, no merging; rules in CLAUDE.md)
+- **A. Core and data:** the main chat.
+- **B. Dashboards UI:** its own session, on port 8011.
+- **C. Venues and events:** its own session, on port 8012.
+- Each lane edits only its own files. Cross-lane needs go to `docs/REQUESTS.md`, and the API contract is in `docs/API.md`.
+
+### Schedule
+| Day | Lane A | Lane B | Lane C |
+|---|---|---|---|
+| Thu 22 | ✅ Foundation (store, auth, routers, shell, contract) → FET importer | Dashboards + filters | Venue model, ranking, request form |
+| Fri 23 | FET import done, GNDEC seed, 9-slot solver | Find a teacher, meetings, Now/Next | Approval flow + inbox, booking → Free rooms |
+| Sat 24 | Free rooms 2.0 backend, chatbot tools, substitutions · **Checkpoint 1** | Free rooms 2.0 UI, substitutions UI | Event slot finder, notifications |
+| Sun 25 | Change engine, minimal-change repair, Excel import/export | Drag-and-drop editor + preview, heatmap, room QR | Venue calendar, cancel/reschedule |
+| Mon 26 | **Checkpoint 2:** integration, deploy, optional Google login, rehearsal | PWA + phone polish | Booking polish |
+| Tue 27 | Buffer → **submit** | | |
 
 ---
 

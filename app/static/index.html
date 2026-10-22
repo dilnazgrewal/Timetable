@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TimeWeave</title>
 <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script src="/static/js/shell.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
 <style>
   [x-cloak] { display: none !important; }
@@ -28,28 +29,10 @@
 </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen">
+<!-- shared top bar: navigation, demo-account switcher, notifications (app/static/js/shell.js).
+     Keep it OUTSIDE the Alpine root: injecting HTML inside the root re-initialises Alpine bindings. -->
+<div class="max-w-7xl mx-auto px-4"><div id="tw-shell"></div></div>
 <div x-data="app()" x-init="init()" x-cloak class="max-w-7xl mx-auto px-4 pb-16">
-
-  <!-- header -->
-  <header class="no-print flex flex-wrap items-center justify-between gap-3 py-4">
-    <div class="flex items-center gap-3">
-      <div class="h-10 w-10 rounded-xl bg-indigo-600 text-white grid place-items-center font-bold text-lg">TW</div>
-      <div>
-        <h1 class="text-xl font-bold leading-tight">TimeWeave</h1>
-        <p class="text-xs text-slate-500">Clash-free college timetables, generated in seconds</p>
-      </div>
-    </div>
-    <div class="flex items-center gap-2 text-sm">
-      <span class="hidden sm:inline text-xs px-2 py-1 rounded bg-amber-100 text-amber-800">demo mode</span>
-      <label class="text-slate-500">Role</label>
-      <select x-model="role" @change="applyRole()" class="border rounded-lg px-2 py-1.5 bg-white">
-        <option value="admin">Timetable office</option>
-        <option value="coordinator">Dept coordinator</option>
-        <option value="teacher">Teacher</option>
-        <option value="student">Student</option>
-      </select>
-    </div>
-  </header>
 
   <!-- status / metrics -->
   <section class="no-print grid grid-cols-2 lg:grid-cols-5 gap-3 mb-4">
@@ -332,14 +315,26 @@ function app() {
     },
 
     async init() {
+      const user = await TW.ready;
       this.meta = await (await fetch('/api/meta')).json();
       await this.load();
       this.setNow();
       const wd = new Date().getDay();
       this.mobileDay = wd >= 1 && wd <= 5 ? wd - 1 : 0;
-      // deep links: #rooms, #load, #ask open that tab directly (handy for QR codes and screenshots)
-      const h = location.hash.slice(1);
-      if (['rooms', 'load', 'ask'].includes(h)) { this.tab = h; if (h === 'rooms') this.findRooms(); }
+      // the signed-in demo account decides the starting view
+      this.role = { admin: 'admin', hod: 'coordinator', teacher: 'teacher' }[user.role] || 'student';
+      if (user.dept && this.meta.departments.some(d => d.code === user.dept)) this.dept = user.dept;
+      this.applyRole();
+      if (user.group) { this.viewBy = 'section'; this.dept = user.dept; this.entity = user.group.replace(/-[^-]+$/, ''); }
+      if (user.role === 'teacher' && user.teacher_id) { this.viewBy = 'teacher'; this.entity = user.teacher_id; }
+      // deep links: #rooms, #load, #ask open that tab directly (handy for QR codes and the top bar)
+      const openHash = () => {
+        const h = location.hash.slice(1);
+        this.tab = ['rooms', 'load', 'ask'].includes(h) && this.tabs().some(t => t.id === h) ? h : 'timetable';
+        if (this.tab === 'rooms') this.findRooms();
+      };
+      openHash();
+      window.addEventListener('hashchange', openHash);
     },
     async load() { this.tt = await (await fetch('/api/timetable')).json(); if (!this.tt.ready) this.tt = { ready: false, issues: [], entries: [] }; },
     tabs() {
@@ -422,11 +417,10 @@ function app() {
       this.generating = true; this.problems = []; this.elapsed = 0;
       const timer = setInterval(() => this.elapsed++, 1000);
       try {
-        const r = await (await fetch('/api/generate?time_limit=30', { method: 'POST' })).json();
-        if (r.ok === false) this.problems = r.problems || [r.detail || 'Generation failed'];
-        if (r.detail) this.problems = [r.detail];
+        const r = await TW.api('/api/generate?time_limit=30', { method: 'POST' });
+        if (r.ok === false) this.problems = r.problems || ['Generation failed'];
         await this.load();
-      } catch (err) { this.problems = ['Could not reach the server: ' + err]; }
+      } catch (err) { this.problems = [err.message || 'Could not reach the server']; }
       clearInterval(timer); this.generating = false;
     },
     setNow() {

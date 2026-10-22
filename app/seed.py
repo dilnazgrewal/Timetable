@@ -3,7 +3,7 @@ an Applied Sciences department teaching Maths to every 2nd-year section, teacher
 departments, and a visiting teacher available only Tue/Thu."""
 from __future__ import annotations
 
-from app.models import PERIODS, College, Department, Lesson, Room, Section, Teacher
+from app.models import PERIODS, Building, College, Department, Lesson, Room, Section, Teacher
 
 DEPTS = [
     Department("CSE", "Computer Science & Engineering"),
@@ -72,6 +72,39 @@ TITLES = ["Dr.", "Prof.", "Er."]
 
 TEACHERS_PER_DEPT = 7
 
+FLOORS = ["Ground", "First", "Second"]
+BUILDINGS = [
+    Building("MBA", "MBA Block (CSE & IT)", FLOORS),
+    Building("ECE", "ECE Block", FLOORS),
+    Building("MECH", "Mechanical Block", FLOORS),
+    Building("CIVIL", "Civil Block", FLOORS),
+    Building("MAIN", "Main Block", FLOORS),
+    Building("WS", "Workshop Block", ["Ground"]),
+]
+DEPT_BUILDING = {"CSE": "MBA", "IT": "MBA", "ECE": "ECE", "ME": "MECH", "CE": "CIVIL"}
+
+
+def _place_rooms(rooms: list[Room]) -> None:
+    """Give seed rooms a building, floor, features and sitting/booking flags (GNDEC-like layout)."""
+    for r in rooms:
+        if r.building:
+            continue
+        if r.kind == "Classroom":
+            dept, num = r.id.split("-")
+            r.building = DEPT_BUILDING[dept]
+            # CSE: 201-202 on the ground floor, 203-204 upstairs; IT on the first floor
+            r.floor = "First" if dept == "IT" else ("Ground" if num in ("201", "202") else "Second")
+            r.features, r.bookable = ["projector"], True
+        elif r.kind.endswith("Lab"):
+            r.building = "MBA" if r.kind == "Computer Lab" else DEPT_BUILDING[r.dept]
+            r.floor = "Second" if r.kind == "Computer Lab" else "First"
+            r.features = ["projector", "ac", "computers"] if r.kind == "Computer Lab" else ["projector"]
+            r.sittable, r.bookable = False, r.kind == "Computer Lab"
+        elif r.kind == "Lecture Theatre":
+            r.building, r.floor, r.features, r.bookable = "MAIN", "First", ["projector", "sound"], True
+        else:  # library reading room
+            r.building, r.floor = "MAIN", "Ground"
+
 
 def build_college() -> College:
     rooms: list[Room] = []
@@ -88,7 +121,15 @@ def build_college() -> College:
     rooms += [Room(f"ME-Lab-{i}", "Mechanical Lab", 32, "ME") for i in range(1, 4)]
     rooms += [Room(f"CE-Lab-{i}", "Civil Lab", 32, "CE") for i in range(1, 4)]
     rooms += [Room("LT-1", "Lecture Theatre", 120), Room("LT-2", "Lecture Theatre", 120),
-              Room("Seminar Hall", "Seminar Hall", 200), Room("Library Reading Room", "Study Area", 80)]
+              Room("Library Reading Room", "Study Area", 80)]
+    # event venues (never used by the solver; bookable through the venues lane)
+    rooms += [Room("WS Seminar Hall", "Seminar Hall", 150, None, "WS", "Ground",
+                   ["projector", "sound", "ac", "stage"], sittable=False, bookable=True),
+              Room("MBA Seminar Hall", "Seminar Hall", 120, "CSE", "MBA", "First",
+                   ["projector", "sound", "ac"], sittable=False, bookable=True),
+              Room("Auditorium", "Auditorium", 600, None, "MAIN", "Ground",
+                   ["projector", "sound", "ac", "stage"], sittable=False, bookable=True)]
+    _place_rooms(rooms)
 
     # --- teachers --------------------------------------------------------
     n = 0
@@ -159,7 +200,7 @@ def build_college() -> College:
                                           visiting.id, s.id, s.batches, 2, 1, "Classroom", [s.home_room], s.size))
                     load[visiting.id] += 2
 
-    return College(DEPTS, rooms, teachers, sections, lessons)
+    return College(DEPTS, rooms, teachers, sections, lessons, BUILDINGS)
 
 
 if __name__ == "__main__":

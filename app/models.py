@@ -35,11 +35,27 @@ class Department:
 
 
 @dataclass
+class Building:
+    id: str
+    name: str
+    floors: list[str]  # in order, e.g. ["Ground", "First", "Second"]
+
+
+# Room.features vocabulary (used by venue ranking and filters)
+FEATURES = ("projector", "ac", "sound", "computers", "smart_board", "stage")
+
+
+@dataclass
 class Room:
     id: str
     kind: str
     capacity: int
     dept: str | None = None  # None = owned centrally
+    building: str = ""  # Building.id
+    floor: str = ""  # one of Building.floors
+    features: list[str] = field(default_factory=list)
+    sittable: bool = True  # students may sit here in a free period (labs: False)
+    bookable: bool = False  # can be requested for events (seminar halls, auditoriums, big rooms)
 
 
 @dataclass
@@ -106,9 +122,98 @@ class College:
     teachers: list[Teacher]
     sections: list[Section]
     lessons: list[Lesson]
+    buildings: list[Building] = field(default_factory=list)
 
     def __post_init__(self) -> None:
+        self.building_by_id = {b.id: b for b in self.buildings}
         self.room_by_id = {r.id: r for r in self.rooms}
         self.teacher_by_id = {t.id: t for t in self.teachers}
         self.section_by_id = {s.id: s for s in self.sections}
         self.lesson_by_id = {l.id: l for l in self.lessons}
+
+
+# --- date-specific layer, people and requests (v2) ---------------------------------------------
+# Everything below is persisted by app/store.py. Dates are ISO strings ("2026-10-23").
+
+@dataclass
+class Override:
+    """A one-off change for a single date. effective(date) = base timetable ⊕ that date's overrides."""
+    id: str
+    date: str
+    kind: str  # "cancel" | "substitute" | "room_change" | "booking"
+    periods: list[int] = field(default_factory=list)  # booking: periods occupied
+    entry_key: str | None = None  # "<lesson>#<session>" for cancel / substitute / room_change
+    room: str | None = None  # room_change: new room; booking: booked room
+    teacher: str | None = None  # substitute: new teacher id
+    title: str = ""  # shown in grids, e.g. "DMC: Digital Marketing Workshop"
+    ref: str | None = None  # id of the BookingRequest / leave that created it
+    created_by: str = ""
+
+
+@dataclass
+class User:
+    """Demo account. role: student | teacher | hod | admin | club | org."""
+    id: str
+    name: str
+    role: str
+    dept: str | None = None
+    group: str | None = None  # student: their batch / group id, e.g. "CSE-3A-G1"
+    teacher_id: str | None = None  # teacher / hod: their Teacher.id
+    club: str | None = None  # club lead: Club.id
+
+
+@dataclass
+class Club:
+    id: str
+    name: str
+    advisor: str  # User.id of the faculty advisor
+    dept: str | None = None
+
+
+@dataclass
+class ApprovalStep:
+    role: str  # "advisor" | "hod" | "admin"
+    approver: str  # User.id
+    decision: str | None = None  # None (waiting) | "approved" | "rejected"
+    note: str = ""
+    at: str | None = None
+
+
+@dataclass
+class BookingRequest:
+    id: str
+    title: str
+    requester: str  # User.id
+    club: str | None
+    attendees: int
+    needs: list[str]  # subset of FEATURES
+    date: str
+    periods: list[int]
+    room: str
+    status: str = "pending"  # pending | endorsed | approved | rejected | cancelled
+    steps: list[ApprovalStep] = field(default_factory=list)
+    created_at: str = ""
+    purpose: str = ""
+
+
+@dataclass
+class MeetingRequest:
+    id: str
+    student: str  # User.id
+    teacher: str  # Teacher.id
+    date: str
+    period: int
+    note: str = ""
+    status: str = "pending"  # pending | accepted | declined
+    reply: str = ""
+    created_at: str = ""
+
+
+@dataclass
+class Notification:
+    id: str
+    user: str  # User.id
+    text: str
+    link: str = ""  # e.g. "/venues.html#requests"
+    at: str = ""
+    read: bool = False
