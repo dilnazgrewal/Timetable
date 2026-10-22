@@ -1,2 +1,363 @@
-// Lane B (Dashboards UI): put dashboard components and helpers here and include this file from
-// index.html. Use TW.api() for every request so the demo account (X-User) is sent.
+// Lane B (Dashboards UI): the Alpine component behind index.html (role home, timetable views,
+// find a teacher + meetings, now / next, free rooms, teacher load, ask). Every request goes
+// through TW.api() so the demo account (X-User) is sent.
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const isoDate = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const toMin = s => +s.slice(0, 2) * 60 + +s.slice(3);
+const shortName = n => (n || '').replace(/^(Dr\.|Prof\.|Er\.) /, '');
+const FEATURE_ICON = { projector: '📽', ac: '❄️', sound: '🔊', computers: '💻', smart_board: '🖊', stage: '🎤' };
+const VIEW_BY = [['group', 'Group'], ['section', 'Section'], ['year', 'Year'], ['dept', 'Department'], ['teacher', 'Teacher'], ['room', 'Room']];
+
+function dash() {
+  return {
+    user: null, meta: null, tt: { ready: false, issues: [], entries: [] },
+    tab: 'timetable', today: isoDate(new Date()), generating: false, elapsed: 0, problems: [], toast: '',
+    VIEW_BY,
+
+    // timetable view: what to show (f) and which week
+    f: { by: 'dept', dept: 'CSE', year: '', section: '', group: '', teacher: '', room: '' },
+    weekMode: 'dated', weekOf: isoDate(new Date()), view: { items: [], dates: [] }, mobileDay: 0, loadingView: false,
+
+    // now / next card (demo date + time can be changed)
+    clock: { on: isoDate(new Date()), time: new Date().toTimeString().slice(0, 5), live: true }, nowCard: null,
+
+    // find a teacher
+    ft: { q: '', id: '', on: isoDate(new Date()), day: null, week: [], ask: null, note: '' },
+    meetings: { sent: [], received: [], pending: 0 }, replyText: {},
+
+    // free rooms
+    fr: { on: isoDate(new Date()), period: 0, sittable: true, kind: '', near: '', res: null },
+
+    chat: { msgs: [], input: '', busy: false },
+    suggestions: ['Is CL-2 free after lunch on Friday?', 'When is Harpreet Kaur free on Wednesday?',
+                  'What does CSE-3A have on Monday?', 'Find me an empty classroom right now'],
+
+    // ---------------------------------------------------------------- start-up and roles
+    async init() {
+      this.user = await TW.ready;
+      this.meta = await TW.api('/api/meta');
+      const wd = new Date().getDay();
+      this.mobileDay = wd >= 1 && wd <= 5 ? wd - 1 : 0;
+      this.fr.period = Math.max(0, Math.min(this.periodAt(this.clock.time), this.meta.periods.length - 1));
+      this.myView();
+      await Promise.all([this.load(), this.loadView(), this.loadNow(), this.loadMeetings()]);
+      const openHash = () => {
+        const h = location.hash.slice(1);
+        this.go(this.tabs().some(t => t.id === h) ? h : 'timetable', false);
+      };
+      openHash();
+      window.addEventListener('hashchange', openHash);
+      setInterval(() => { if (this.clock.live) this.tick(); }, 60000);
+    },
+    get role() { return this.user?.role || 'admin'; },
+    get isStudent() { return this.role === 'student'; },
+    get isTeacher() { return !!this.user?.teacher_id; },
+    get canGenerate() { return this.role === 'admin' || this.role === 'hod'; },
+    get hasCard() { return this.isStudent || this.isTeacher; },
+    tabs() {
+      const t = [{ id: 'timetable', label: this.isStudent ? 'My timetable' : this.role === 'teacher' ? 'My schedule' : 'Timetable' },
+                 { id: 'teacher', label: 'Find a teacher' }, { id: 'rooms', label: 'Free rooms' }];
+      if (this.isStudent || this.isTeacher) t.push({ id: 'meetings', label: 'Meetings', badge: this.meetings.pending });
+      if (this.canGenerate) t.push({ id: 'load', label: 'Teacher load' });
+      t.push({ id: 'ask', label: 'Ask ✨' });
+      return t;
+    },
+    go(id, push = true) {
+      this.tab = id;
+      if (push) history.replaceState(null, '', id === 'timetable' ? '/' : '#' + id);
+      if (id === 'rooms') this.findRooms();
+      if (id === 'meetings') this.loadMeetings();
+      if (id === 'teacher' && this.ft.id) this.loadTeacher();
+    },
+    greeting() {
+      if (!this.user) return '';
+      const h = new Date().getHours();
+      return `${h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'}, ${this.user.name}`;
+    },
+    homeLabel() {
+      return this.isStudent ? 'My timetable' : this.isTeacher ? 'My schedule' : 'My department';
+    },
+    myView() {
+      const u = this.user;
+      if (u.group) {
+        const s = this.meta.sections.find(s => s.batches.includes(u.group));
+        Object.assign(this.f, { by: 'group', dept: s?.dept || u.dept, year: s?.year ?? '', section: s?.id || '', group: u.group });
+      } else if (u.role === 'teacher' && u.teacher_id) {
+        const t = this.meta.teachers.find(t => t.id === u.teacher_id);
+        Object.assign(this.f, { by: 'teacher', dept: t?.dept || u.dept, teacher: u.teacher_id });
+      } else {
+        Object.assign(this.f, { by: 'dept', dept: u.dept || this.meta.departments[0].code });
+      }
+      this.cascade();
+    },
+    isMine() {
+      const u = this.user || {};
+      if (u.group) return this.f.by === 'group' && this.f.group === u.group;
+      if (u.role === 'teacher') return this.f.by === 'teacher' && this.f.teacher === u.teacher_id;
+      return this.f.by === 'dept' && this.f.dept === (u.dept || this.meta?.departments[0].code);
+    },
+    async load() {
+      try { this.tt = await TW.api('/api/timetable'); } catch { this.tt = { ready: false }; }
+      if (!this.tt.ready) this.tt = { ready: false, issues: [], entries: [] };
+    },
+    flash(msg) { this.toast = msg; clearTimeout(this._t); this._t = setTimeout(() => this.toast = '', 3500); },
+
+    // ---------------------------------------------------------------- timetable filters
+    deptOptions() {
+      if (!this.meta) return [];
+      const withSections = new Set(this.meta.sections.map(s => s.dept));
+      if (['group', 'section', 'year'].includes(this.f.by)) return this.meta.departments.filter(d => withSections.has(d.code));
+      if (this.f.by === 'room') return [...this.meta.departments.filter(d => this.meta.rooms.some(r => r.dept === d.code)),
+                                        { code: 'CENTRAL', name: 'Shared / central' }];
+      return this.meta.departments;
+    },
+    yearOptions() { return [...new Set((this.meta?.sections || []).filter(s => s.dept === this.f.dept).map(s => s.year))].sort(); },
+    sectionOptions() {
+      return (this.meta?.sections || []).filter(s => s.dept === this.f.dept && (this.f.by === 'section' || this.f.by === 'group' ? true : String(s.year) === String(this.f.year)));
+    },
+    groupOptions() { return this.meta?.sections.find(s => s.id === this.f.section)?.batches || []; },
+    teacherOptions() { return (this.meta?.teachers || []).filter(t => t.dept === this.f.dept); },
+    roomOptions() { return (this.meta?.rooms || []).filter(r => (this.f.dept === 'CENTRAL' ? !r.dept : r.dept === this.f.dept)); },
+    yearLabel(y) { return { 1: '1st year', 2: '2nd year', 3: '3rd year', 4: '4th year' }[y] || `Year ${y}`; },
+    groupLabel(g) { const s = this.meta?.sections.find(s => s.batches.includes(g)); return s ? `${s.name} · ${g.slice(s.id.length).replace(/^-/, '')}` : g; },
+    // keep every lower filter valid after a higher one changes, then reload
+    cascade() {
+      const pick = (list, cur, key = x => x) => list.some(x => String(key(x)) === String(cur)) ? cur : (list.length ? key(list[0]) : '');
+      this.f.dept = pick(this.deptOptions(), this.f.dept, d => d.code);
+      this.f.year = pick(this.yearOptions(), this.f.year);
+      this.f.section = pick(this.sectionOptions(), this.f.section, s => s.id);
+      this.f.group = pick(this.groupOptions(), this.f.group);
+      this.f.teacher = pick(this.teacherOptions(), this.f.teacher, t => t.id);
+      this.f.room = pick(this.roomOptions(), this.f.room, r => r.id);
+    },
+    changed() { this.cascade(); this.loadView(); },
+    viewQuery() {
+      const f = this.f, q = new URLSearchParams();
+      if (f.by === 'group') q.set('group', f.group);
+      if (f.by === 'section') q.set('section', f.section);
+      if (f.by === 'year') { q.set('dept', f.dept); q.set('year', f.year); }
+      if (f.by === 'dept') q.set('dept', f.dept);
+      if (f.by === 'teacher') q.set('teacher', f.teacher);
+      if (f.by === 'room') q.set('room', f.room);
+      if (this.weekMode === 'dated') q.set('week_of', this.weekOf || this.today);
+      return q.toString();
+    },
+    async loadView() {
+      if (!this.meta) return;
+      this.loadingView = true;
+      try { this.view = await TW.api('/api/dash/views?' + this.viewQuery()); }
+      catch (e) { this.view = { items: [], dates: [] }; this.flash(e.message); }
+      this.loadingView = false;
+    },
+    shiftWeek(n) {
+      const d = new Date((this.weekOf || this.today) + 'T12:00'); d.setDate(d.getDate() + 7 * n);
+      this.weekOf = isoDate(d); this.loadView();
+    },
+    viewTitle() {
+      const f = this.f, m = this.meta; if (!m) return '';
+      const dept = m.departments.find(d => d.code === f.dept);
+      if (f.by === 'group') return `Group timetable: ${this.groupLabel(f.group)}`;
+      if (f.by === 'section') return `Class timetable: ${m.sections.find(s => s.id === f.section)?.name || f.section}`;
+      if (f.by === 'year') return `${f.dept} ${this.yearLabel(+f.year)}: all sections`;
+      if (f.by === 'dept') return `Department: ${dept ? dept.name : f.dept}`;
+      if (f.by === 'teacher') return `Teacher timetable: ${m.teachers.find(t => t.id === f.teacher)?.name || f.teacher}`;
+      const r = m.rooms.find(r => r.id === f.room);
+      return `Room timetable: ${f.room}${r ? ' (' + r.kind + ')' : ''}`;
+    },
+    weekLabel() {
+      if (this.weekMode !== 'dated' || !this.view.dates?.length) return 'Usual weekly timetable';
+      const fmt = s => new Date(s + 'T12:00').toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+      return `Week of ${fmt(this.view.dates[0])} – ${fmt(this.view.dates[this.view.dates.length - 1])}`;
+    },
+    dayDate(di) {
+      const d = this.view.dates?.[di];
+      return d ? new Date(d + 'T12:00').toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) : '';
+    },
+    isToday(di) {
+      if (this.weekMode === 'dated') return this.view.dates?.[di] === this.today;
+      const wd = new Date().getDay(); return wd - 1 === di;
+    },
+    cell(d, p) {
+      return this.view.items.filter(e => e.day === d && p >= e.start && p < e.start + e.duration);
+    },
+    personal() { return ['group', 'section', 'teacher'].includes(this.f.by); },
+    isLunch(d, p) {
+      // the first free period in the lunch window is shown as that group's / teacher's lunch break
+      if (!this.personal() || !this.meta.lunch.window.includes(p)) return false;
+      if (!this.view.items.some(e => e.day === d)) return false;
+      return this.meta.lunch.window.find(q => !this.cell(d, q).length) === p;
+    },
+    weeklyHours() {
+      const set = new Set();
+      this.view.items.filter(e => e.kind === 'class').forEach(e => { for (let p = e.start; p < e.start + e.duration; p++) set.add(e.day + ':' + p); });
+      return set.size;
+    },
+    hue(code) { let h = 0; for (const c of code) h = (h * 31 + c.charCodeAt(0)) % 360; return h; },
+    chip(e, p) {
+      if (e.kind === 'booking') {
+        return `<div class="chip rounded-md px-2 py-1 leading-tight bg-violet-50 border-violet-500">
+          <div class="font-semibold text-xs">📌 Event</div>
+          <div class="text-[11px] text-slate-700 truncate" title="${esc(e.title)}">${esc(e.title)}</div>
+          <div class="text-[10px] text-slate-500">${esc(e.room)}</div></div>`;
+      }
+      const h = this.hue(e.code + e.dept), lab = e.lesson_kind === 'lab', by = this.f.by;
+      const part = lab ? `<span class="text-[10px] text-slate-500">${p === e.start ? 'lab 1/2' : 'lab 2/2'}</span>` : '';
+      let sub;
+      if (by === 'teacher') sub = `${e.section} · ${e.room}`;
+      else if (by === 'room') sub = `${e.section} · ${shortName(e.teacher_name)}`;
+      else if (by === 'group' || by === 'section') sub = `${shortName(e.teacher_name)} · ${e.room}`;
+      else sub = `${e.section} · ${e.room}`;
+      const batch = lab && (by === 'group' || by === 'section')
+        ? `<span class="ml-1 text-[10px] px-1 rounded bg-white/70 border">${esc(e.section.split(' ').pop())}</span>` : '';
+      const flag = e.status === 'substituted' ? `<div class="text-[10px] font-semibold text-amber-700">↺ substitute: ${esc(shortName(e.teacher_name))}</div>`
+        : e.status === 'room_changed' ? `<div class="text-[10px] font-semibold text-amber-700">⇄ moved to ${esc(e.room)}</div>` : '';
+      return `<div class="chip rounded-md px-2 py-1 leading-tight" style="background:hsl(${h} 85% 95%);border-color:hsl(${h} 60% 50%)">
+        <div class="flex justify-between gap-1"><span class="font-semibold text-xs">${esc(e.code)}${batch}</span>${part}</div>
+        <div class="text-[11px] text-slate-700 truncate" title="${esc(e.name)}">${esc(e.name)}</div>
+        <div class="text-[10px] text-slate-500 truncate">${esc(sub)}</div>${flag}</div>`;
+    },
+    openTeacher(id) {
+      const t = this.meta.teachers.find(t => t.id === id); if (!t) return;
+      Object.assign(this.f, { by: 'teacher', dept: t.dept, teacher: t.id }); this.cascade(); this.loadView(); this.go('timetable');
+    },
+
+    // ---------------------------------------------------------------- now / next card
+    periodAt(hhmm) {
+      const ps = this.meta?.periods || [], m = toMin(hhmm);
+      if (!ps.length || m < toMin(ps[0].start)) return -1;
+      const i = ps.findIndex(p => m >= toMin(p.start) && m < toMin(p.end));
+      return i >= 0 ? i : ps.length;
+    },
+    tick() {
+      const n = new Date(); this.clock.on = isoDate(n); this.clock.time = n.toTimeString().slice(0, 5); this.loadNow();
+    },
+    async loadNow() {
+      if (!this.hasCard) return;
+      try { this.nowCard = await TW.api(`/api/dash/now?on=${this.clock.on}&period=${this.periodAt(this.clock.time)}`); }
+      catch { this.nowCard = null; }
+    },
+    setClock() { this.clock.live = false; this.loadNow(); },
+    resetClock() { this.clock.live = true; this.tick(); },
+    nowLine(e) { return e ? `${e.code} · ${e.name}` : ''; },
+    nowSub(e) {
+      if (!e) return '';
+      const who = this.isStudent ? shortName(e.teacher_name) : e.section;
+      return `${e.room} · ${who} · till ${e.until}`;
+    },
+    periodLabel(i) { const p = this.meta?.periods[i]; return p ? `${p.label} · ${p.start}` : ''; },
+
+    // ---------------------------------------------------------------- find a teacher + meetings
+    teacherMatches() {
+      const q = this.ft.q.trim().toLowerCase(), list = this.meta?.teachers || [];
+      if (!q) return list.filter(t => t.dept === (this.user?.dept || 'CSE')).slice(0, 12);
+      return list.filter(t => (t.name + ' ' + t.dept + ' ' + t.id).toLowerCase().includes(q)).slice(0, 12);
+    },
+    pickTeacher(t) { this.ft.id = t.id; this.ft.q = ''; this.ft.ask = null; this.loadTeacher(); },
+    teacher() { return this.meta?.teachers.find(t => t.id === this.ft.id); },
+    async loadTeacher() {
+      if (!this.ft.id) return;
+      const [day, week] = await Promise.all([
+        TW.api(`/api/dash/teacher/${encodeURIComponent(this.ft.id)}/free?on=${this.ft.on}`),
+        TW.api(`/api/dash/views?teacher=${encodeURIComponent(this.ft.id)}&week_of=${this.ft.on}`)]);
+      this.ft.day = day; this.ft.week = week;
+    },
+    // weekly availability strip: teaching / unavailable / free for each day × period
+    weekState(d, p) {
+      const w = this.ft.week; if (!w?.items) return 'free';
+      if (w.items.some(e => e.day === d && p >= e.start && p < e.start + e.duration)) return 'teaching';
+      if ((this.teacher()?.unavailable || []).some(([dd, pp]) => dd === d && pp === p)) return 'unavailable';
+      return 'free';
+    },
+    stateClass(s) {
+      return { free: 'bg-emerald-100 text-emerald-800 border-emerald-200', teaching: 'bg-slate-100 text-slate-500 border-slate-200',
+               unavailable: 'bg-red-50 text-red-400 border-red-100', meeting: 'bg-indigo-50 text-indigo-700 border-indigo-200' }[s];
+    },
+    async requestMeeting() {
+      const a = this.ft.ask;
+      try {
+        await TW.api('/api/dash/meetings', { method: 'POST', body: JSON.stringify({ teacher: this.ft.id, date: this.ft.on, period: a.period, note: this.ft.note }) });
+        this.flash(`Request sent to ${this.teacher().name}. You'll get a 🔔 when they reply.`);
+        this.ft.ask = null; this.ft.note = ''; this.loadMeetings();
+      } catch (e) { this.flash(e.message); }
+    },
+    async loadMeetings() {
+      if (!this.isStudent && !this.isTeacher) return;
+      try { this.meetings = await TW.api('/api/dash/meetings'); } catch {}
+    },
+    async reply(m, status) {
+      try {
+        await TW.api(`/api/dash/meetings/${m.id}/reply`, { method: 'POST', body: JSON.stringify({ status, reply: this.replyText[m.id] || '' }) });
+        this.flash(status === 'accepted' ? 'Accepted. The student has been notified.' : 'Declined. The student has been notified.');
+        this.loadMeetings(); this.loadNow();
+      } catch (e) { this.flash(e.message); }
+    },
+    statusClass(s) { return { pending: 'bg-amber-100 text-amber-800', accepted: 'bg-emerald-100 text-emerald-800', declined: 'bg-red-100 text-red-700' }[s]; },
+    isPast(day, end) { return day < this.today || (day === this.today && toMin(end) <= toMin(new Date().toTimeString().slice(0, 5))); },
+    niceDate(s) { return s ? new Date(s + 'T12:00').toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' }) : ''; },
+
+    // ---------------------------------------------------------------- free rooms
+    roomsNow() {
+      this.fr.on = isoDate(new Date());
+      this.fr.period = Math.max(0, Math.min(this.periodAt(new Date().toTimeString().slice(0, 5)), this.meta.periods.length - 1));
+      this.findRooms();
+    },
+    async findRooms() {
+      if (!this.meta) return;
+      const q = new URLSearchParams({ on: this.fr.on, period: this.fr.period });
+      if (this.fr.sittable) q.set('sittable_only', 'true');
+      if (this.fr.kind) q.set('kind', this.fr.kind);
+      try { this.fr.res = await TW.api('/api/free-rooms?' + q); } catch (e) { this.fr.res = null; this.flash(e.message); }
+    },
+    nearRoom() { return this.meta?.rooms.find(r => r.id === this.fr.near); },
+    // free rooms grouped building → floor; with "near me" set, my building (my floor first) comes first
+    roomGroups() {
+      if (!this.meta || !this.fr.res) return [];
+      const rooms = this.fr.res.free, near = this.nearRoom(), out = [];
+      const bOrder = this.meta.buildings.map(b => b.id);
+      const blds = [...new Set(rooms.map(r => r.building))].sort((a, b) =>
+        (near && b === near.building) - (near && a === near.building) || bOrder.indexOf(a) - bOrder.indexOf(b));
+      for (const bid of blds) {
+        const b = this.meta.buildings.find(b => b.id === bid) || { id: bid, name: bid || 'Other', floors: [] };
+        const floors = [...new Set(rooms.filter(r => r.building === bid).map(r => r.floor))].sort((x, y) =>
+          (near && bid === near.building ? (y === near.floor) - (x === near.floor) : 0) || b.floors.indexOf(x) - b.floors.indexOf(y));
+        out.push({ id: bid, name: b.name, here: near && bid === near.building,
+                   floors: floors.map(fl => ({ name: fl, here: near && bid === near.building && fl === near.floor,
+                                               rooms: rooms.filter(r => r.building === bid && r.floor === fl) }))
+                                 .filter(fl => fl.rooms.length) });
+      }
+      return out.filter(b => b.floors.length);
+    },
+    floorName(f) { return f === 'Ground' ? 'Ground floor' : f ? `${f} floor` : 'Floor not set'; },
+    buildingRooms(bid) { return (this.meta?.rooms || []).filter(r => r.building === bid); },
+    features(r) { return (r.features || []).map(f => FEATURE_ICON[f] || '').join(' '); },
+    isWeekend(s) { const d = new Date(s + 'T12:00').getDay(); return d === 0 || d === 6; },
+
+    // ---------------------------------------------------------------- generate, print, ask
+    async generate() {
+      this.generating = true; this.problems = []; this.elapsed = 0;
+      const timer = setInterval(() => this.elapsed++, 1000);
+      try {
+        const r = await TW.api('/api/generate?time_limit=30', { method: 'POST' });
+        if (r.ok === false) this.problems = r.problems || ['Generation failed'];
+        await Promise.all([this.load(), this.loadView(), this.loadNow()]);
+      } catch (err) { this.problems = [err.message || 'Could not reach the server']; }
+      clearInterval(timer); this.generating = false;
+    },
+    printSubtitle() {
+      return `${this.weekLabel()} · ${this.weeklyHours()} periods / week · lunch: a free hour between ${this.meta?.lunch.start} and ${this.meta?.lunch.end}`;
+    },
+    async send(text) {
+      const q = (text ?? this.chat.input).trim();
+      if (!q || this.chat.busy) return;
+      this.chat.msgs.push({ role: 'user', content: q }); this.chat.input = ''; this.chat.busy = true;
+      this.$nextTick(() => this.$refs.chatEnd?.scrollIntoView({ behavior: 'smooth' }));
+      try {
+        const r = await TW.api('/api/chat', { method: 'POST', body: JSON.stringify({ messages: this.chat.msgs.map(m => ({ role: m.role, content: m.content })) }) });
+        this.chat.msgs.push({ role: 'assistant', content: r.answer || 'Something went wrong.', tools: r.tools_used || [] });
+      } catch (err) { this.chat.msgs.push({ role: 'assistant', content: err.message || 'Could not reach the server.', tools: [] }); }
+      this.chat.busy = false;
+      this.$nextTick(() => this.$refs.chatEnd?.scrollIntoView({ behavior: 'smooth' }));
+    },
+  };
+}

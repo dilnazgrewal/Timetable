@@ -63,19 +63,17 @@ def matcher(dept: str, year: int | None, section: str, group: str, teacher: str,
     """Return a predicate over Occupancy for the chosen filters (all filters combine with AND)."""
     groups = {group} if group else groups_of(dept, year, section)
     c = STORE.college
+    teaching_dept = dept if groups == set() and not (year or section or group) else ""
 
     def ok(o: Occupancy) -> bool:
         if teacher and o.teacher != teacher:
             return False
         if room and o.room != room:
             return False
-        if groups is not None:
-            if set(o.batches) & groups:
-                return True
-            # a department with no sections of its own (e.g. Applied Sciences): show what its teachers teach
+        if teaching_dept:  # a department with no sections of its own (e.g. Applied Sciences): what its teachers teach
             t = c.teacher_by_id.get(o.teacher or "")
-            return bool(dept and not year and not section and not group and t and t.dept == dept)
-        return True
+            return bool(t and t.dept == teaching_dept)
+        return groups is None or bool(set(o.batches) & groups)
 
     return ok
 
@@ -256,7 +254,10 @@ def now_card(on: str = "", period: int = -1, user: User = Depends(current_user))
     nxt = next((o for o in mine if o.start > period), None)
     out["now"] = item_view(now, d) if now else None
     out["next"] = item_view(nxt, d) if nxt else None
-    busy = {p for o in mine for p in o.slots} | off
+    met = {m.period for m in STORE.meetings if m.date == d.isoformat() and m.status == "accepted"
+           and (m.student == user.id or m.teacher == user.teacher_id)}
+    out["meetings"] = [period_view(p) for p in sorted(met)]
+    busy = {p for o in mine for p in o.slots} | off | met
     first = next((p for p in range(max(period, 0), len(PERIODS)) if p not in busy), None)
     if first is not None:
         end = next((p for p in range(first, len(PERIODS)) if p in busy), len(PERIODS))
