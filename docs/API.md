@@ -95,11 +95,57 @@ Owned by the Dashboards session. Built and tested in `tests/test_dashboards_api.
 **Page deep links** (`/`, index.html): `#teacher`, `#rooms`, `#meetings`, `#load`, `#ask`.
 
 ## Lane C: Venues and events (`app/api/venues.py`, prefix `/api/venues`)
-Owned by the Venues session. These are the planned endpoints; document what you actually build here.
-- `GET /api/venues` returns bookable rooms with features, building, floor and capacity.
-- `POST /api/venues/rank` with `{date, periods, attendees, needs}` returns ranked free venues with reasons.
-- `POST /api/venues/requests` with `{title, purpose, club, attendees, needs, date, periods, room}` (needs `booking.request`). It builds the approval steps (advisor → HOD, or → admin for central rooms) and notifies the first approver.
-- `GET /api/venues/requests?mine=1|inbox=1` returns my requests, or the ones waiting for me.
-- `POST /api/venues/requests/{id}/decide` with `{decision: approved|rejected, note}`. It checks `booking.endorse` or `booking.approve` for the current step. Final approval calls `STORE.add_override(kind="booking")` and notifies the requester.
-- `POST /api/venues/requests/{id}/cancel` removes the booking override if one exists.
-- `POST /api/venues/slot-finder` with `{groups|dept+year, duration, from, to, attendees, needs}` returns slots where every chosen group is free, plus venues that fit.
+Owned by the Venues session. Logic lives in `app/venues/` (`ranking.py`, `requests.py`, `slots.py`, `common.py`); the page is `/venues.html` with tabs `#book`, `#requests`, `#inbox`, `#slots`.
+
+**Common rules**
+- `date` is `YYYY-MM-DD`, Mon–Fri only, not in the past (400 otherwise). `periods` are indexes into `/api/meta.periods` and must be back to back (e.g. `[4, 5]` = P5–P6).
+- `needs` is a subset of `/api/meta.features` (400 for unknown ones).
+- "Free" always means free in `STORE.effective(date)`: after cancellations, substitutions and room changes, and counting approved bookings.
+
+| Method + path | Who | Body / query | Returns |
+|---|---|---|---|
+| `GET /api/venues` | anyone | | `{venues: [venue]}`, every bookable room, biggest first |
+| `POST /api/venues/rank` | anyone | `{date, periods, attendees, needs}` | `{date, periods, attendees, needs, venues: [venue + fit], near_misses: [venue + miss]}` |
+| `POST /api/venues/requests` | `booking.request` | `{title, purpose?, club?, attendees, needs, date, periods, room}` | `{request: request view, warnings: [str]}`. 409 if the room is already taken then. |
+| `GET /api/venues/requests` | anyone | `?mine=1` (default) · `?inbox=1` · `?all=1` (admin) | `{items: [request view]}`, newest first |
+| `POST /api/venues/requests/{id}/decide` | the current step's approver | `{decision: "approved"\|"rejected", note}` | `{request: request view}`. 403 wrong approver, 400 reject without a note, 409 already decided or room no longer free |
+| `POST /api/venues/requests/{id}/cancel` | the requester (`booking.cancel`) | | `{request: request view}`; removes the booking override, so the room is free again |
+| `POST /api/venues/slot-finder` | `slotfinder.use` | `{dept+year \| sections \| groups, duration, from?, to?, attendees?, needs}` | see below |
+
+**venue** = `{id, kind, capacity, dept, building, building_name, floor, features, place}` (`place` = "Workshop Block, ground floor").
+- In `venues`: `fits: true`, `reason` ("Seats 120 for 100 people · has projector and sound · also ac · MBA Block (CSE & IT), first floor"), `warnings` (other pending requests for the same slot, much bigger than needed), `pending_requests`. Order: no competing request first, then smallest capacity ≥ attendees, then more features, then building/floor.
+- In `near_misses` (up to 6, fewest problems first): `fits: false`, `reason` ("Busy in P5: class TOC · D3 CS A · Too small: seats 75, you need 100 · No sound").
+
+**Approval chain** (built when the request is made):
+- A club lead's request goes to the club's faculty advisor (`STORE.clubs[club].advisor`, action `booking.endorse`), then the room's owner.
+- Teacher, HOD, org and admin requests skip the advisor.
+- The room's owner is `hod-<room.dept>` (`booking.approve`), or `admin` for central rooms (`dept=None`).
+- If the requester *is* an approver, that step is pre-approved. For example, HOD CSE booking a CSE room is booked at once.
+- Status: `pending` → `endorsed` (advisor said yes) → `approved`, or `rejected` / `cancelled`.
+- The room is re-checked before the final approval.
+- Final approval adds `Override(kind="booking", date, periods, room, title="<club>: <title>", ref=<request id>)`.
+- Notifications (🔔):
+  - the next approver gets one linking to `/venues.html#inbox`
+  - the requester hears about endorse / approve / reject, linking to `/venues.html#requests`
+  - the final approver hears when an approved booking is cancelled
+
+**request view** = every `BookingRequest` field plus:
+- `room_info` (venue), `requester_name`, `when` ("Fri 23 Oct, P5–P6 (12:30–2:30)")
+- `waiting_for` ("Faculty advisor · Dr. X" / "HOD CSE (Dr. Y)"), `step_role` (`advisor|hod|admin|null`)
+- `timeline`: `[{label, at, note?, state: done|current|todo|rejected}]`
+- `can_decide`, `can_cancel`, `assigned_to_me`
+- `competing`: ids of other waiting requests for the same room and time
+
+**Slot finder**
+- Audience: `dept` + `year` (every section of that year), `sections` (ids), or `groups` (atomic group ids). A class blocks a group if the group, or its section id, is in the class's `batches`.
+- `duration` is 1–9 periods. `from` defaults to today and `to` to `from` + 13 days (at most 31 days). Weekends are skipped, and so are periods already started today.
+- `attendees` defaults to the audience size (section sizes, or a share of one for single groups).
+
+Returns:
+- `audience`: `{label, groups, sections, attendees}`, plus `duration`, `from`, `to`, `needs`, `total`
+- `slots` (up to 40): `[{date, day, periods, when, venues: [up to 3 fitting venues], warnings}]`
+  - Every group in the audience is free for the whole block.
+  - Order: by date; slots with a venue first; slots that don't take a lunch break first; then earliest.
+  - `warnings` can include "Uses the only lunch break left for …" (only when it takes a group's last free period in the lunch window) and "No free venue fits".
+- `almost` (up to 6, only when there are fewer than 10 exact slots): nearly-free times, fewest sections and groups busy first. Same fields, plus `missing: [{section, groups, whole, classes}]` (who would miss which class) and a warning like "20 of 36 groups in 6 sections have class then".
+- `days_without_slot`: `["Thu 22 Oct", …]`
