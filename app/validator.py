@@ -11,6 +11,17 @@ def _slot(d: int, p: int) -> str:
     return f"{DAYS[d]} {PERIODS[p][0]}"
 
 
+# Quality notes: rules a good timetable follows (our generator guarantees them) but a hand-made or
+# imported one may break. Everything else validate() reports is a hard error (a clash).
+NOTE_PREFIXES = ("NO LUNCH", "LONG DAY")
+
+
+def split_issues(issues: list[str]) -> tuple[list[str], list[str]]:
+    """-> (clashes, quality_notes)."""
+    return ([i for i in issues if not i.startswith(NOTE_PREFIXES)],
+            [i for i in issues if i.startswith(NOTE_PREFIXES)])
+
+
 def validate(college: College, entries: list[Entry]) -> list[str]:
     issues: list[str] = []
     placed: dict[str, int] = defaultdict(int)
@@ -46,11 +57,13 @@ def validate(college: College, entries: list[Entry]) -> list[str]:
         for p in e.slots:
             if (e.day, p) in {tuple(u) for u in teacher.unavailable}:
                 issues.append(f"{teacher.name} is unavailable at {_slot(e.day, p)} but teaches {l.id}")
-            teacher_at[(l.teacher, e.day, p)].append(l.id)
+            for tid in [l.teacher, *l.co_teachers]:
+                teacher_at[(tid, e.day, p)].append(l.id)
             room_at[(e.room, e.day, p)].append(l.id)
             for b in l.batches:
                 batch_at[(b, e.day, p)].append(l.id)
-            teacher_day[(l.teacher, e.day)] += 1
+            for tid in [l.teacher, *l.co_teachers]:
+                teacher_day[(tid, e.day)] += 1
             for b in l.batches:
                 batch_day[(b, e.day)] += 1
 
@@ -74,27 +87,31 @@ def validate(college: College, entries: list[Entry]) -> list[str]:
 
     for (t, d), n in teacher_day.items():
         if n > college.teacher_by_id[t].max_per_day:
-            issues.append(f"{college.teacher_by_id[t].name} teaches {n} periods on {DAYS[d]}")
+            issues.append(f"LONG DAY Teacher {college.teacher_by_id[t].name} teaches {n} periods on {DAYS[d]}")
     for (b, d), n in batch_day.items():
         if n > MAX_BATCH_PER_DAY:
-            issues.append(f"{b} has {n} periods on {DAYS[d]} (max {MAX_BATCH_PER_DAY})")
+            issues.append(f"LONG DAY Students {b} has {n} periods on {DAYS[d]} (max {MAX_BATCH_PER_DAY})")
     return issues
 
 
-def metrics(college: College, entries: list[Entry]) -> dict:
-    """Quality numbers for the dashboard: student idle periods, single-lecture days, loads, room use."""
+def metrics(college: College, entries: list[Entry], fixed: bool | None = None) -> dict:
+    """Quality numbers for the dashboard: student idle periods, single-lecture days, loads, room use.
+    fixed=True: only imported (real) lessons; fixed=False: only generated ones; None: everything."""
     n_periods = len(PERIODS)
     occ: dict[tuple, set[int]] = defaultdict(set)
     load: dict[str, int] = defaultdict(int)
     room_used: dict[str, int] = defaultdict(int)
     for e in entries:
         l = college.lesson_by_id[e.lesson]
+        if fixed is not None and l.fixed != fixed:
+            continue
         for b in l.batches:
             occ[(b, e.day)].update(e.slots)
-        load[l.teacher] += e.duration
+        for tid in [l.teacher, *l.co_teachers]:
+            load[tid] += e.duration
         room_used[e.room] += e.duration
 
-    idle = lonely = active_days = 0
+    idle = lonely = active_days = no_lunch = 0
     worst = 0
     for slots in occ.values():
         if not slots:
@@ -106,6 +123,7 @@ def metrics(college: College, entries: list[Entry]) -> dict:
         idle += gap
         worst = max(worst, gap)
         lonely += len(slots) == 1
+        no_lunch += all(p in slots for p in LUNCH_WINDOW)
     teacher_load = sorted(
         ({"id": t.id, "name": t.name, "dept": t.dept, "hours": load.get(t.id, 0)} for t in college.teachers),
         key=lambda x: -x["hours"])
@@ -121,6 +139,9 @@ def metrics(college: College, entries: list[Entry]) -> dict:
         "idle_total": idle,
         "worst_gap": worst,
         "lonely_days": lonely,
+        "no_lunch_days": no_lunch,
+        "long_days": sum(len(v) > MAX_BATCH_PER_DAY for v in occ.values()),
+        "group_days": active_days,
         "teacher_load": teacher_load,
         "load_min": min(hours) if hours else 0,
         "load_max": max(hours) if hours else 0,

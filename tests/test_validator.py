@@ -7,7 +7,7 @@ import pytest
 from app.models import LUNCH_WINDOW, PERIODS, Entry
 from app.seed import build_college
 from app.solver import prechecks, solve
-from app.validator import validate
+from app.validator import split_issues, validate
 
 
 @pytest.fixture(scope="module")
@@ -22,8 +22,16 @@ def entries(college):
     return res.entries
 
 
-def test_solver_output_has_no_issues(college, entries):
-    assert validate(college, entries) == []
+def generated_groups(college):
+    return {b for l in college.lessons if not l.fixed for b in l.batches}
+
+
+def test_solver_output_has_no_clashes(college, entries):
+    clashes, notes = split_issues(validate(college, entries))
+    assert clashes == []
+    # quality notes may only come from imported (real) data, never from what we generated
+    mine = generated_groups(college)
+    assert not [n for n in notes if any(f" {g} " in n for g in mine)]
 
 
 def test_every_session_placed_once(college, entries):
@@ -53,16 +61,18 @@ def test_detects_room_clash(college, entries):
 
 def test_detects_block_past_end_of_day(college, entries):
     lab = _first(entries, college, "lab")
-    mutated = [replace(lab, start=7) if e is lab else e for e in entries]
+    mutated = [replace(lab, start=len(PERIODS) - 1) if e is lab else e for e in entries]
     assert any("past the end of the day" in i for i in validate(college, mutated))
 
 
-def test_every_batch_and_teacher_gets_lunch(college, entries):
-    assert not [i for i in validate(college, entries) if i.startswith("NO LUNCH")]
+def test_every_generated_group_gets_lunch(college, entries):
+    mine = generated_groups(college)
+    assert not [i for i in validate(college, entries) if i.startswith("NO LUNCH") and any(f" {g} " in i for g in mine)]
 
 
 def test_detects_missing_lunch(college):
-    theory = [l for l in college.lessons if l.section == "CSE-3A" and l.kind == "theory"][:3]
+    sec = next(s for s in college.sections if any(not l.fixed and l.batches == s.batches for l in college.lessons))
+    theory = [l for l in college.lessons if l.batches == sec.batches and l.kind == "theory"][:3]
     packed = [Entry(l.id, 0, 0, p, 1, l.rooms[0]) for l, p in zip(theory, LUNCH_WINDOW)]
     assert any(i.startswith("NO LUNCH Students") for i in validate(college, packed))
 

@@ -24,7 +24,7 @@ Every lane codes against this file. **Lane A owns the "Core" and "Shared buildin
 | `current_user` | `app/auth.py` | FastAPI dependency: `user: User = Depends(current_user)`. |
 | `require(user, action, resource)` | `app/auth.py` | Raises 403. Actions and rules live only in `authorize()`. |
 
-**`Occupancy`** has these fields:
+**`Occupancy`** (`co_teachers` lists extra teachers, e.g. for labs) has these fields:
 - `key`, `kind` (`"class"` or `"booking"`), `day`, `start`, `duration`, `slots`
 - `room`, `teacher`, `batches`, `lesson`, `title`
 - `status` (`normal`, `substituted` or `room_changed`)
@@ -48,7 +48,7 @@ Every lane codes against this file. **Lane A owns the "Core" and "Shared buildin
 | `GET /api/meta` | days, periods, lunch window, departments, **buildings**, **features**, sections (with batches), teachers, rooms, counts |
 | `GET /api/me` | the calling `User` |
 | `GET /api/users` | `{roles: {role: [{id, name, dept}]}, clubs: [...]}` for the account switcher |
-| `GET /api/timetable` | base timetable: `{ready, status, seconds, issues, metrics, baseline, entries:[entry view]}` |
+| `GET /api/timetable` | base timetable: `{ready, status, seconds, issues, notes, metrics, compare, baseline, source, entries:[entry view]}`. `issues` = hard clashes (must be empty); `notes` = quality notes (`NO LUNCH …`, `LONG DAY …`) that only imported data may have; `compare` = `{real, generated}` metrics |
 | `GET /api/effective?on=YYYY-MM-DD` | `{date, weekday, items:[occupancy view]}` |
 | `POST /api/generate?time_limit=30` | regenerate (needs `timetable.generate`) |
 | `GET /api/free-rooms` | free rooms (see below) |

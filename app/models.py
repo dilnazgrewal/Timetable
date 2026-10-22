@@ -1,4 +1,4 @@
-"""Domain model for the P0 prototype (plain dataclasses; becomes SQLModel tables in P1)."""
+"""Domain model (plain dataclasses). Shared by every lane; owned by Lane A."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -13,11 +13,13 @@ PERIODS = [
     ("P6", "13:30", "14:30"),
     ("P7", "14:30", "15:30"),
     ("P8", "15:30", "16:30"),
+    ("P9", "16:30", "17:30"),  # GNDEC: mostly mentoring (MC); the generator does not use it
 ]
+SOLVER_PERIODS = 8  # the generator only places classes in P1..P8 (8:30-4:30)
 # Lunch is not a fixed slot: every batch and teacher gets at least one free period in this
 # window each day (11:30–14:30), and the solver picks which one.
 LUNCH_WINDOW = (3, 4, 5)
-RUNS = [(0, 8)]  # contiguous teaching runs [start, end); no fixed breaks
+RUNS = [(0, len(PERIODS))]  # contiguous teaching runs [start, end); no fixed breaks
 MAX_BATCH_PER_DAY = 6
 
 
@@ -70,16 +72,17 @@ class Teacher:
 
 @dataclass
 class Section:
-    id: str  # e.g. "CSE-3A"
+    id: str  # GNDEC style: "D3-CS-A" (year D3, CSE, section A)
     dept: str
-    year: int
-    name: str
+    year: int  # 1-4 = B.Tech D1-D4; 5 = M.Tech; 6 = PhD
+    name: str  # display, e.g. "D3 CS A"
     size: int
     home_room: str
+    groups: list[str] = field(default_factory=list)  # atomic student groups, e.g. "D3-CS-A-A1"
 
     @property
     def batches(self) -> list[str]:
-        return [f"{self.id}-G1", f"{self.id}-G2"]
+        return self.groups
 
 
 @dataclass
@@ -98,6 +101,8 @@ class Lesson:
     room_kind: str
     rooms: list[str]  # candidate rooms
     size: int
+    co_teachers: list[str] = field(default_factory=list)  # labs often have 2-3 teachers
+    fixed: bool = False  # imported (e.g. from FET): the generator never moves it
 
 
 @dataclass
@@ -123,6 +128,7 @@ class College:
     sections: list[Section]
     lessons: list[Lesson]
     buildings: list[Building] = field(default_factory=list)
+    fixed_entries: list[Entry] = field(default_factory=list)  # placements of fixed (imported) lessons
 
     def __post_init__(self) -> None:
         self.building_by_id = {b.id: b for b in self.buildings}
@@ -157,7 +163,7 @@ class User:
     name: str
     role: str
     dept: str | None = None
-    group: str | None = None  # student: their batch / group id, e.g. "CSE-3A-G1"
+    group: str | None = None  # student: their batch / group id, e.g. "D3-CS-A-A1"
     teacher_id: str | None = None  # teacher / hod: their Teacher.id
     club: str | None = None  # club lead: Club.id
 

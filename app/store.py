@@ -20,7 +20,7 @@ from pathlib import Path
 
 from app.models import (DAYS, ApprovalStep, BookingRequest, Club, College, Entry, MeetingRequest,
                         Notification, Override, User)
-from app.validator import metrics, validate
+from app.validator import metrics, split_issues, validate
 
 ROOT = Path(__file__).resolve().parent.parent
 SOLUTION = ROOT / "data" / "solution.json"
@@ -41,6 +41,7 @@ class Occupancy:
     lesson: str | None = None
     title: str = ""
     status: str = "normal"  # normal | substituted | room_changed
+    co_teachers: list[str] = field(default_factory=list)  # other teachers in the room (labs)
 
     @property
     def slots(self) -> range:
@@ -81,8 +82,11 @@ class Store:
         """Install a base timetable. Always re-validated by the independent checker."""
         with self.lock:
             entries = [Entry(**e) for e in raw["entries"]]
-            raw["issues"] = validate(self.college, entries)
+            raw["issues"], raw["notes"] = split_issues(validate(self.college, entries))
             raw["metrics"] = metrics(self.college, entries)
+            if any(l.fixed for l in self.college.lessons):  # real (imported) vs generated departments
+                raw["compare"] = {k: {m: v for m, v in metrics(self.college, entries, fixed=f).items() if m != "teacher_load"}
+                                  for k, f in (("real", True), ("generated", False))}
             self.result, self.entries = raw, entries
             return raw
 
@@ -94,7 +98,7 @@ class Store:
     def _occ(self, e: Entry) -> Occupancy:
         l = self.college.lesson_by_id[e.lesson]
         return Occupancy(entry_key(e), "class", e.day, e.start, e.duration, e.room, l.teacher,
-                         list(l.batches), l.id, f"{l.code} · {l.section}")
+                         list(l.batches), l.id, f"{l.code} · {l.section}", co_teachers=list(l.co_teachers))
 
     def week(self) -> list[Occupancy]:
         return [self._occ(e) for e in self.entries]

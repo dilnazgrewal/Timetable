@@ -81,6 +81,7 @@ def timetable() -> dict:
     if not r:
         return {"ready": False}
     return {"ready": True, "status": r["status"], "seconds": r["seconds"], "issues": r["issues"],
+            "notes": r.get("notes", []), "source": r.get("source", ""), "compare": r.get("compare"),
             "metrics": r["metrics"], "baseline": r.get("baseline"), "problems": r.get("problems", []),
             "entries": [entry_view(e) for e in STORE.entries]}
 
@@ -109,7 +110,8 @@ def generate(time_limit: float = 30, user: User = Depends(current_user)) -> dict
             return {"ok": False, "status": res.status, "problems": res.problems}
         raw = {"status": res.status, "seconds": res.seconds, "objective": res.objective,
                "entries": [asdict(e) for e in res.entries],
-               "baseline": metrics(c, base.entries) if base.entries else None}
+               "baseline": metrics(c, base.entries, fixed=False) if base.entries else None,
+               "source": "Real CSE timetable (GNDEC, imported from FET) + generated departments"}
         if raw["baseline"]:
             raw["baseline"].pop("teacher_load", None)
         STORE.save_solution(raw)

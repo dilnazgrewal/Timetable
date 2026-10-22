@@ -3,6 +3,7 @@ an Applied Sciences department teaching Maths to every 2nd-year section, teacher
 departments, and a visiting teacher available only Tue/Thu."""
 from __future__ import annotations
 
+from app.importers import fet
 from app.models import PERIODS, Building, College, Department, Lesson, Room, Section, Teacher
 
 DEPTS = [
@@ -71,6 +72,7 @@ LAST = ["Kaur", "Singh", "Sharma", "Gill", "Sidhu", "Grewal", "Sandhu", "Dhillon
 TITLES = ["Dr.", "Prof.", "Er."]
 
 TEACHERS_PER_DEPT = 7
+SEED_DEPTS = ["CSE", "IT", "ECE", "ME", "CE"]
 
 FLOORS = ["Ground", "First", "Second"]
 BUILDINGS = [
@@ -107,23 +109,38 @@ def _place_rooms(rooms: list[Room]) -> None:
 
 
 def build_college() -> College:
+    """GNDEC demo college: the real CSE timetable (if imported from FET) + a GNDEC-shaped seed for the
+    other departments. Without an import, CSE is seeded too."""
+    imported = fet.load()
+    seed = _build_seed([d for d in SEED_DEPTS if not (imported and d == "CSE")])
+    if not imported:
+        return seed
+    rooms = {r.id: r for r in seed.rooms}
+    rooms.update({r.id: r for r in imported["rooms"]})  # real rooms win (e.g. "WS SEMINAR HALL")
+    teachers = {t.id: t for t in seed.teachers}
+    teachers.update({t.id: t for t in imported["teachers"]})
+    return College(DEPTS, list(rooms.values()), list(teachers.values()), imported["sections"] + seed.sections,
+                   imported["lessons"] + seed.lessons, BUILDINGS, fixed_entries=imported["entries"])
+
+
+def _build_seed(depts: list[str]) -> College:
     rooms: list[Room] = []
     teachers: list[Teacher] = []
     sections: list[Section] = []
     lessons: list[Lesson] = []
 
     # --- rooms -----------------------------------------------------------
-    for d in ["CSE", "IT", "ECE", "ME", "CE"]:
+    for d in depts:
         for i in range(1, 5):
             rooms.append(Room(f"{d}-20{i}", "Classroom", 66, d))
-    rooms += [Room(f"CL-{i}", "Computer Lab", 36) for i in range(1, 6)]  # central, shared CSE+IT
+    rooms += [Room(f"CL-{i}", "Computer Lab", 36) for i in range(1, 6)]  # central computer labs
     rooms += [Room(f"ECE-Lab-{i}", "Electronics Lab", 32, "ECE") for i in range(1, 4)]
     rooms += [Room(f"ME-Lab-{i}", "Mechanical Lab", 32, "ME") for i in range(1, 4)]
     rooms += [Room(f"CE-Lab-{i}", "Civil Lab", 32, "CE") for i in range(1, 4)]
     rooms += [Room("LT-1", "Lecture Theatre", 120), Room("LT-2", "Lecture Theatre", 120),
               Room("Library Reading Room", "Study Area", 80)]
     # event venues (never used by the solver; bookable through the venues lane)
-    rooms += [Room("WS Seminar Hall", "Seminar Hall", 150, None, "WS", "Ground",
+    rooms += [Room("WS SEMINAR HALL", "Seminar Hall", 150, None, "WS", "Ground",
                    ["projector", "sound", "ac", "stage"], sittable=False, bookable=True),
               Room("MBA Seminar Hall", "Seminar Hall", 120, "CSE", "MBA", "First",
                    ["projector", "sound", "ac"], sittable=False, bookable=True),
@@ -142,27 +159,28 @@ def build_college() -> College:
         teachers.append(t)
         return t
 
-    dept_teachers: dict[str, list[Teacher]] = {}
-    for d in ["CSE", "IT", "ECE", "ME", "CE"]:
-        dept_teachers[d] = [new_teacher(d) for _ in range(TEACHERS_PER_DEPT)]
-    # realism: one CSE teacher has PhD coursework on Friday afternoons
-    dept_teachers["CSE"][2].unavailable = [(4, p) for p in range(5, 8)]
+    dept_teachers: dict[str, list[Teacher]] = {d: [new_teacher(d) for _ in range(TEACHERS_PER_DEPT)] for d in depts}
+    # realism: one teacher has PhD coursework on Friday afternoons
+    dept_teachers[depts[0]][2].unavailable = [(4, p) for p in range(5, 8)]
     as_teachers = [new_teacher("AS") for _ in range(3)]
-    visiting = new_teacher("CSE", "Visiting", [(d, p) for d in (0, 2, 4) for p in range(len(PERIODS))])
+    visiting_dept = "CSE" if "CSE" in depts else depts[0]
+    visiting = new_teacher(visiting_dept, "Visiting", [(d, p) for d in (0, 2, 4) for p in range(len(PERIODS))])
     visiting.name = "Er. Kavya Malhotra (Visiting)"
+    shared_pool = dept_teachers["CSE"] if "CSE" in depts else dept_teachers.get("IT", [])
 
     load: dict[str, int] = {t.id: 0 for t in teachers}
 
     def pick(pool: list[Teacher]) -> Teacher:
         return min(pool, key=lambda t: (load[t.id], t.id))
 
-    # --- sections & lessons ---------------------------------------------
-    for d in ["CSE", "IT", "ECE", "ME", "CE"]:
+    # --- sections & lessons (GNDEC naming: D2-IT-A with lab groups A1/A2) --------------------
+    for d in depts:
         for year in (2, 3):
             secs = []
             for letter, room_no in (("A", 1 if year == 2 else 3), ("B", 2 if year == 2 else 4)):
-                s = Section(f"{d}-{year}{letter}", d, year, f"{d} {year}{'nd' if year == 2 else 'rd'} yr {letter}",
-                            60, f"{d}-20{room_no}")
+                sid = f"D{year}-{d}-{letter}"
+                s = Section(sid, d, year, f"D{year} {d} {letter}", 60, f"{d}-20{room_no}",
+                            [f"{sid}-{letter}1", f"{sid}-{letter}2"])
                 sections.append(s)
                 secs.append(s)
 
@@ -172,20 +190,20 @@ def build_college() -> College:
             # heaviest first so the greedy balances load
             work.sort(key=lambda w: -(w[2] * 2 if w[3] == "theory" else 8))
             for name, code, hrs, kind in work:
-                if d == "IT" and code in ("DS", "CN"):
-                    teacher = pick(dept_teachers["CSE"])  # shared across departments
+                if d == "IT" and code in ("DS", "CN") and shared_pool is not dept_teachers[d]:
+                    teacher = pick(shared_pool)  # shared across departments
                 else:
                     teacher = pick(dept_teachers[d])
                 for s in secs:
                     if kind == "theory":
-                        lessons.append(Lesson(f"{s.id}:{code}", code, name, "theory", d, teacher.id, s.id,
+                        lessons.append(Lesson(f"{s.id}:{code}", code, name, "theory", d, teacher.id, s.name,
                                               s.batches, hrs, 1, "Classroom", [s.home_room], s.size))
                         load[teacher.id] += hrs
                     else:
                         lab_rooms = [r.id for r in rooms if r.kind == LAB_KIND[d]]
                         for b in s.batches:
                             lessons.append(Lesson(f"{b}:{code}", code, name, "lab", d, teacher.id,
-                                                  f"{s.id} {b[-2:]}", [b], 1, 2, LAB_KIND[d], lab_rooms,
+                                                  f"{s.name}{b[-1]}", [b], 1, 2, LAB_KIND[d], lab_rooms,
                                                   s.size // 2))
                             load[teacher.id] += 2
 
@@ -193,11 +211,11 @@ def build_college() -> College:
                 if year == 2:
                     t = pick(as_teachers)
                     lessons.append(Lesson(f"{s.id}:M3", "M3", "Engineering Mathematics III", "theory", "AS",
-                                          t.id, s.id, s.batches, 3, 1, "Classroom", [s.home_room], s.size))
+                                          t.id, s.name, s.batches, 3, 1, "Classroom", [s.home_room], s.size))
                     load[t.id] += 3
-                elif d == "CSE":
-                    lessons.append(Lesson(f"{s.id}:SE", "SE", "Software Engineering", "theory", "CSE",
-                                          visiting.id, s.id, s.batches, 2, 1, "Classroom", [s.home_room], s.size))
+                elif d == visiting_dept:
+                    lessons.append(Lesson(f"{s.id}:SE", "SE", "Software Engineering", "theory", d,
+                                          visiting.id, s.name, s.batches, 2, 1, "Classroom", [s.home_room], s.size))
                     load[visiting.id] += 2
 
     return College(DEPTS, rooms, teachers, sections, lessons, BUILDINGS)

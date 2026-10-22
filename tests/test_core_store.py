@@ -51,16 +51,17 @@ def test_cancel_substitute_and_room_change(store):
 
 
 def test_booking_occupies_room_only_on_that_date(store):
-    store.add_override(Override("b1", FRIDAY, "booking", periods=[5, 6], room="WS Seminar Hall", title="DMC talk"))
+    store.add_override(Override("b1", FRIDAY, "booking", periods=[5, 6], room="WS SEMINAR HALL", title="DMC talk"))
     busy = store.busy_rooms(store.effective(FRIDAY), 5)
-    assert busy["WS Seminar Hall"].kind == "booking"
-    assert "WS Seminar Hall" not in store.busy_rooms(store.effective("2026-10-30"), 5)
+    assert busy["WS SEMINAR HALL"].kind == "booking"
+    assert "WS SEMINAR HALL" not in store.busy_rooms(store.effective("2026-10-30"), 5)
 
 
 def test_permissions(store, monkeypatch):
     monkeypatch.setattr(store_mod, "STORE", store)
     u = store.users
-    assert not authorize(u["s-CSE-3A-G1"], "timetable.generate")
+    student = next(x for x in u.values() if x.role == "student")
+    assert not authorize(student, "timetable.generate")
     assert authorize(u["hod-CSE"], "timetable.generate")
     req = BookingRequest("r1", "Talk", "club-DMC", "DMC", 100, ["projector"], FRIDAY, [5], "MBA Seminar Hall")
     advisor = store.clubs["DMC"].advisor

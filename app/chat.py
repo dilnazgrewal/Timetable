@@ -23,8 +23,8 @@ TOOLS = [
     },
     {
         "name": "get_schedule",
-        "description": "Weekly or single-day schedule of a section (e.g. CSE-3A), teacher (e.g. T07) or room "
-                       "(e.g. CL-2). day is Mon..Fri, or omit for the whole week.",
+        "description": "Weekly or single-day schedule of a section (e.g. D3-CS-A), teacher (e.g. KD) or room "
+                       "(e.g. G17). day is Mon..Fri, or omit for the whole week.",
         "input_schema": {"type": "object", "properties": {
             "kind": {"type": "string", "enum": ["section", "teacher", "room"]},
             "id": {"type": "string"},

@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 
 from ortools.sat.python import cp_model
 
-from app.models import DAYS, LUNCH_WINDOW, MAX_BATCH_PER_DAY, PERIODS, RUNS, College, Entry
+from app.models import DAYS, LUNCH_WINDOW, MAX_BATCH_PER_DAY, RUNS, SOLVER_PERIODS, College, Entry, Lesson
 
 W_STUDENT_GAP = 10
 W_LONELY_DAY = 6
@@ -30,13 +30,14 @@ class SolveResult:
     problems: list[str] = field(default_factory=list)
 
 
-def prechecks(college: College) -> list[str]:
+def prechecks(college: College, lessons: list[Lesson] | None = None) -> list[str]:
     """Fast, human-readable reasons why no timetable can exist (run before the solver)."""
     problems: list[str] = []
-    n_days, n_per = len(DAYS), len(PERIODS)
+    lessons = movable(college) if lessons is None else lessons
+    n_days, n_per = len(DAYS), SOLVER_PERIODS
     hours: dict[str, int] = defaultdict(int)
     batch_hours: dict[str, int] = defaultdict(int)
-    for l in college.lessons:
+    for l in lessons:
         hours[l.teacher] += l.sessions * l.duration
         for b in l.batches:
             batch_hours[b] += l.sessions * l.duration
@@ -51,9 +52,9 @@ def prechecks(college: College) -> list[str]:
     for b, h in batch_hours.items():
         if h > n_days * MAX_BATCH_PER_DAY:
             problems.append(f"{b} needs {h} periods a week but the limit is {n_days * MAX_BATCH_PER_DAY}.")
-    blocks_per_day = sum((b - a) // 2 for a, b in RUNS)
+    blocks_per_day = sum((min(b, n_per) - a) // 2 for a, b in RUNS)
     demand: dict[str, int] = defaultdict(int)
-    for l in college.lessons:
+    for l in lessons:
         if l.kind == "lab":
             demand[l.room_kind] += l.sessions
     for kind, need in demand.items():
@@ -63,16 +64,22 @@ def prechecks(college: College) -> list[str]:
     return problems
 
 
+def movable(college: College) -> list[Lesson]:
+    """Lessons the generator places. Imported (fixed) lessons keep their published slots."""
+    return [l for l in college.lessons if not l.fixed]
+
+
 def solve(college: College, time_limit: float = 30.0, optimize: bool = True, workers: int = 8,
           log: bool = False) -> SolveResult:
     t0 = time.time()
-    problems = prechecks(college)
+    lessons = movable(college)
+    problems = prechecks(college, lessons)
     if problems:
         return SolveResult("INFEASIBLE", problems=problems, seconds=time.time() - t0)
 
-    n_days, n_per = len(DAYS), len(PERIODS)
+    n_days, n_per = len(DAYS), SOLVER_PERIODS
     m = cp_model.CpModel()
-    sessions = [(l, k) for l in college.lessons for k in range(l.sessions)]
+    sessions = [(l, k) for l in lessons for k in range(l.sessions)]
     x: dict[tuple, cp_model.IntVar] = {}
     by_session: dict[int, list] = defaultdict(list)
     session_day: dict[int, list] = defaultdict(list)
@@ -85,7 +92,7 @@ def solve(college: College, time_limit: float = 30.0, optimize: bool = True, wor
         unav = {tuple(u) for u in college.teacher_by_id[l.teacher].unavailable}
         for d in range(n_days):
             for a, b in RUNS:
-                for p in range(a, b - l.duration + 1):
+                for p in range(a, min(b, n_per) - l.duration + 1):
                     if any((d, q) in unav for q in range(p, p + l.duration)):
                         continue
                     for r in l.rooms:
@@ -111,7 +118,7 @@ def solve(college: College, time_limit: float = 30.0, optimize: bool = True, wor
     first_session: dict[str, int] = {}
     for si, (l, k) in enumerate(sessions):
         first_session.setdefault(l.id, si)
-    for l in college.lessons:
+    for l in lessons:
         unav = {tuple(u) for u in college.teacher_by_id[l.teacher].unavailable}
         avail_days = sum(any((d, p) not in unav for p in range(n_per)) for d in range(n_days))
         cap = 1 if l.sessions <= avail_days else 2
@@ -124,8 +131,8 @@ def solve(college: College, time_limit: float = 30.0, optimize: bool = True, wor
             for k in range(l.sessions - 1):
                 m.Add(day_of[k] < day_of[k + 1])
 
-    teachers = {l.teacher for l in college.lessons}
-    batches = sorted({b for l in college.lessons for b in l.batches})
+    teachers = {l.teacher for l in lessons}
+    batches = sorted({b for l in lessons for b in l.batches})
 
     def lunch_break(table: dict, who: str, d: int) -> None:
         # at least one free period inside the lunch window (cover per slot is already <= 1)
@@ -190,7 +197,7 @@ def solve(college: College, time_limit: float = 30.0, optimize: bool = True, wor
                 gaps, lunch = idle_gaps(o)
                 objective += [W_TEACHER_GAP * g for g in gaps] + [-W_TEACHER_GAP * lunch]
                 for a, b in RUNS:
-                    for q in range(a, b - 3):
+                    for q in range(a, min(b, n_per) - 3):
                         streak = m.NewBoolVar("")
                         m.Add(streak >= sum(o[q:q + 4]) - 3)
                         objective.append(W_LONG_STREAK * streak)
@@ -211,6 +218,7 @@ def solve(college: College, time_limit: float = 30.0, optimize: bool = True, wor
             if solver.Value(v):
                 l, k = sessions[si]
                 result.entries.append(Entry(l.id, k, d, p, l.duration, r))
+        result.entries += list(college.fixed_entries)
         if optimize:
             result.objective = solver.ObjectiveValue()
     elif status == cp_model.INFEASIBLE:
@@ -239,9 +247,12 @@ if __name__ == "__main__":
     for p in res.problems:
         print("  problem:", p)
     if res.entries:
-        issues = validate(college, res.entries)
-        print(f"validator: {len(issues)} issues")
-        for i in issues[:10]:
+        from app.validator import split_issues
+
+        clashes, notes = split_issues(validate(college, res.entries))
+        print(f"validator: {len(clashes)} clashes, {len(notes)} quality notes")
+        for i in clashes[:10]:
             print("  ", i)
-        mt = metrics(college, res.entries)
-        print({k: v for k, v in mt.items() if k != "teacher_load"})
+        for label, fx in (("real (imported)", True), ("generated", False)):
+            mt = metrics(college, res.entries, fixed=fx)
+            print(f"{label:16s}", {k: mt[k] for k in ("idle_per_day", "lonely_days", "no_lunch_days", "long_days", "group_days")})
