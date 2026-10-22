@@ -8,9 +8,9 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 
-from app.auth import current_user
+from app.auth import current_user, require
 from app.models import User
-from app.venues import ranking, requests
+from app.venues import ranking, requests, slots
 from app.venues.common import check_periods, parse_date, room_view, store
 
 router = APIRouter(prefix="/api/venues", tags=["venues"])
@@ -32,6 +32,18 @@ class RequestBody(BaseModel):
     date: str
     periods: list[int]
     room: str
+
+
+class SlotBody(BaseModel):
+    dept: str | None = None
+    year: int | None = None
+    sections: list[str] = []
+    groups: list[str] = []
+    duration: int = 2
+    from_: str | None = Field(default=None, alias="from")
+    to: str | None = None
+    attendees: int | None = Field(default=None, ge=1)
+    needs: list[str] = []
 
 
 class DecideBody(BaseModel):
@@ -77,6 +89,14 @@ def decide(req_id: str, body: DecideBody, user: User = Depends(current_user)) ->
 @router.post("/requests/{req_id}/cancel")
 def cancel(req_id: str, user: User = Depends(current_user)) -> dict:
     return {"request": requests.view(requests.cancel(user, req_id), user)}
+
+
+@router.post("/slot-finder")
+def slot_finder(body: SlotBody, user: User = Depends(current_user)) -> dict:
+    """Times when every group in the audience is free, earliest first, each with the best-fit free venues."""
+    require(user, "slotfinder.use")
+    aud = slots.audience(body.dept, body.year, body.sections, body.groups)
+    return slots.find(aud, body.duration, body.from_, body.to, body.attendees, ranking.check_needs(body.needs))
 
 
 @router.get("/ping")
