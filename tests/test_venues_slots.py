@@ -111,3 +111,19 @@ def test_permissions_and_bad_input(client):
     assert find(client, duration=2).status_code == 400  # no audience
     assert find(client, groups=["nope"]).status_code == 400
     assert find(client, dept=sec.dept, year=sec.year, duration=99).status_code == 400
+
+
+def test_almost_free_slots_name_who_would_miss_class(client, monkeypatch, section_and_lesson):
+    sec, lesson = section_and_lesson
+    monday = next_weekday(0)
+    a, last = LUNCH_WINDOW[0], LUNCH_WINDOW[-1]
+    # the whole lunch window is taken: no slot should warn about lunch (there is none left to protect)
+    monkeypatch.setattr(STORE, "entries", [Entry(lesson.id, 0, 0, a, last - a + 1, "ANY")])
+    body = find(client, sections=[sec.id], duration=1, **{"from": monday}, to=monday).json()
+    assert body["slots"] and not any("lunch" in w for s in body["slots"] for w in s["warnings"])
+    busy_groups = sorted(set(lesson.batches) & set(sec.batches))
+    near = body["almost"][0]
+    assert near["periods"][0] in LUNCH_WINDOW
+    assert sorted(g for m in near["missing"] for g in m["groups"]) == busy_groups
+    assert near["missing"][0]["section"] == sec.name and near["missing"][0]["classes"]
+    assert near["missing"][0]["whole"] == (len(busy_groups) == len(sec.batches))

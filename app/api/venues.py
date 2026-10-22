@@ -98,7 +98,3 @@ def slot_finder(body: SlotBody, user: User = Depends(current_user)) -> dict:
     aud = slots.audience(body.dept, body.year, body.sections, body.groups)
     return slots.find(aud, body.duration, body.from_, body.to, body.attendees, ranking.check_needs(body.needs))
 
-
-@router.get("/ping")
-def ping(user: User = Depends(current_user)) -> dict:
-    return {"lane": "venues", "user": user.id}

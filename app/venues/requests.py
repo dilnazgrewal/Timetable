@@ -17,7 +17,6 @@ from app.venues.ranking import ACTIVE, busy_reason, competing, conflicts
 
 INBOX = "/venues.html#inbox"
 MINE = "/venues.html#requests"
-ROLE_LABEL = {"advisor": "Faculty advisor", "hod": "HOD", "admin": "Timetable office"}
 ACTION = {"advisor": "booking.endorse", "hod": "booking.approve", "admin": "booking.approve"}
 
 
@@ -49,6 +48,11 @@ def who(user_id: str) -> str:
     return u.name if u else user_id
 
 
+def step_label(st: ApprovalStep) -> str:
+    """'Faculty advisor · Dr. X' or just 'HOD CSE (Dr. Y)' / 'Timetable Office (Admin)' (names already say the role)."""
+    return f"Faculty advisor · {who(st.approver)}" if st.role == "advisor" else who(st.approver)
+
+
 def summary(req: BookingRequest) -> str:
     return f"“{req.title}” · {req.room} · {day_label(req.date)}, {periods_label(req.periods)}"
 
@@ -74,7 +78,7 @@ def view(req: BookingRequest, user: User) -> dict:
     room = s.college.room_by_id.get(req.room)
     timeline = [{"label": f"Requested by {who(req.requester)}", "at": req.created_at, "state": "done"}]
     for st in req.steps:
-        label = f"{ROLE_LABEL[st.role]} · {who(st.approver)}"
+        label = step_label(st)
         if st.decision:
             verb = ("endorsed" if st.role == "advisor" else "approved") if st.decision == "approved" else "rejected"
             timeline.append({"label": f"{label} {verb}", "at": st.at, "note": st.note,
@@ -86,7 +90,7 @@ def view(req: BookingRequest, user: User) -> dict:
         timeline.append({"label": "Cancelled", "at": None, "state": "rejected"})
     elif req.status == "approved":
         timeline.append({"label": "Booked: the room is reserved", "at": None, "state": "done"})
-    waiting = f"{ROLE_LABEL[step.role]} ({who(step.approver)})" if step else None
+    waiting = step_label(step) if step else None
     can_decide = step is not None and authorize(user, ACTION[step.role], req)
     can_cancel = req.status in (*ACTIVE, "approved") and authorize(user, "booking.cancel", req)
     others = [b.id for b in competing(req.room, req.date, req.periods, skip=req.id)] if req.status in ACTIVE else []
@@ -149,7 +153,7 @@ def advance(req: BookingRequest, actor: User) -> None:
     s.notify(step.approver, f"📝 Please {verb}: {summary(req)} (from {who(req.requester)})", INBOX)
     if req.status == "endorsed" and req.requester != actor.id:
         s.notify(req.requester, f"👍 Endorsed by your faculty advisor: {summary(req)}. "
-                                f"Now waiting for {ROLE_LABEL[step.role]}.", MINE)
+                                f"Now waiting for {step_label(step)}.", MINE)
 
 
 def decide(user: User, req_id: str, decision: str, note: str) -> BookingRequest:

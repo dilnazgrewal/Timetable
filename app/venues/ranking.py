@@ -77,7 +77,8 @@ def rank(d: date, periods: list[int], attendees: int, needs: list[str], occ: lis
                 warnings.append(f"Much bigger than you need ({room.capacity} seats)")
             fits.append({**room_view(room), "fits": True, "reason": fit_reason(room, attendees, needs),
                          "warnings": warnings, "pending_requests": len(others),
-                         "_key": (len(others) > 0, room.capacity - attendees, room.building, floor_rank(room), room.id)})
+                         "_key": (len(others) > 0, room.capacity - attendees, -len(room.features),
+                                  room.building, floor_rank(room), room.id)})
             continue
         why = [busy_reason(o) for o in busy]
         if small:

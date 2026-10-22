@@ -15,12 +15,305 @@
 </head>
 <!-- Lane C (Venues and events) owns this page and /static/js/venues.js. -->
 <body class="bg-slate-50 text-slate-800 min-h-screen">
-<div class="max-w-7xl mx-auto px-4 pb-16">
+<div class="max-w-5xl mx-auto px-4 pb-16">
   <div id="tw-shell"></div>
-  <main x-data="venuesApp()" x-init="init()" x-cloak>
+  <main x-data="venuesApp()" x-cloak>
     <h1 class="text-xl font-bold mt-2">Venues & events</h1>
-    <p class="text-sm text-slate-500">Book a seminar hall or room for an event, get it approved, and find a time when a whole batch is free.</p>
-    <div class="mt-4 rounded-xl border bg-white p-6 text-slate-500" x-text="status"></div>
+    <p class="text-sm text-slate-500">Find a free hall or room that fits your event, request it online, and track approvals. Visiting organisations can find a time when a whole batch is free.</p>
+
+    <!-- tabs -->
+    <nav class="mt-4 flex gap-1 overflow-x-auto border-b [scrollbar-width:none]">
+      <template x-for="t in tabs()" :key="t.id">
+        <a :href="'#' + t.id" @click="go(t.id)"
+           class="px-3 py-2 text-sm whitespace-nowrap border-b-2 -mb-px"
+           :class="tab === t.id ? 'border-indigo-600 text-indigo-700 font-semibold' : 'border-transparent text-slate-500 hover:text-slate-800'">
+          <span class="hidden sm:inline" x-text="t.label"></span><span class="sm:hidden" x-text="t.short"></span>
+          <span x-show="t.count" class="ml-1 text-[11px] px-1.5 rounded-full bg-red-600 text-white" x-text="t.count"></span>
+        </a>
+      </template>
+    </nav>
+
+    <div x-show="flash" x-transition class="mt-3 rounded-lg px-3 py-2 text-sm"
+         :class="flash?.ok ? 'bg-emerald-50 border border-emerald-200 text-emerald-800' : 'bg-red-50 border border-red-200 text-red-800'">
+      <span x-text="flash?.text"></span>
+      <button class="float-right text-xs opacity-60" @click="flash = null">✕</button>
+    </div>
+
+    <!-- ============ Book a venue ============ -->
+    <section x-show="tab === 'book'" class="mt-4">
+      <template x-if="!can.request">
+        <div class="rounded-xl border bg-white p-4 text-sm text-slate-600">
+          Students can't book venues directly. Ask your club lead, a teacher or your HOD, or switch the demo account to <b>Digital Marketing Club</b> at the top.
+        </div>
+      </template>
+      <form x-show="can.request" @submit.prevent="search()" class="rounded-xl border bg-white p-4 grid gap-3 grid-cols-2">
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">Date</label>
+          <input type="date" x-model="form.date" :min="today" class="w-full border rounded-lg px-2 py-1.5 bg-white text-sm" required>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">How many people?</label>
+          <input type="number" min="1" x-model.number="form.attendees" class="w-full border rounded-lg px-2 py-1.5 bg-white text-sm" required>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">From</label>
+          <select x-model.number="form.from" class="w-full border rounded-lg px-2 py-1.5 bg-white text-sm">
+            <template x-for="(p, i) in periods" :key="i"><option :value="i" x-text="p.label + ' · ' + clock(p.start)" :selected="i === form.from"></option></template>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">Until (end of)</label>
+          <select x-model.number="form.to" class="w-full border rounded-lg px-2 py-1.5 bg-white text-sm">
+            <template x-for="(p, i) in periods" :key="i"><option :value="i" x-text="p.label + ' · ' + clock(p.end)" :disabled="i < form.from" :selected="i === form.to"></option></template>
+          </select>
+        </div>
+        <div class="col-span-2">
+          <label class="block text-xs text-slate-500 mb-1">The venue must have</label>
+          <div class="flex flex-wrap gap-2">
+            <template x-for="f in features" :key="f">
+              <button type="button" @click="toggle(form.needs, f)" class="px-3 py-1 rounded-full border text-sm"
+                      :class="form.needs.includes(f) ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-600'"
+                      x-text="nice(f)"></button>
+            </template>
+          </div>
+        </div>
+        <div class="col-span-2 flex items-center gap-3">
+          <button class="px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-semibold" :disabled="busy">Find venues</button>
+          <span class="text-xs text-slate-500" x-show="busy">Checking the timetable…</span>
+        </div>
+      </form>
+
+      <template x-if="results">
+        <div class="mt-4">
+          <h2 class="text-lg font-bold">
+            <span x-text="results.venues.length ? results.venues.length + (results.venues.length > 1 ? ' free venues fit' : ' free venue fits') : 'No free venue fits'"></span>
+          </h2>
+          <p class="text-sm text-slate-500 mb-2" x-text="whenText(results.date, results.periods) + ' · ' + results.attendees + ' people'"></p>
+          <div class="grid gap-3 sm:grid-cols-2">
+            <template x-for="(v, i) in results.venues" :key="v.id">
+              <div class="rounded-xl p-3 border bg-white" :class="i === 0 ? 'ring-2 ring-indigo-200' : ''">
+                <div class="flex items-start gap-2">
+                  <div class="min-w-0">
+                    <div class="font-semibold"><span x-text="v.id"></span>
+                      <span x-show="i === 0" class="ml-1 text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">best fit</span></div>
+                    <div class="text-xs text-slate-500" x-text="v.kind + ' · ' + (v.dept ? v.dept + ' dept' : 'central')"></div>
+                  </div>
+                  <div class="ml-auto text-right shrink-0">
+                    <div class="text-lg font-bold" x-text="v.capacity"></div><div class="text-[10px] text-slate-500 -mt-1">seats</div>
+                  </div>
+                </div>
+                <p class="text-sm mt-2" x-text="v.reason"></p>
+                <template x-for="w in v.warnings"><p class="text-xs text-amber-700 mt-1" x-text="'⚠ ' + w"></p></template>
+                <div class="mt-2 flex items-center gap-2">
+                  <span class="text-xs text-slate-500" x-text="'Approval: ' + approvalPath(v)"></span>
+                  <button class="ml-auto px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-sm" @click="openRequest(v)">Request</button>
+                </div>
+              </div>
+            </template>
+          </div>
+          <details x-show="results.near_misses.length" class="mt-3 rounded-xl border bg-white p-3">
+            <summary class="text-sm text-slate-600 cursor-pointer">Close, but not suitable (<span x-text="results.near_misses.length"></span>)</summary>
+            <ul class="mt-2 space-y-1">
+              <template x-for="m in results.near_misses" :key="m.id">
+                <li class="text-sm"><b x-text="m.id"></b> <span class="text-slate-500" x-text="'· ' + m.capacity + ' seats · ' + m.reason"></span></li>
+              </template>
+            </ul>
+          </details>
+        </div>
+      </template>
+    </section>
+
+    <!-- ============ My requests / Approvals inbox ============ -->
+    <template x-for="list in ['requests', 'inbox']" :key="list">
+      <section x-show="tab === list" class="mt-4 space-y-3">
+        <div class="flex items-center">
+          <p class="text-sm text-slate-500" x-text="list === 'inbox' ? 'Requests waiting for your decision.' : 'Venue requests you have made, newest first.'"></p>
+          <button class="ml-auto text-sm text-indigo-700" @click="loadLists()">↻ Refresh</button>
+        </div>
+        <template x-if="!(list === 'inbox' ? inbox : mine).length">
+          <div class="rounded-xl border bg-white p-6 text-center text-sm text-slate-500"
+               x-text="list === 'inbox' ? 'Nothing waiting for you. 🎉' : 'No requests yet. Use “Book a venue” to make one.'"></div>
+        </template>
+        <template x-for="r in (list === 'inbox' ? inbox : mine)" :key="r.id">
+          <article class="rounded-xl border bg-white p-3">
+            <div class="flex items-start gap-2">
+              <div class="min-w-0">
+                <div class="font-semibold" x-text="r.title"></div>
+                <div class="text-sm text-slate-600" x-text="r.room + ' · ' + r.when"></div>
+                <div class="text-xs text-slate-500" x-text="r.attendees + ' people' + (r.needs.length ? ' · needs ' + r.needs.map(nice).join(', ') : '') + ' · by ' + r.requester_name"></div>
+              </div>
+              <span class="ml-auto shrink-0 text-xs px-2 py-0.5 rounded-full" :class="chip(r.status).cls" x-text="chip(r.status).label"></span>
+            </div>
+            <p x-show="r.purpose" class="text-sm text-slate-600 mt-2" x-text="r.purpose"></p>
+            <p x-show="r.competing.length" class="text-xs text-amber-700 mt-1" x-text="'⚠ ' + r.competing.length + ' other request(s) want this room at the same time'"></p>
+            <ol class="mt-3 border-l-2 border-slate-200 ml-1.5 space-y-2">
+              <template x-for="(t, i) in r.timeline" :key="i">
+                <li class="relative pl-4">
+                  <span class="absolute -left-[7px] top-1 h-3 w-3 rounded-full border-2 border-white"
+                        :class="{done: 'bg-emerald-500', current: 'bg-amber-400 animate-pulse', todo: 'bg-slate-300', rejected: 'bg-red-500'}[t.state]"></span>
+                  <div class="text-sm" :class="t.state === 'todo' ? 'text-slate-400' : ''" x-text="t.label"></div>
+                  <div class="text-xs text-slate-500" x-show="t.note" x-text="'“' + t.note + '”'"></div>
+                  <div class="text-[10px] text-slate-400" x-show="t.at" x-text="(t.at || '').replace('T', ' ')"></div>
+                </li>
+              </template>
+            </ol>
+            <div class="mt-3 flex flex-wrap gap-2" x-show="r.can_decide || r.can_cancel">
+              <template x-if="r.can_decide">
+                <div class="w-full grid gap-2">
+                  <input x-model="notes[r.id]" placeholder="Note (required if you reject)" class="w-full border rounded-lg px-2 py-1.5 bg-white text-sm">
+                  <div class="flex gap-2">
+                    <button class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-sm" @click="decide(r, 'approved')"
+                            x-text="r.step_role === 'advisor' ? 'Endorse' : 'Approve'"></button>
+                    <button class="px-3 py-1.5 rounded-lg border border-red-300 text-red-700 text-sm" @click="decide(r, 'rejected')">Reject</button>
+                    <span x-show="!r.assigned_to_me" class="text-xs text-slate-500 self-center">(deciding as the timetable office)</span>
+                  </div>
+                </div>
+              </template>
+              <button x-show="r.can_cancel" class="px-3 py-1.5 rounded-lg border text-sm text-slate-600" @click="cancel(r)"
+                      x-text="r.status === 'approved' ? 'Cancel booking' : 'Withdraw request'"></button>
+            </div>
+          </article>
+        </template>
+      </section>
+    </template>
+
+    <!-- ============ Event slot finder ============ -->
+    <section x-show="tab === 'slots'" class="mt-4">
+      <form @submit.prevent="findSlots()" class="rounded-xl border bg-white p-4 grid gap-3 grid-cols-2">
+        <p class="col-span-2 text-sm text-slate-500">Find a time when <b>every group</b> in a batch is free (no class), plus a venue that fits. Good for placement drives, guest talks and workshops.</p>
+        <div class="col-span-2 sm:col-span-1">
+          <label class="block text-xs text-slate-500 mb-1">Department</label>
+          <select x-model="sf.dept" @change="sf.sections = []" class="w-full border rounded-lg px-2 py-1.5 bg-white text-sm">
+            <template x-for="d in deptsWithSections()" :key="d.code"><option :value="d.code" x-text="d.name" :selected="d.code === sf.dept"></option></template>
+          </select>
+        </div>
+        <div class="col-span-2 sm:col-span-1">
+          <label class="block text-xs text-slate-500 mb-1">Year</label>
+          <select x-model.number="sf.year" @change="sf.sections = []" class="w-full border rounded-lg px-2 py-1.5 bg-white text-sm">
+            <template x-for="y in yearsOf(sf.dept)" :key="y"><option :value="y" x-text="yearLabel(y)" :selected="y === sf.year"></option></template>
+          </select>
+        </div>
+        <div class="col-span-2">
+          <label class="block text-xs text-slate-500 mb-1">Sections <span class="text-slate-400">(none picked = the whole year)</span></label>
+          <div class="flex flex-wrap gap-2">
+            <template x-for="s in sectionsOf(sf.dept, sf.year)" :key="s.id">
+              <button type="button" @click="toggle(sf.sections, s.id)" class="px-3 py-1 rounded-full border text-sm"
+                      :class="sf.sections.includes(s.id) ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-600'" x-text="s.name"></button>
+            </template>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">How long?</label>
+          <select x-model.number="sf.duration" class="w-full border rounded-lg px-2 py-1.5 bg-white text-sm">
+            <template x-for="n in [1, 2, 3, 4]" :key="n"><option :value="n" x-text="n === 1 ? '1 hour (1 period)' : n + ' hours'" :selected="n === sf.duration"></option></template>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">People <span class="text-slate-400">(blank = whole audience)</span></label>
+          <input type="number" min="1" x-model.number="sf.attendees" class="w-full border rounded-lg px-2 py-1.5 bg-white text-sm">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">From</label>
+          <input type="date" x-model="sf.from" :min="today" class="w-full border rounded-lg px-2 py-1.5 bg-white text-sm">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">To</label>
+          <input type="date" x-model="sf.to" :min="sf.from" class="w-full border rounded-lg px-2 py-1.5 bg-white text-sm">
+        </div>
+        <div class="col-span-2">
+          <label class="block text-xs text-slate-500 mb-1">The venue must have</label>
+          <div class="flex flex-wrap gap-2">
+            <template x-for="f in features" :key="f">
+              <button type="button" @click="toggle(sf.needs, f)" class="px-3 py-1 rounded-full border text-sm"
+                      :class="sf.needs.includes(f) ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-600'" x-text="nice(f)"></button>
+            </template>
+          </div>
+        </div>
+        <div class="col-span-2 flex items-center gap-3">
+          <button class="px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-semibold" :disabled="busy">Find common free time</button>
+          <span class="text-xs text-slate-500" x-show="busy">Checking every group's timetable…</span>
+        </div>
+      </form>
+
+      <template x-if="slots">
+        <div class="mt-4">
+          <h2 class="text-lg font-bold" x-text="slots.total ? slots.total + ' slot' + (slots.total > 1 ? 's' : '') + ' where everyone is free' : 'No common free time in these dates'"></h2>
+          <p class="text-sm text-slate-500" x-text="slots.audience.label + ' · ' + slots.audience.groups.length + ' groups · ' + slots.audience.attendees + ' people'"></p>
+          <p class="text-xs text-slate-500" x-show="slots.total > slots.slots.length" x-text="'Showing the first ' + slots.slots.length + '. Narrow the dates to see more.'"></p>
+          <p class="text-xs text-slate-500" x-show="slots.days_without_slot.length" x-text="'No common free time on ' + slots.days_without_slot.join(', ')"></p>
+          <template x-for="day in byDay(slots.slots)" :key="day.date">
+            <div class="mt-3">
+              <h3 class="font-semibold text-sm text-slate-700" x-text="day.label"></h3>
+              <div class="mt-1 grid gap-2">
+                <template x-for="s in day.slots" :key="s.date + s.periods.join()">
+                  <div class="rounded-xl border bg-white p-3 flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <div class="font-semibold text-sm w-full sm:w-48" x-text="periodsText(s.periods)"></div>
+                    <div class="text-sm min-w-0 flex-1">
+                      <template x-if="s.venues.length">
+                        <span><b x-text="s.venues[0].id"></b> <span class="text-slate-500" x-text="'· ' + s.venues[0].capacity + ' seats' + (s.venues.length > 1 ? ' · or ' + s.venues.slice(1).map(v => v.id).join(', ') : '')"></span></span>
+                      </template>
+                      <template x-for="w in s.warnings"><div class="text-xs text-amber-700" x-text="'⚠ ' + w"></div></template>
+                    </div>
+                    <button x-show="s.venues.length && can.request" class="px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-sm" @click="bookSlot(s)">Book this</button>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </template>
+          <template x-if="slots.almost.length">
+            <div class="mt-5">
+              <h3 class="font-semibold text-slate-700">Nearly free</h3>
+              <p class="text-xs text-slate-500">Times when only a few groups have class. Worth it if those classes can be moved or missed.</p>
+              <div class="mt-2 grid gap-2">
+                <template x-for="s in slots.almost" :key="'a' + s.date + s.periods.join()">
+                  <div class="rounded-xl border border-dashed bg-white p-3">
+                    <div class="flex items-center gap-2">
+                      <div class="font-semibold text-sm" x-text="s.when"></div>
+                      <span class="ml-auto text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-800" x-text="s.warnings[0]"></span>
+                    </div>
+                    <ul class="mt-1 text-xs text-slate-600">
+                      <template x-for="m in s.missing.slice(0, 4)" :key="m.section">
+                        <li><b x-text="m.section"></b>
+                          <span class="text-slate-500" x-text="m.whole ? '(all groups)' : '(' + m.groups.map(g => g.split('-').pop()).join(', ') + ')'"></span>
+                          <span x-text="'· ' + m.classes.join(', ')"></span></li>
+                      </template>
+                      <li x-show="s.missing.length > 4" class="text-slate-400" x-text="'and ' + (s.missing.length - 4) + ' more'"></li>
+                    </ul>
+                    <div class="mt-2 flex items-center gap-2">
+                      <span class="text-sm min-w-0 flex-1" x-text="s.venues.length ? s.venues[0].id + ' · ' + s.venues[0].capacity + ' seats' : 'No free venue fits'"></span>
+                      <button x-show="s.venues.length && can.request" class="px-3 py-1.5 rounded-lg border border-indigo-300 text-indigo-700 text-sm" @click="bookSlot(s)">Book anyway</button>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </template>
+        </div>
+      </template>
+    </section>
+
+    <!-- ============ request sheet ============ -->
+    <div x-show="sheet" x-transition.opacity class="fixed inset-0 z-40 bg-black/40 flex items-end sm:items-center justify-center" @click.self="sheet = null">
+      <form x-show="sheet" @submit.prevent="submitRequest()" class="w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl p-4 grid gap-3 max-h-[90vh] overflow-y-auto">
+        <div>
+          <div class="text-lg font-bold">Request <span x-text="sheet?.venue.id"></span></div>
+          <div class="text-sm text-slate-500" x-text="sheet ? whenText(sheet.date, sheet.periods) + ' · ' + sheet.attendees + ' people' : ''"></div>
+          <div class="text-xs text-slate-500 mt-1" x-text="sheet ? 'Goes to: ' + approvalPath(sheet.venue) : ''"></div>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">Event title</label>
+          <input x-model="draft.title" required maxlength="80" placeholder="e.g. Digital Marketing Workshop" class="w-full border rounded-lg px-2 py-1.5 bg-white text-sm">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">What is it for? <span class="text-slate-400">(helps approvers)</span></label>
+          <textarea x-model="draft.purpose" rows="3" placeholder="Speaker, audience, anything special" class="w-full border rounded-lg px-2 py-1.5 bg-white text-sm"></textarea>
+        </div>
+        <div class="flex gap-2 justify-end">
+          <button type="button" class="px-3 py-2 rounded-lg border text-sm" @click="sheet = null">Back</button>
+          <button class="px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-semibold" :disabled="busy">Send request</button>
+        </div>
+      </form>
+    </div>
   </main>
 </div>
 </body>
