@@ -64,13 +64,35 @@ Every lane codes against this file. **Lane A owns the "Core" and "Shared buildin
 - Each returned room has all `Room` fields plus `free_until`. Rooms come sorted by building, then floor (ground first), then classrooms first.
 
 ## Lane B: Dashboards (`app/api/dashboards.py`, prefix `/api/dash`)
-Owned by the Dashboards session. These are the planned endpoints; document what you actually build here.
-- `GET /api/dash/views?dept=&year=&section=&group=&teacher=&room=&on=` returns a filtered timetable (week or date).
-- `GET /api/dash/teacher/{teacher_id}/free?on=` returns the teacher's free periods (not teaching, available).
-- `POST /api/dash/meetings` with `{teacher, date, period, note}` (needs `meeting.request`).
-- `GET /api/dash/meetings` returns the caller's meetings: sent if student, received if teacher.
-- `POST /api/dash/meetings/{id}/reply` with `{status: accepted|declined, reply}` (needs `meeting.reply`). It notifies the student.
-- `GET /api/dash/now?on=&period=` returns the caller's now / next card.
+Owned by the Dashboards session. Built and tested in `tests/test_dashboards_api.py`.
+
+| Method + path | Returns |
+|---|---|
+| `GET /api/dash/views` | filtered timetable `{mode, dates, items, filters}` (needs `timetable.view`) |
+| `GET /api/dash/teacher/{teacher_id}/free?on=` | a teacher's day, period by period (default: today) |
+| `POST /api/dash/meetings` | `{teacher, date, period, note}` → the new meeting (needs `meeting.request`: students) |
+| `GET /api/dash/meetings` | `{sent, received, pending}`: meetings I asked for, and meetings asked of me (teacher or HOD) |
+| `POST /api/dash/meetings/{id}/reply` | `{status: accepted\|declined, reply}` → the meeting (needs `meeting.reply`: only that teacher) |
+| `GET /api/dash/now?on=&period=` | the caller's now / next / next-free card |
+
+**`/views` filters** (combine with AND; leave all empty for everything):
+- `group` (one lab group, e.g. `CSE-3A-G1`): whole-section classes + that group's labs + electives it is in.
+- `section`: every class with at least one of the section's groups.
+- `dept` + `year`: all sections of that year. `dept` alone: the whole department. A department with no sections (e.g. Applied Sciences) shows what its teachers teach.
+- `teacher`, `room`.
+- Dates: none = base weekly timetable (`mode: "week"`). `on=YYYY-MM-DD` = that date via `effective()` (`mode: "date"`). `week_of=YYYY-MM-DD` = Mon–Fri of that date's week (a weekend means the coming week), each via `effective()` (`mode: "week_of"`, `dates` lists the 5 days).
+- Each item is an `Occupancy` plus `date`, `code`, `name`, `lesson_kind` (`theory`/`lab`/`booking`), `dept`, `section`, `teacher_name`, `until` (end time). Bookings come back with `kind: "booking"` and their title.
+
+**`/teacher/{id}/free`** → `{teacher, name, dept, date, day, weekend, periods, free}`. Each period has `period, label, start, end, state, what`, where `state` is `teaching`, `unavailable` (`Teacher.unavailable`), `meeting` (an accepted meeting) or `free`. Substitutions on that date count.
+
+**Meetings:**
+- A request must be for a weekday, today or later, in a period the teacher is `free`; otherwise 400 or 409. Asking twice for the same slot is 409.
+- Requests notify every account of that teacher (`t-<id>`, and `hod-<dept>` if they are HOD), linking to `/#meetings`. Replies notify the student, linking to `/#teacher`.
+- Meeting views add `teacher_name`, `student_name`, `day` and `slot {period, label, start, end}`.
+
+**`/now`**: `period` is the current period index (`-1` before the day starts, `len(periods)` after it ends). Students get their group's day, teachers and HODs their own. Returns `{date, day, who: group|teacher|null, weekend, now, next, free: {period, label, start, until, periods, now}, meetings, today}`. Accepted meetings count as busy.
+
+**Page deep links** (`/`, index.html): `#teacher`, `#rooms`, `#meetings`, `#load`, `#ask`.
 
 ## Lane C: Venues and events (`app/api/venues.py`, prefix `/api/venues`)
 Owned by the Venues session. These are the planned endpoints; document what you actually build here.
