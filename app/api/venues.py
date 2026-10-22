@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field
 
 from app.auth import current_user
 from app.models import User
-from app.venues import ranking
+from app.venues import ranking, requests
 from app.venues.common import check_periods, parse_date, room_view, store
 
 router = APIRouter(prefix="/api/venues", tags=["venues"])
@@ -21,6 +21,22 @@ class RankBody(BaseModel):
     periods: list[int]
     attendees: int = Field(ge=1)
     needs: list[str] = []
+
+
+class RequestBody(BaseModel):
+    title: str
+    purpose: str = ""
+    club: str | None = None
+    attendees: int = Field(ge=1)
+    needs: list[str] = []
+    date: str
+    periods: list[int]
+    room: str
+
+
+class DecideBody(BaseModel):
+    decision: str  # approved | rejected
+    note: str = ""
 
 
 @router.get("")
@@ -35,6 +51,32 @@ def venues(user: User = Depends(current_user)) -> dict:
 def rank(body: RankBody, user: User = Depends(current_user)) -> dict:
     d = parse_date(body.date)
     return ranking.rank(d, check_periods(body.periods), body.attendees, ranking.check_needs(body.needs))
+
+
+@router.post("/requests")
+def create_request(body: RequestBody, user: User = Depends(current_user)) -> dict:
+    d = parse_date(body.date)
+    req, warnings = requests.create(user, body.title, body.purpose, body.club, body.attendees,
+                                    ranking.check_needs(body.needs), d.isoformat(), check_periods(body.periods),
+                                    body.room)
+    return {"request": requests.view(req, user), "warnings": warnings}
+
+
+@router.get("/requests")
+def list_requests(inbox: int = 0, mine: int = 0, all: int = 0, user: User = Depends(current_user)) -> dict:
+    """mine=1 (default): requests I made · inbox=1: waiting for my decision · all=1: everything (admin)."""
+    reqs = requests.listing(user, inbox=bool(inbox), everything=bool(all))
+    return {"items": [requests.view(r, user) for r in reqs]}
+
+
+@router.post("/requests/{req_id}/decide")
+def decide(req_id: str, body: DecideBody, user: User = Depends(current_user)) -> dict:
+    return {"request": requests.view(requests.decide(user, req_id, body.decision, body.note), user)}
+
+
+@router.post("/requests/{req_id}/cancel")
+def cancel(req_id: str, user: User = Depends(current_user)) -> dict:
+    return {"request": requests.view(requests.cancel(user, req_id), user)}
 
 
 @router.get("/ping")
