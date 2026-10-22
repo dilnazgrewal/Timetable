@@ -40,7 +40,7 @@ function venuesApp() {
       this.sf.year = this.yearsOf(this.sf.dept)[0] || 0;
       const fromHash = location.hash.slice(1);
       this.tab = this.tabs().some(t => t.id === fromHash) ? fromHash : (this.can.request ? 'book' : this.can.slots ? 'slots' : 'requests');
-      window.addEventListener('hashchange', () => { const h = location.hash.slice(1); if (this.tabs().some(t => t.id === h)) this.tab = h; });
+      window.addEventListener('hashchange', () => { const h = location.hash.slice(1); if (this.tabs().some(t => t.id === h)) { this.tab = h; this.sheet = null; } });
       await this.loadLists();
     },
 
@@ -50,7 +50,7 @@ function venuesApp() {
       if (this.can.slots) t.push({ id: 'slots', label: 'Event slot finder', short: 'Slot finder' });
       return t;
     },
-    go(id) { this.tab = id; this.flash = null; if (id === 'requests' || id === 'inbox') this.loadLists(); },
+    go(id) { this.tab = id; this.flash = null; this.sheet = null; if (id === 'requests' || id === 'inbox') this.loadLists(); },
 
     async loadLists() {
       try {
