@@ -78,7 +78,8 @@ def test_club_request_advisor_then_hod_then_room_leaves_free_rooms(client, hall)
     assert any("Please approve" in t for t in notes(hod))
     assert any("Endorsed" in t for t in notes("club-DMC"))
     assert decide(client, advisor, req["id"]).status_code == 403  # advisor can't give final approval
-    assert decide(client, "hod-ME" if hall.dept != "ME" else "hod-CE", req["id"]).status_code == 403
+    other_hod = next(u.id for u in STORE.users.values() if u.role == "hod" and u.dept != hall.dept)
+    assert decide(client, other_hod, req["id"]).status_code == 403
 
     req = decide(client, hod, req["id"]).json()["request"]
     assert req["status"] == "approved"
@@ -113,7 +114,8 @@ def test_central_room_goes_to_admin_and_teacher_skips_advisor(client):
     req = ask(client, teacher.id, central.id, periods=[1]).json()["request"]
     assert [(s["role"], s["approver"]) for s in req["steps"]] == [("admin", "admin")]
     assert [r["id"] for r in call(client, "admin", "GET", "/api/venues/requests?inbox=1").json()["items"]] == [req["id"]]
-    assert decide(client, "hod-CSE", req["id"]).status_code == 403
+    any_hod = next(u.id for u in STORE.users.values() if u.role == "hod")
+    assert decide(client, any_hod, req["id"]).status_code == 403  # central rooms: admin only
     assert decide(client, "admin", req["id"]).json()["request"]["status"] == "approved"
 
 
