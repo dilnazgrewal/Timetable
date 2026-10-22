@@ -309,7 +309,7 @@
           </template>
         </tbody>
       </table>
-      <div class="text-xs text-slate-400 px-3 py-2 border-t">Lunch is flexible: every section and teacher gets a free hour somewhere between 11:30 and 2:30, chosen by the solver. Labs are 2-period blocks taken by one lab group.</div>
+      <div class="text-xs text-slate-400 px-3 py-2 border-t">Lunch is flexible: every section and teacher gets a free hour somewhere between <span x-text="meta?.lunch.start"></span> and <span x-text="meta?.lunch.end"></span>, chosen by the solver. Labs are 2-period blocks taken by one lab group.</div>
     </div>
   </section>
 
@@ -318,7 +318,7 @@
     <div class="rounded-xl border bg-white p-4">
       <h2 class="font-semibold mb-1">Find a teacher</h2>
       <p class="text-sm text-slate-500 mb-3">See when a teacher is free so you know when to reach them<span x-show="isStudent">, and ask for a meeting in one tap</span>.</p>
-      <input x-model="ft.q" placeholder="Search by name or department, e.g. Harpreet or ECE" class="w-full border rounded-lg px-3 py-2 text-sm mb-2">
+      <input x-model="ft.q" placeholder="Search by name or department, e.g. Kaur or ECE" class="w-full border rounded-lg px-3 py-2 text-sm mb-2">
       <div class="flex flex-wrap gap-1.5">
         <template x-for="t in teacherMatches()" :key="t.id">
           <button @click="pickTeacher(t)" class="text-sm px-3 py-1.5 rounded-full border"
@@ -347,7 +347,7 @@
           <div x-show="ft.day.weekend" class="text-sm text-slate-500">That's a weekend. Pick a weekday.</div>
           <div x-show="!ft.day.weekend">
             <div class="text-sm mb-2"><b class="text-emerald-700" x-text="ft.day.free.length"></b> free periods on <span x-text="niceDate(ft.day.date)"></span></div>
-            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-9 gap-2">
               <template x-for="p in ft.day.periods" :key="p.period">
                 <div class="rounded-lg border p-2 text-xs" :class="stateClass(p.state)">
                   <div class="font-semibold" x-text="p.label + ' · ' + p.start"></div>
@@ -559,7 +559,7 @@
         <div x-ref="chatEnd"></div>
       </div>
       <form @submit.prevent="send()" class="mt-3 flex gap-2">
-        <input x-model="chat.input" placeholder="e.g. Is Lab CL-2 free after lunch?" class="flex-1 min-w-0 border rounded-lg px-3 py-2 text-sm">
+        <input x-model="chat.input" placeholder="e.g. Is a computer lab free after lunch?" class="flex-1 min-w-0 border rounded-lg px-3 py-2 text-sm">
         <button :disabled="chat.busy" class="px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-semibold disabled:opacity-60">Ask</button>
       </form>
     </div>

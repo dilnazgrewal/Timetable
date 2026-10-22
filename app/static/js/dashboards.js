@@ -30,8 +30,7 @@ function dash() {
     fr: { on: isoDate(new Date()), period: 0, sittable: true, kind: '', near: '', res: null },
 
     chat: { msgs: [], input: '', busy: false },
-    suggestions: ['Is CL-2 free after lunch on Friday?', 'When is Harpreet Kaur free on Wednesday?',
-                  'What does CSE-3A have on Monday?', 'Find me an empty classroom right now'],
+    suggestions: ['Find me an empty classroom right now'],
 
     // ---------------------------------------------------------------- start-up and roles
     async init() {
@@ -41,6 +40,7 @@ function dash() {
       this.mobileDay = wd >= 1 && wd <= 5 ? wd - 1 : 0;
       this.fr.period = Math.max(0, Math.min(this.periodAt(this.clock.time), this.meta.periods.length - 1));
       this.myView();
+      this.suggestions = this.askSuggestions();
       await Promise.all([this.load(), this.loadView(), this.loadNow(), this.loadMeetings()]);
       const openHash = () => {
         const h = location.hash.slice(1);
@@ -209,7 +209,7 @@ function dash() {
       else if (by === 'group' || by === 'section') sub = `${shortName(e.teacher_name)} · ${e.room}`;
       else sub = `${e.section} · ${e.room}`;
       const batch = lab && (by === 'group' || by === 'section')
-        ? `<span class="ml-1 text-[10px] px-1 rounded bg-white/70 border">${esc(e.section.split(' ').pop())}</span>` : '';
+        ? `<span class="ml-1 text-[10px] px-1 rounded bg-white/70 border">${esc(e.batches[0].split('-').pop())}</span>` : '';
       const flag = e.status === 'substituted' ? `<div class="text-[10px] font-semibold text-amber-700">↺ substitute: ${esc(shortName(e.teacher_name))}</div>`
         : e.status === 'room_changed' ? `<div class="text-[10px] font-semibold text-amber-700">⇄ moved to ${esc(e.room)}</div>` : '';
       return `<div class="chip rounded-md px-2 py-1 leading-tight" style="background:hsl(${h} 85% 95%);border-color:hsl(${h} 60% 50%)">
@@ -346,6 +346,16 @@ function dash() {
     },
     printSubtitle() {
       return `${this.weekLabel()} · ${this.weeklyHours()} periods / week · lunch: a free hour between ${this.meta?.lunch.start} and ${this.meta?.lunch.end}`;
+    },
+    // Ask-tab starters built from the live college, so they stay valid whatever data is loaded
+    askSuggestions() {
+      const m = this.meta, out = [];
+      const lab = m.rooms.find(r => !r.sittable), teacher = m.teachers.find(t => t.id === this.user?.teacher_id) || m.teachers[0];
+      const sec = m.sections.find(s => s.batches.includes(this.user?.group)) || m.sections.find(s => s.dept === this.f.dept) || m.sections[0];
+      if (lab) out.push(`Is ${lab.id} free after lunch on Friday?`);
+      if (teacher) out.push(`When is ${shortName(teacher.name)} free on Wednesday?`);
+      if (sec) out.push(`What does ${sec.name} have on Monday?`);
+      return [...out, 'Find me an empty classroom right now'];
     },
     async send(text) {
       const q = (text ?? this.chat.input).trim();

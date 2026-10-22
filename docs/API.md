@@ -76,7 +76,7 @@ Owned by the Dashboards session. Built and tested in `tests/test_dashboards_api.
 | `GET /api/dash/now?on=&period=` | the caller's now / next / next-free card |
 
 **`/views` filters** (combine with AND; leave all empty for everything):
-- `group` (one lab group, e.g. `CSE-3A-G1`): whole-section classes + that group's labs + electives it is in.
+- `group` (one lab group, e.g. `D3-CS-A-A1`): whole-section classes + that group's labs + electives it is in.
 - `section`: every class with at least one of the section's groups.
 - `dept` + `year`: all sections of that year. `dept` alone: the whole department. A department with no sections (e.g. Applied Sciences) shows what its teachers teach.
 - `teacher`, `room`.
