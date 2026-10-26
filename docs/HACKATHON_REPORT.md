@@ -249,7 +249,7 @@ Two more import rules:
 
 **Teacher names:**
 - Full names come from each department's teachers page, because cells often show only initials.
-- CE publishes initials only, so **35 of 288 teachers** keep a name like "CE teacher (HVS)".
+- CE publishes initials only, so **35 of the 205 real teachers** keep a name like "CE teacher (HVS)".
 - **People with the same name are kept apart:** records that are both on a department's own teacher list are never merged (`89254d8`). ECE has a Dr. and a Pf. Harminder Kaur, who are different people.
 
 **What was imported** (`data/gndec/<dept>.json`; lessons and sessions as used in the merged college):
@@ -262,7 +262,7 @@ Two more import rules:
 | CE | 272 | 396 | 49 | 52 | 56 |
 | ECE | 278 | 359 | 37 | 42 | 37 |
 | EE | 202 | 280 | 32 | 54 | 66 |
-| **College** | **1,865** | **2,579** | 153 rooms in the merged college | **288** teachers | 231 audiences: 68 real sections + 163 elective audiences |
+| **College** | **1,865** | **2,579** | 153 rooms in the merged college | **205** real teachers (288 teacher records incl. 83 placeholders) | 231 audiences: 68 real sections + 163 elective audiences |
 
 ECE and EE shrank in `53e1f7f`, when first year was linked across departments. Classes written in two departments' timetables are now kept once, and placeholders are dropped where a linked class shows what really happens.
 
@@ -280,12 +280,12 @@ ECE and EE shrank in `53e1f7f`, when first year was linked across departments. C
 |---|---|
 | Departments | 6 + Applied Sciences (teachers only) |
 | Rooms | 153 (71 classrooms, 53 department labs, 13 computer labs, 6 seminar halls, …; 78 sittable, 91 bookable) |
-| Teachers | 288 (Applied Sciences 64, CSE 45, ME 45, CE 37, EE 37, ECE 31, IT 29) |
+| Teachers | **205 real people** (CSE 44, ME 43, IT 28, EE 27, CE 25, ECE 24, Applied Sciences 14), plus 83 placeholder records (`TBA-…`: "Taught in another department", "Major Project (staff)", "JPAL (staff)", open electives taught elsewhere) that hold fixed hours but are not people |
 | Real sections / their lab groups | 68 / 197 |
 | Lessons | 1,865, all imported |
 | Weekly sessions | **2,579** |
 | Student types | 241 (CSE 132, IT 31, ME 25, ECE 22, CE 17, EE 14; 39 with guards) |
-| Demo accounts | 549 |
+| Demo accounts | 466 |
 | Teacher lab pairs (`lab_pairs()`) | 169 |
 
 **The published data has errors of its own.** Put together, the six published timetables have:
@@ -380,7 +380,7 @@ Status as of commit `53e1f7f`. ✅ built and committed · ⬜ designed, not buil
 | B7 | Mark leave (teacher for themself; HOD/coordinator/admin for their department) | ✅ |
 | B8 | Substitutions board: next 6 school days, state chips, ranked candidates with reasons, Assign, Cancel class | ✅ |
 | B9 | Substituted classes marked in timetables and Now/Next (names both teachers) | ✅ |
-| B10 | Panel comparing the real and generated timetables, shown only when some departments are generated. Since `dee7b1e` / `cabdf9e` every department is real, so the page shows the data source and a link to the optimised timetables instead, and no Generate button; a timetable-issues badge for staff only, worded as teacher double-bookings in the published data (`286e3f8`); teacher-load bars; classroom and lab use | ✅ |
+| B10 | Honest numbers (`6c59dbc`): the validator card counts only TimeWeave's own clashes (0); the college's published clashes are shown separately to staff; a Data card instead of a solver card for imported timetables. Panel comparing the real and generated timetables, shown only when some departments are generated. Since `dee7b1e` / `cabdf9e` every department is real, so the page shows the data source and a link to the optimised timetables instead, and no Generate button; a timetable-issues badge for staff only, worded as teacher double-bookings in the published data (`286e3f8`); teacher-load bars; classroom and lab use | ✅ |
 | B11 | Print / Save as PDF: one A4 landscape page per section, teacher or room | ✅ |
 | B12 | Ask tab (chat UI) | ✅ |
 | B13 | Phone layout with day tabs | ✅ |
@@ -729,7 +729,7 @@ It has **no write tools**.
 | Timetable office | the timetable office (admin) | the Dean, the T&P cell, visiting organisations |
 
   - **Permissions are unchanged:** the 8 roles of §7.2 still exist in `app/auth.py`. The page only groups them.
-  - **The top bar's account switcher** uses the same four groups.
+  - **The top bar** shows "<name> · Switch" in demo mode, a button that opens this four-role sign-in page (`958cd5d`; it used to be a dropdown of about 550 accounts).
   - **Teachers, HODs and the timetable office** search a list by name or department.
 - **Student sign-in flow** (`84f400e`):
   1. Choose **department → year** (1st–4th, M.Tech, PhD) **→ section**.
@@ -742,12 +742,12 @@ It has **no write tools**.
 
   Example (checked in the browser by Lane A): CSE → 4th year → D4 CS A → A2, CV, SC (A1 group), TA A3 signs in as `D4-CS-A:A2:CV:SCA1:TA3`.
 - **API:** `GET /api/auth/demo-accounts` now also gives each student account its `year`, `section_name`, `details` (their choices) and `count` (how many students share that combination).
-- **Demo accounts (549):**
+- **Demo accounts (466):**
 
 | Role | Accounts | Notes |
 |---|---|---|
 | student | 241 | one per student type |
-| teacher | 288 | every real teacher of the six departments + Applied Sciences |
+| teacher | 205 | every real teacher of the six departments + Applied Sciences; placeholder "teachers" get no account (`958cd5d`) |
 | hod | 7 | one per department with teachers (incl. Applied Sciences) |
 | coordinator | 6 | one per department with sections |
 | club | 3 | DMC, CODE, ROBO, each with a faculty advisor |
@@ -800,7 +800,7 @@ It has **no write tools**.
 | `/venues.html` (Lane C) | staff, clubs, orgs (by capability) | `#book` Book a venue (requirement form → ranked venues → request), `#requests` My requests with timeline, `#inbox` Approvals (endorse/approve/reject), `#slots` Event slot finder ("Find common free time", "Nearly free", "Book this") |
 | `/compare.html` (Lane A; "Optimised timetables" in the top bar) | each department's HOD/coordinator (their own department), Dean and admin (all six) | **Department picker**; college vs optimised timetable by section, student (group and electives) or teacher; before/after numbers (incl. "Same lab for two groups on one day"); **"GNDEC's timetable rules"**: each rule in plain words, must/prefer, and how often each version breaks it; Propose / Publish / Go back |
 | `/audit.html` (Lane A) | admin, Dean | Audit log, newest first |
-| Shared top bar (`shell.js`) | every page | Logo, navigation (hides what you can't use), account menu, 🔔 notifications |
+| Shared top bar (`shell.js`) | every page | Logo, navigation (hides what you can't use), "<name> · Switch" (demo mode; opens the sign-in page, `958cd5d`), 🔔 notifications |
 
 ---
 
@@ -1139,7 +1139,7 @@ Runs against a fresh `build_college()` store (since `39212e3`, the real six-depa
 ---
 
 ## 12. Timeline: how it was built
-From `git log` (67 commits by the end of 26 Oct, the last code commit being `7a33645`; 8 of them are this report). Commits per day: 21 Oct 15 · 22 Oct 14 · 26 Oct 38.
+From `git log` (70 commits by the end of 26 Oct, the last code commit being `958cd5d`; 9 of them are this report). Commits per day: 21 Oct 15 · 22 Oct 14 · 26 Oct 41.
 
 ### Day 1: Wed 21 Oct, prototype (v0.1), demo at 4 PM
 - Scaffold, `CLAUDE.md`, plan.
@@ -1184,7 +1184,7 @@ From `git log` (67 commits by the end of 26 Oct, the last code commit being `7a3
   - one merged college
   - 4 new safety rules for departments without elective lists
   - the per-department compare/propose/publish API and page
-  - sign-in in four groups (redesigned in `84f400e`: four roles, and a student flow of department → year → section → group and subjects)
+  - sign-in in four groups (redesigned in `84f400e`: four roles, and a student flow of department → year → section → group and subjects); the top bar's account dropdown replaced by a Switch button, and placeholder "teachers" get no demo account (`958cd5d`)
   - all six departments re-optimised, and 18 new tests (`39212e3`)
 - **Lane A, after that:**
   - **first year linked across departments** (`53e1f7f`): 94 sessions from ME, ECE and EE now in first-year timetables; teacher clashes in the published data 32 → 12
@@ -1200,6 +1200,7 @@ From `git log` (67 commits by the end of 26 Oct, the last code commit being `7a3
 - **Lane B, final:**
   - pickers list real sections only, no "Other department" rooms (`e2795e7`)
   - a timetable-issues badge for staff only, worded as teacher double-bookings in the published data (`286e3f8`)
+  - honest dashboard numbers (`6c59dbc`): the validator card counts only TimeWeave's own clashes, the college's published clashes are shown separately to staff, a Data card replaces the solver card for imported timetables, and the grid shows even if `/api/timetable` fails
   - no Generate button when every department is imported; the data source and a link to the optimised timetables instead (`cabdf9e`)
 - **Lane C, final:** elective audiences and student types also rule slot-finder times out; 3 new tests (`49004bb`).
 - This report was committed alongside.
@@ -1315,7 +1316,7 @@ Suggested, about 5 minutes. Built only from features listed above.
 - **First-year weeks are still incomplete:** first year is now linked across departments (`53e1f7f`), so ME's, ECE's and EE's classes show up. But Applied Sciences (maths, physics, chemistry, English) doesn't publish a timetable, so those hours are missing for every first-year group. (From Lane A.)
 - **ME's "CSE A" … "CSE F"** (one subject, "EP&S", no year written) are left unlinked rather than guessed.
 - **No elective distribution lists for IT, ME, CE, ECE and EE.** Their electives and 3rd/4th-year group classes therefore stay as published, and their students are one type per lab group, guarded against same-year electives.
-- **Initials only:** 35 of 288 teachers (CE publishes initials only) keep a name like "CE teacher (HVS)".
+- **Initials only:** 35 of 205 real teachers (CE publishes initials only) keep a name like "CE teacher (HVS)".
 - **Published errors:** the published timetables themselves contain 5 teacher double-bookings when put together (4 combined CSE/ME M.Tech classes listed by both departments, and 1 in CE's own export). The API lists them as `published_issues`.
 - **Same-name teachers:** teachers are merged across departments by name and initials, except when both records are on one department's own list. A same-named pair that appears in two different departments could still be merged wrongly; none is known. TimeWeave reports them and never adds to them, but can't fix them without knowing which listing is right.
 - "Self Study · Library" slots are deliberately not imported (they are free periods, not classes).
@@ -1352,7 +1353,7 @@ Suggested, about 5 minutes. Built only from features listed above.
 | Number | What |
 |---|---|
 | **6** | real GNDEC department timetables imported and optimised (CSE, IT, ME, CE, ECE, EE) |
-| **2,579** | real weekly classes; 1,865 lessons; 288 teachers; 153 rooms |
+| **2,579** | real weekly classes; 1,865 lessons; 205 teachers; 153 rooms |
 | **0** | new clashes anywhere in the college from any optimised department (proven by an independent validator that shares no code with the solver) |
 | **1,007 → 600** | teacher waiting periods per week, all six departments (−40%) |
 | **263 → 188** | student waiting periods per week, all six departments (−29%) |
@@ -1368,7 +1369,7 @@ Suggested, about 5 minutes. Built only from features listed above.
 | **8** | roles, with a deny-by-default permission table and an audit log |
 | **40** | API routes |
 | **118 / 118** | automated tests passing |
-| **3** | parallel build lanes, 67 commits |
+| **3** | parallel build lanes, 70 commits |
 
 ---
 
