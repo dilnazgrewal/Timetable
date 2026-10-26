@@ -1,6 +1,7 @@
 """Domain model (plain dataclasses). Shared by every lane; owned by Lane A."""
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 
 DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri"]
@@ -150,6 +151,16 @@ class College:
             return [(t.name, set(t.lessons)) for t in self.student_types]
         groups = sorted({b for l in self.lessons for b in l.batches})
         return [(g, {l.id for l in self.lessons if g in l.batches}) for g in groups]
+
+    def lab_pairs(self) -> list[tuple[str, str]]:
+        """Pairs of labs one teacher gives to two groups of the same class: 'SC Lab A1' and 'SC Lab A2', or
+        D2 CS B's OOP Lab for B1 and for B2. Teachers keep these on different days."""
+        family: dict[tuple, list[str]] = {}
+        for l in self.lessons:
+            if l.kind == "lab":
+                key = (l.teacher, re.sub(r"\s+[A-Z]\d$", "", l.code), frozenset(b.rsplit("-", 1)[0] for b in l.batches))
+                family.setdefault(key, []).append(l.id)
+        return [(a, b) for ids in family.values() for i, a in enumerate(ids) for b in ids[i + 1:]]
 
 
 # --- date-specific layer, people and requests (v2) ---------------------------------------------

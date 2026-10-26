@@ -162,6 +162,7 @@ function compareApp() {
       { key: 'teacher_streak_days', label: 'Teacher-days with 4+ lectures in a row', hint: '' },
       { key: 'long_days', label: 'Group-days over 6 periods', hint: 'D3 has 36 periods a week' },
       { key: 'late_sessions', label: 'Classes after 4:30', hint: 'mentoring hours stay as published' },
+      { key: 'lab_same_day', label: 'Same lab for two groups on one day', hint: 'one teacher, e.g. SC Lab A1 and A2' },
     ],
     async init() {
       this.user = await TW.ready;

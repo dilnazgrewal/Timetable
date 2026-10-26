@@ -10,7 +10,7 @@ from app.seed import build_college
 from app.validator import metrics, split_issues, validate
 
 NEVER_WORSE = ["idle_total", "no_lunch_days", "teacher_no_lunch_days", "teacher_streak_days", "late_sessions", "long_days",
-               "lonely_days"]
+               "lonely_days", "lab_same_day"]
 
 
 @pytest.fixture(scope="module")
@@ -52,3 +52,22 @@ def test_no_clashes_and_never_worse(college, result):
         assert ma[k] <= mb[k], f"{k}: optimised {ma[k]} > college {mb[k]}"
     assert ma["idle_total"] < mb["idle_total"]  # and it really is better where it matters most
     assert ma == {**result["metrics"]["optimised"], "teacher_load": ma["teacher_load"]}  # saved numbers are honest
+
+
+def test_a_teachers_lab_for_two_groups_stays_on_two_days(college, result):
+    """e.g. Soft Computing lab: A1 group Thursday, A2 group Friday at the college. The optimiser may move them,
+    but never onto the same day, for every lab pair the college already keeps on different days."""
+    def days(entries):
+        out = {}
+        for e in entries:
+            out.setdefault(e.lesson, set()).add(e.day)
+        return out
+
+    before = days(e for e in college.fixed_entries if college.lesson_by_id[e.lesson].dept == "CSE")
+    after = days(Entry(**e) for e in result["entries"])
+    pairs = [(a, b) for a, b in college.lab_pairs() if a in before and b in before]
+    sc = [(a, b) for a, b in pairs if {college.lesson_by_id[a].code, college.lesson_by_id[b].code} == {"SC Lab A1", "SC Lab A2"}]
+    assert sc  # the pair the student pointed out is known to the rule
+    for a, b in pairs:
+        if not before[a] & before[b]:
+            assert not after[a] & after[b], (college.lesson_by_id[a].code, college.lesson_by_id[b].code)

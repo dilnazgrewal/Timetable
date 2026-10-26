@@ -83,7 +83,7 @@ Rules for every lane:
   - `bookable` means it can be requested for events.
   - `features` list what a room has: projector, sound, ac, computers, stage.
 - **Home room:** each section has a fixed classroom; only labs and halls get rooms assigned by the solver.
-- Labs are 2-period contiguous blocks.
+- Labs are 2-period contiguous blocks. A teacher's lab for two groups of one class (e.g. `SC Lab A1` / `SC Lab A2`, or D2 CS B's OOP Lab for B1 and B2) goes on **different days** (`College.lab_pairs()`; validator metric `lab_same_day`). The optimiser enforces this wherever the college's own timetable already does.
 - **Classes outside CSE rooms:** open electives (D4 `OE-II`: ERP, EVS or E-Waste, Mon/Wed/Fri 8:30) are taught in another department, so only FET's *groups* page shows them. `app/importers/fet.py` reads the rooms page and then `add_groups_html()` adds these as fixed lessons in the room `APPLIED SCIENCES` (never a free room). The optimiser never moves them. "Self Study · Library" slots are free periods, not classes, and are not imported.
 
 ## Solver model (summary)

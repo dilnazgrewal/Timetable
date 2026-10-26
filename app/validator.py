@@ -109,6 +109,7 @@ def metrics(college: College, entries: list[Entry], fixed: bool | None = None) -
     room_used: dict[str, int] = defaultdict(int)
     t_occ: dict[tuple, set[int]] = defaultdict(set)
     late = 0
+    lab_days: dict[str, set[int]] = defaultdict(set)
     unit_of: dict[str, list[str]] = defaultdict(list)  # per student type (real combination of choices)
     for name, lessons in college.units():
         for lid in lessons:
@@ -124,6 +125,8 @@ def metrics(college: College, entries: list[Entry], fixed: bool | None = None) -
             t_occ[(tid, e.day)].update(e.slots)
         late += e.start + e.duration > SOLVER_PERIODS
         room_used[e.room] += e.duration
+        if l.kind == "lab":
+            lab_days[l.id].add(e.day)
 
     idle = lonely = active_days = no_lunch = 0
     worst = 0
@@ -163,6 +166,8 @@ def metrics(college: College, entries: list[Entry], fixed: bool | None = None) -
         "teacher_idle_total": t_idle,
         "teacher_days": sum(bool(v) for v in t_occ.values()),
         "late_sessions": late,  # classes running into the 16:30-17:30 slot
+        # a teacher giving the same lab to two groups of one class on the same day (e.g. SC Lab A1 and A2)
+        "lab_same_day": sum(len(lab_days.get(a, set()) & lab_days.get(b, set())) for a, b in college.lab_pairs()),
         "idle_per_day": round(idle / active_days, 2) if active_days else 0.0,
         "idle_total": idle,
         "worst_gap": worst,

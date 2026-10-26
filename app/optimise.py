@@ -191,6 +191,32 @@ def optimise_department(college: College, dept: str = "CSE", time_limit: float =
             for k in range(l.sessions - 1):
                 m.Add(day_of[k] < day_of[k + 1])
 
+    # a teacher's lab for two groups of one class (SC Lab A1 / A2) goes on two different days, wherever the
+    # college's own timetable already does that (pairs it holds on one day may stay so)
+    days_before: dict[str, set[int]] = defaultdict(set)
+    for e in college.fixed_entries:
+        days_before[e.lesson].add(e.day)
+    pin_days: dict[str, set[int]] = defaultdict(set)
+    for e in pinned:
+        pin_days[e.lesson].add(e.day)
+
+    def present(lid: str, d: int):
+        if d in pin_days.get(lid, ()):
+            return 1
+        vs = l_day.get((lid, d), [])
+        if not vs:
+            return 0
+        b = m.NewBoolVar("")
+        m.AddMaxEquality(b, vs)
+        return b
+
+    for a, b in college.lab_pairs():
+        if (a in move_ids or b in move_ids) and not days_before[a] & days_before[b]:
+            for d in range(n_days):
+                pa, pb = present(a, d), present(b, d)
+                if not (isinstance(pa, int) and isinstance(pb, int)):
+                    m.Add(pa + pb <= 1)
+
     groups = sorted(n for n, ls in units if ls & move_ids)  # student types with something to move
     teachers = sorted({t for l in move for t in (l.teacher, *l.co_teachers)})
 
