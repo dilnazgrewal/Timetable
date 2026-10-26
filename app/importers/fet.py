@@ -49,7 +49,8 @@ DEPT_TAGS = {"App. Sci.": "AS", "MPE": "ME"}  # teacher tags that name a departm
 
 
 class _Tables(HTMLParser):
-    """Collects every <table id="table_N">: its header title and rows of (rowspan, [lines]) cells."""
+    """Collects every <table id="table_N">: its header title and rows of (rowspan, [lines]) cells.
+    The groups page nests a small table inside a cell (one row per line); its rows become the cell's lines."""
 
     def __init__(self) -> None:
         super().__init__()
@@ -60,9 +61,17 @@ class _Tables(HTMLParser):
         self._buf = ""
         self._in_th = False
         self._rowspan = 1
+        self._nested = 0  # depth of tables inside the current cell
 
     def handle_starttag(self, tag, attrs):
         a = dict(attrs)
+        if self._nested or (tag == "table" and self._cell is not None):
+            if tag == "table":
+                self._nested += 1
+            elif tag in ("td", "br") and self._buf.strip():
+                self._cell.append(self._buf.strip())
+                self._buf = ""
+            return
         if tag == "table" and (a.get("id") or "").startswith("table_"):
             self._t = {"title": "", "rows": []}
         elif self._t is None:
@@ -78,6 +87,13 @@ class _Tables(HTMLParser):
             self._buf = ""
 
     def handle_endtag(self, tag):
+        if self._nested:
+            if tag == "td" and self._buf.strip():
+                self._cell.append(self._buf.strip())
+                self._buf = ""
+            elif tag == "table":
+                self._nested -= 1
+            return
         if self._t is None:
             return
         if tag == "th":
@@ -268,6 +284,73 @@ def parse_rooms_html(html: str) -> dict:
             "entries": [asdict(e) for e in entries]}
 
 
+# Classes the rooms page can't show: open electives are taught in another department's rooms, and a class
+# in two rooms at once ("S202, S203") gets its own combined table, which parse_rooms_html() skips.
+# Both are on the groups page ("*_groups_days_horizontal.html"), whose cells read: groups, activity,
+# teacher(s), room.
+OUTSIDE_ROOM = Room("APPLIED SCIENCES", "Other department", 999, "AS", "", "", [], sittable=False)
+NOT_CLASSES = ("Self Study",)  # a free period the college suggests spending in the library: no class, no teacher
+
+
+def add_groups_html(data: dict, html: str) -> list[str]:
+    """Add the classes that only the groups page shows to `data` (from parse_rooms_html), as fixed lessons.
+    Returns a line per added class."""
+    parser = _Tables()
+    parser.feed(html)
+    room_ids = {r["id"] for r in data["rooms"]}
+    sections = {s["id"]: s for s in data["sections"]}
+    teachers = {t["id"] for t in data["teachers"]}
+    added, seen = [], set()
+    for t in parser.tables:
+        for day, slot, span, lines in _grid(t):
+            key = (day, slot, span, tuple(lines))
+            if key in seen or lines[-1] in room_ids or len(lines) < 2 or lines[1].startswith(NOT_CLASSES):
+                continue
+            seen.add(key)
+            groups, activity = _parse_groups(lines[0]), lines[1]
+            if any(sid not in sections for sid, _, _ in groups):
+                continue
+            here = [r.strip() for r in lines[-1].split(",")] if len(lines) >= 4 else []
+            if here and all(r in room_ids for r in here):  # one class in several rooms: it is booked in the first
+                room, tlist = here[0], _parse_teachers(lines[2])
+                code, name, kind = _subject(activity)
+                rkind = next(r["kind"] for r in data["rooms"] if r["id"] == room)
+            else:  # taught in another department, e.g. "OE-II (ERP, EVS, EWASTE) OE-II"
+                room, tlist = OUTSIDE_ROOM.id, []
+                code = activity.split()[0]
+                choices = re.search(r"\(([^)]*)\)", activity)
+                name = f"Open elective {code.split('-')[-1]}" if code.startswith("OE-") else code
+                name += f" ({choices.group(1)})" if choices else ""
+                kind, rkind = "theory", OUTSIDE_ROOM.kind
+                if room not in room_ids:
+                    data["rooms"].append(asdict(OUTSIDE_ROOM))
+                    room_ids.add(room)
+            for tid, tname, tdept in tlist:
+                if tid not in teachers:
+                    data["teachers"].append(asdict(Teacher(tid, tname, tdept, max_per_day=len(PERIODS))))
+                    teachers.add(tid)
+            tids = [x[0] for x in tlist]
+            teacher = tids[0] if tids else f"TBA-{re.sub(r'[^A-Za-z]', '', code)[:10]}"
+            if teacher not in teachers:
+                data["teachers"].append(asdict(Teacher(teacher, f"{name}: teachers of the other department", "AS",
+                                                       max_per_day=len(PERIODS))))
+                teachers.add(teacher)
+            batches = sorted({b for sid, suffix, _ in groups
+                              for b in ([f"{sid}-{suffix}"] if suffix else sections[sid]["groups"])})
+            lesson = next((l for l in data["lessons"] if l["code"] == code and l["teacher"] == teacher
+                           and l["batches"] == batches and l["duration"] == span), None)
+            if lesson is None:
+                label = ", ".join(g[2] for g in groups) if len(groups) <= 2 else f"{groups[0][2].split()[0]} CS · {len(groups)} sections"
+                lesson = asdict(Lesson(f"CSE:{len(data['lessons']) + 1:04d}", code, name, kind, DEPT, teacher, label,
+                                       batches, 0, span, rkind, [room], OUTSIDE_ROOM.capacity if room == OUTSIDE_ROOM.id
+                                       else 75, co_teachers=tids[1:], fixed=True))
+                data["lessons"].append(lesson)
+            data["entries"].append(asdict(Entry(lesson["id"], lesson["sessions"], day, slot, span, room)))
+            lesson["sessions"] += 1
+            added.append(f"{DAYS[day]} {PERIODS[slot][1]} · {lines[0]} · {name} · {room}")
+    return added
+
+
 def load(path: Path = OUT) -> dict | None:
     """The imported data as domain objects, or None if nothing has been imported."""
     if not path.exists():
@@ -283,6 +366,11 @@ def load(path: Path = OUT) -> dict | None:
 if __name__ == "__main__":
     src = Path(sys.argv[1] if len(sys.argv) > 1 else ROOT / "data" / "gndec" / "raw" / "rooms.html")
     data = parse_rooms_html(src.read_text(encoding="utf-8-sig"))
+    groups_page = src.with_name("groups.html")
+    if groups_page.exists():
+        data["source"] = "FET rooms + groups export"
+        for line in add_groups_html(data, groups_page.read_text(encoding="utf-8-sig")):
+            print("+ only on the groups page:", line)
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(data, indent=1), encoding="utf-8")
     print(f"{len(data['rooms'])} rooms, {len(data['teachers'])} teachers, {len(data['sections'])} sections, "

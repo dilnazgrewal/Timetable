@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from app.importers.fet import _parse_groups, _parse_teachers, _subject, parse_rooms_html
+from app.importers.fet import OUTSIDE_ROOM, _parse_groups, _parse_teachers, _subject, add_groups_html, parse_rooms_html
 from app.models import College, Entry, Lesson, Room, Section, Teacher
 from app.validator import split_issues, validate
 
@@ -53,3 +53,41 @@ def test_cell_parsers():
     assert _subject("DS Lab P") == ("DS Lab", "Data Structures Lab", "lab")
     assert _subject("TOC L")[:2] == ("TOC", "Theory of Computation")
     assert _subject("CV E(T)")[1] == "Computer Vision (elective)"
+
+
+def test_groups_page_adds_open_elective_and_two_room_class():
+    d = parse_rooms_html(RAW.read_text(encoding="utf-8-sig"))
+    assert not any(l["code"] == "OE-II" for l in d["lessons"])  # the rooms page can't show it
+    added = add_groups_html(d, RAW.with_name("groups.html").read_text(encoding="utf-8-sig"))
+    assert len(added) == 4 and not any("Self Study" in a for a in added)
+    oe = next(l for l in d["lessons"] if l["code"] == "OE-II")
+    d4 = [g for s in d["sections"] if s["id"].startswith("D4-CS-") for g in s["groups"]]
+    assert oe["batches"] == sorted(d4) and oe["sessions"] == 3 and oe["fixed"]
+    when = sorted((e["day"], e["start"], e["room"]) for e in d["entries"] if e["lesson"] == oe["id"])
+    assert when == [(0, 0, OUTSIDE_ROOM.id), (2, 0, OUTSIDE_ROOM.id), (4, 0, OUTSIDE_ROOM.id)]  # Mon, Wed, Fri 8:30
+    mc = [e for e in d["entries"] if e["day"] == 3 and e["start"] == 2 and e["room"] == "S202"]
+    assert len(mc) == 1  # D1 CS C mentoring, held in S202 + S203
+    assert split_issues(validate(as_college(d), [Entry(**e) for e in d["entries"]]))[0] == []
+
+
+def test_open_elective_is_pinned_and_in_d4_timetables():
+    from app.optimise import movable
+    from app.store import STORE
+
+    c = STORE.college
+    oe = next(l for l in c.lessons if l.code == "OE-II")
+    assert not movable(c, oe, "CSE")
+    d4 = [t for t in c.student_types if t.section.startswith("D4-CS-")]
+    assert d4 and all(oe.id in t.lessons for t in d4)
+    assert OUTSIDE_ROOM.id in c.room_by_id
+
+
+def test_outside_room_is_never_a_free_room():
+    from fastapi.testclient import TestClient
+
+    from app.main import app
+
+    client = TestClient(app, headers={"X-User": "admin"})
+    for p in (0, 4):
+        free = client.get(f"/api/free-rooms?day=1&period={p}").json()["free"]
+        assert free and OUTSIDE_ROOM.id not in {r["id"] for r in free}

@@ -1,5 +1,5 @@
 {
- "source": "FET rooms export",
+ "source": "FET rooms + groups export",
  "dept": "CSE",
  "rooms": [
   {
@@ -548,6 +548,17 @@
    ],
    "sittable": true,
    "bookable": true
+  },
+  {
+   "id": "APPLIED SCIENCES",
+   "kind": "Other department",
+   "capacity": 999,
+   "dept": "AS",
+   "building": "",
+   "floor": "",
+   "features": [],
+   "sittable": false,
+   "bookable": false
   }
  ],
  "teachers": [
@@ -1035,6 +1046,14 @@
    "id": "TBA-JPALJPAL",
    "name": "JPAL JPAL (staff)",
    "dept": "CSE",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "TBA-OEII",
+   "name": "Open elective II (ERP, EVS, EWASTE): teachers of the other department",
+   "dept": "AS",
    "kind": "Regular",
    "unavailable": [],
    "max_per_day": 9
@@ -8985,6 +9004,75 @@
    "size": 30,
    "co_teachers": [],
    "fixed": true
+  },
+  {
+   "id": "CSE:0317",
+   "code": "OE-II",
+   "name": "Open elective II (ERP, EVS, EWASTE)",
+   "kind": "theory",
+   "dept": "CSE",
+   "teacher": "TBA-OEII",
+   "section": "D4 CS \u00b7 5 sections",
+   "batches": [
+    "D4-CS-A-A1",
+    "D4-CS-A-A2",
+    "D4-CS-A-A3",
+    "D4-CS-A-A4",
+    "D4-CS-A-A5",
+    "D4-CS-B-B1",
+    "D4-CS-B-B2",
+    "D4-CS-B-B3",
+    "D4-CS-B-B4",
+    "D4-CS-B-B5",
+    "D4-CS-C-C1",
+    "D4-CS-C-C2",
+    "D4-CS-C-C3",
+    "D4-CS-C-C4",
+    "D4-CS-C-C5",
+    "D4-CS-D-D1",
+    "D4-CS-D-D2",
+    "D4-CS-D-D3",
+    "D4-CS-D-D4",
+    "D4-CS-D-D5",
+    "D4-CS-E-E1",
+    "D4-CS-E-E2",
+    "D4-CS-E-E3",
+    "D4-CS-E-E4",
+    "D4-CS-E-E5"
+   ],
+   "sessions": 3,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "APPLIED SCIENCES"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "CSE:0318",
+   "code": "MC",
+   "name": "Mentoring",
+   "kind": "theory",
+   "dept": "CSE",
+   "teacher": "LKG",
+   "section": "D1 CS C1, D1 CS C2",
+   "batches": [
+    "D1-CS-C-C1",
+    "D1-CS-C-C2"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "S202"
+   ],
+   "size": 75,
+   "co_teachers": [
+    "KWK"
+   ],
+   "fixed": true
   }
  ],
  "entries": [
@@ -13251,6 +13339,38 @@
    "start": 8,
    "duration": 1,
    "room": "HW Lab (IT DEPT.)"
+  },
+  {
+   "lesson": "CSE:0317",
+   "session": 0,
+   "day": 0,
+   "start": 0,
+   "duration": 1,
+   "room": "APPLIED SCIENCES"
+  },
+  {
+   "lesson": "CSE:0317",
+   "session": 1,
+   "day": 2,
+   "start": 0,
+   "duration": 1,
+   "room": "APPLIED SCIENCES"
+  },
+  {
+   "lesson": "CSE:0317",
+   "session": 2,
+   "day": 4,
+   "start": 0,
+   "duration": 1,
+   "room": "APPLIED SCIENCES"
+  },
+  {
+   "lesson": "CSE:0318",
+   "session": 0,
+   "day": 3,
+   "start": 2,
+   "duration": 1,
+   "room": "S202"
   }
  ]
 }

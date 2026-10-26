@@ -7,6 +7,7 @@ from datetime import datetime
 
 import anthropic
 
+from app.importers.fet import OUTSIDE_ROOM
 from app.models import DAYS, PERIODS
 from app.store import STORE, Occupancy, to_date
 
@@ -184,7 +185,7 @@ class Assistant:
         busy = STORE.busy_rooms(occ, p)
         floors: dict[str, list[dict]] = {}
         for r in STORE.college.rooms:
-            if (r.id in busy or (sittable_only and not r.sittable) or r.capacity < min_seats
+            if (r.id in busy or r.kind == OUTSIDE_ROOM.kind or (sittable_only and not r.sittable) or r.capacity < min_seats
                     or (building and r.building != building) or (floor and r.floor != floor)):
                 continue
             nxt = min((o.start for o in occ if o.room == r.id and o.start > p), default=None)

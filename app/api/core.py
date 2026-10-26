@@ -16,6 +16,7 @@ from app.chat import Assistant
 from app.models import DAYS, FEATURES, LUNCH_WINDOW, PERIODS, Entry, User
 from app.solver import solve
 from app import optimise
+from app.importers import fet
 from app import substitutions as subs
 from app.store import STORE, Occupancy, now_iso
 from app.validator import metrics
@@ -187,7 +188,7 @@ def free_rooms(period: int, day: int | None = None, on: str | None = None, min_c
     busy = STORE.busy_rooms(occ, period)
     rooms = []
     for r in STORE.college.rooms:
-        if (r.id in busy or r.capacity < min_capacity or (kind and r.kind != kind) or (sittable_only and not r.sittable)
+        if (r.id in busy or r.kind == fet.OUTSIDE_ROOM.kind or r.capacity < min_capacity or (kind and r.kind != kind) or (sittable_only and not r.sittable)
                 or (building and r.building != building) or (floor and r.floor != floor)):
             continue
         next_use = min((o.start for o in occ if o.room == r.id and o.start > period), default=None)

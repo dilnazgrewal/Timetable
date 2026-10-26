@@ -414,6 +414,21 @@ def department_college(college: College, dept: str = "CSE") -> College:
 OUT = Path(__file__).resolve().parent.parent / "data" / "gndec" / "cse_optimised.json"
 
 
+def add_new_pins(college: College, dept: str = "CSE", path: Path = OUT) -> dict | None:
+    """After a re-import found more classes nobody may move (e.g. open electives taught in another department),
+    put them into the saved optimised timetable as published and measure it again. No re-solve: the independent
+    validator says whether the saved timetable still fits around them."""
+    if not path.exists():
+        return None
+    saved = json.loads(path.read_text(encoding="utf-8"))
+    entries = [Entry(**e) for e in saved["entries"] if e["lesson"] in college.lesson_by_id]
+    have = {e.lesson for e in entries}
+    new = [e for e in college.fixed_entries if e.lesson not in have and college.lesson_by_id[e.lesson].dept == dept]
+    res = OptResult(saved["status"], saved["seconds"], entries + new, saved["moved"], saved["pinned"] + len(new),
+                    score=tuple(saved.get("score", ())))
+    return save(college, res, dept, path)
+
+
 def save(college: College, res: OptResult, dept: str = "CSE", path: Path = OUT) -> dict:
     """Store the optimised timetable next to the imported one, with before/after numbers."""
     from app.validator import metrics, split_issues, validate
