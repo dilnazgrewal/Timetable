@@ -22,7 +22,7 @@ def client(tmp_path, monkeypatch):
     monkeypatch.setattr(store_mod, "STATE", tmp_path / "state.json")
     for name in ("overrides", "bookings", "meetings", "notifications"):
         monkeypatch.setattr(STORE, name, [])
-    return TestClient(app)
+    return TestClient(app, headers={"X-User": "admin"})  # every call below names its own account
 
 
 @pytest.fixture

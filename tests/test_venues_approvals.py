@@ -23,7 +23,7 @@ def client(tmp_path, monkeypatch):
     monkeypatch.setattr(store_mod, "STATE", tmp_path / "state.json")
     for name in ("overrides", "bookings", "meetings", "notifications"):
         monkeypatch.setattr(STORE, name, [])
-    return TestClient(app)
+    return TestClient(app, headers={"X-User": "admin"})  # every call below names its own account
 
 
 @pytest.fixture
@@ -153,3 +153,18 @@ def test_event_audience_hears_about_approval_and_cancellation(client, hall):
     assert not notes(outsider)
     call(client, "org-TNP", "POST", f"/api/venues/requests/{req['id']}/cancel")
     assert all(any("Cancelled" in t for t in notes(s)) for s in students)
+
+
+def test_new_roles_and_sign_in(client, hall):
+    coord = next((u for u in STORE.users.values() if u.role == "coordinator" and u.dept == hall.dept), None)
+    dean = next((u for u in STORE.users.values() if u.role == "dean"), None)
+    if coord:  # a department coordinator books like a teacher (no advisor) but can't approve
+        req = ask(client, coord.id, hall.id).json()["request"]
+        assert [s["role"] for s in req["steps"]] == ["hod"]
+        assert decide(client, coord.id, req["id"]).status_code == 403
+    if dean:  # read-only: may look for event slots, may not book
+        assert ask(client, dean.id, hall.id).status_code == 403
+        sec = STORE.college.sections[0]
+        assert call(client, dean.id, "POST", "/api/venues/slot-finder",
+                    json={"dept": sec.dept, "year": sec.year, "duration": 1}).status_code == 200
+    assert TestClient(app).get("/api/venues/requests").status_code == 401  # nobody signed in

@@ -29,12 +29,10 @@ function venuesApp() {
       this.features = this.meta.features;
       this.sections = this.meta.sections;
       this.departments = this.meta.departments;
-      const role = this.user.role;
-      const advisor = (TW.users.clubs || []).some(c => c.advisor === this.user.id);
-      this.can = { request: ['club', 'teacher', 'hod', 'org', 'admin'].includes(role),
-                   slots: ['org', 'hod', 'teacher', 'club', 'admin'].includes(role),
-                   approve: ['hod', 'admin'].includes(role) || advisor };
-      if (role === 'club') this.form.attendees = 100;
+      // what this person may do comes from the server's permission table (TW.can); the server still checks every call
+      this.can = { request: !!TW.can.request_venue, slots: !!TW.can.slot_finder,
+                   approve: !!(TW.can.approve_venues || TW.can.endorse_venues) };
+      if (this.user.role === 'club') this.form.attendees = 100;
       const depts = this.deptsWithSections();
       this.sf.dept = (depts.find(d => d.code === this.user.dept) || depts[0] || {}).code || '';
       this.sf.year = this.yearsOf(this.sf.dept)[0] || 0;

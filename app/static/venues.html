@@ -6,7 +6,7 @@
 <title>TimeWeave · Venues</title>
 <script src="https://cdn.tailwindcss.com/3.4.16"></script>
 <script src="/static/js/shell.js"></script>
-<script defer src="/static/js/venues.js?v=3"></script>
+<script defer src="/static/js/venues.js?v=5"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
 <style>
   [x-cloak] { display: none !important; }
@@ -41,11 +41,11 @@
 
     <!-- ============ Book a venue ============ -->
     <section x-show="tab === 'book'" class="mt-4">
-      <template x-if="!can.request">
-        <div class="rounded-xl border bg-white p-4 text-sm text-slate-600">
-          Students can't book venues directly. Ask your club lead, a teacher or your HOD, or switch the demo account to <b>Digital Marketing Club</b> at the top.
-        </div>
-      </template>
+      <div x-show="user && !can.request" class="rounded-xl border bg-white p-4 text-sm text-slate-600">
+        <p x-text="user?.role === 'student' ? 'Students can’t book venues directly. Ask your club lead, a teacher or your HOD.'
+                                             : 'Your account (' + (user?.role_name || user?.role) + ') can’t request venues.'"></p>
+        <p x-show="can.slots" class="mt-1">You can still use the <a href="#slots" class="text-indigo-700 underline">Event slot finder</a>.</p>
+      </div>
       <form x-show="can.request" @submit.prevent="search()" class="rounded-xl border bg-white p-4 grid gap-3 grid-cols-2">
         <div>
           <label class="block text-xs text-slate-500 mb-1">Date</label>
