@@ -151,6 +151,7 @@ Owned by the Venues session. Logic lives in `app/venues/` (`ranking.py`, `reques
 - `date` is `YYYY-MM-DD`, Mon–Fri only, not in the past (400 otherwise). `periods` are indexes into `/api/meta.periods` and must be back to back (e.g. `[4, 5]` = P5–P6).
 - `needs` is a subset of `/api/meta.features` (400 for unknown ones).
 - "Free" always means free in `STORE.effective(date)`: after cancellations, substitutions and room changes, and counting approved bookings.
+- Only `bookable` rooms are venues, and never the `Other department` stand-in rooms.
 
 | Method + path | Who | Body / query | Returns |
 |---|---|---|---|
@@ -189,12 +190,16 @@ Owned by the Venues session. Logic lives in `app/venues/` (`ranking.py`, `reques
 - `audience_label`: e.g. "D4 CS A, D4 CS B (B1, B2)": whole sections by name, otherwise the section plus group letters. Empty when there is no audience.
 
 **Slot finder**
-- Audience: `dept` + `year` (every section of that year), `sections` (ids), or `groups` (atomic group ids). A class blocks a group if the group, or its section id, is in the class's `batches`.
+- Audience: `dept` + `year` (every regular section of that year), `sections` (ids), or `groups` (atomic group ids).
+- A class rules a slot out if any of these is true:
+  - it lists one of the audience's groups or sections in `batches`
+  - one of the sections' student types attends it, or may share students with it (`StudentType.lessons` / `guards`)
+  - it belongs to an **elective audience** (`Section.kind == "elective"`) of the same department and year; electives mix students of several sections, so we can't tell who is free
 - `duration` is 1–9 periods. `from` defaults to today and `to` to `from` + 13 days (at most 31 days). Weekends are skipped, and so are periods already started today.
 - `attendees` defaults to the audience size (section sizes, or a share of one for single groups).
 
 Returns:
-- `audience`: `{label, groups, sections, attendees}`, plus `duration`, `from`, `to`, `needs`, `total`
+- `audience`: `{label, groups, sections, attendees, electives}` (attendees and sections count regular sections only; `electives` are the elective audiences also checked), plus `duration`, `from`, `to`, `needs`, `total`
 - `slots` (up to 40): `[{date, day, periods, when, venues: [up to 3 fitting venues], warnings}]`
   - Every group in the audience is free for the whole block.
   - Order: by date; slots with a venue first; slots that don't take a lunch break first; then earliest.

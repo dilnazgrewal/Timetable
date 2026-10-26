@@ -28,7 +28,7 @@ def client(tmp_path, monkeypatch):
 @pytest.fixture
 def section_and_lesson():
     """A section plus a lesson that involves at least one of its groups."""
-    for sec in STORE.college.sections:
+    for sec in (s for s in STORE.college.sections if s.kind != "elective"):
         lesson = next((l for l in STORE.college.lessons if set(l.batches) & set(sec.batches)), None)
         if lesson:
             return sec, lesson
@@ -127,3 +127,39 @@ def test_almost_free_slots_name_who_would_miss_class(client, monkeypatch, sectio
     assert sorted(g for m in near["missing"] for g in m["groups"]) == busy_groups
     assert near["missing"][0]["section"] == sec.name and near["missing"][0]["classes"]
     assert near["missing"][0]["whole"] == (len(busy_groups) == len(sec.batches))
+
+
+def test_electives_of_the_same_year_block_a_section_audience(client, monkeypatch):
+    """Electives mix students of several sections: a class of one blocks the whole year's sections."""
+    c = STORE.college
+    pick = None
+    for el in (s for s in c.sections if s.kind == "elective"):
+        sec = next((s for s in c.sections if s.kind != "elective" and (s.dept, s.year) == (el.dept, el.year)), None)
+        lesson = next((l for l in c.lessons if l.batches and set(l.batches) <= set(el.batches)), None)
+        if sec and lesson:
+            pick = sec, el, lesson
+            break
+    if not pick:
+        pytest.skip("no elective audiences in the current college data")
+    sec, el, lesson = pick
+    monday = next_weekday(0)
+    monkeypatch.setattr(STORE, "entries", [Entry(lesson.id, 0, 0, 0, 2, "ANY")])
+    body = find(client, sections=[sec.id], duration=1, **{"from": monday}, to=monday).json()
+    assert el.id in body["audience"]["electives"]
+    assert not {0, 1} & {p for s in body["slots"] for p in s["periods"]}
+    near = next(s for s in body["almost"] if s["periods"] == [0])
+    assert any(m["elective"] and m["section"] == el.name for m in near["missing"])
+    assert "elective" in near["warnings"][0]
+
+
+def test_dept_year_counts_only_real_sections(client):
+    sec = next(s for s in STORE.college.sections if s.kind != "elective")
+    aud = find(client, dept=sec.dept, year=sec.year, duration=1).json()["audience"]
+    real = [s for s in STORE.college.sections if s.kind != "elective" and (s.dept, s.year) == (sec.dept, sec.year)]
+    assert aud["sections"] == [s.id for s in real]
+    assert aud["attendees"] == sum(s.size for s in real)
+
+
+def test_other_department_stand_in_is_never_a_venue(client):
+    res = client.post("/api/venues/rank", json={"date": next_weekday(), "periods": [0], "attendees": 1, "needs": []})
+    assert all(v["kind"] != "Other department" for v in res.json()["venues"] + res.json()["near_misses"])

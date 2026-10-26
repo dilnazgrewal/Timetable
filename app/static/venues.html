@@ -6,7 +6,7 @@
 <title>TimeWeave · Venues</title>
 <script src="https://cdn.tailwindcss.com/3.4.16"></script>
 <script src="/static/js/shell.js"></script>
-<script defer src="/static/js/venues.js?v=5"></script>
+<script defer src="/static/js/venues.js?v=6"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
 <style>
   [x-cloak] { display: none !important; }
@@ -240,6 +240,7 @@
         <div class="mt-4">
           <h2 class="text-lg font-bold" x-text="slots.total ? slots.total + ' slot' + (slots.total > 1 ? 's' : '') + ' where everyone is free' : 'No common free time in these dates'"></h2>
           <p class="text-sm text-slate-500" x-text="slots.audience.label + ' · ' + slots.audience.groups.length + ' groups · ' + slots.audience.attendees + ' people'"></p>
+          <p class="text-xs text-slate-500" x-show="slots.audience.electives?.length" x-text="'Also checks the ' + slots.audience.electives.length + ' elective classes of this year, since some of these students take them.'"></p>
           <p class="text-xs text-slate-500" x-show="slots.total > slots.slots.length" x-text="'Showing the first ' + slots.slots.length + '. Narrow the dates to see more.'"></p>
           <p class="text-xs text-slate-500" x-show="slots.days_without_slot.length" x-text="'No common free time on ' + slots.days_without_slot.join(', ')"></p>
           <template x-for="day in byDay(slots.slots)" :key="day.date">

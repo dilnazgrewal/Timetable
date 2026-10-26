@@ -61,7 +61,7 @@ def rank(d: date, periods: list[int], attendees: int, needs: list[str], occ: lis
     occ = s.effective(d) if occ is None else occ
     fits, misses = [], []
     for room in s.college.rooms:
-        if not room.bookable:
+        if not room.bookable or room.kind == "Other department":  # stand-in for rooms elsewhere: never a venue
             continue
         busy = conflicts(room.id, occ, periods)
         missing = [n for n in needs if n not in room.features]

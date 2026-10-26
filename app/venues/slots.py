@@ -2,7 +2,9 @@
 
 An audience is a department + year, a list of sections, or a list of atomic groups. A slot is a run of
 `duration` periods on one weekday where no class (after cancellations, substitutions and room changes)
-involves any of those groups.
+involves any of those students. A class counts if it lists one of their groups or sections, if one of their
+student types attends (or may share students with) it, or if it is an elective audience of the same
+department and year: electives mix students of several sections, so we can't tell who is free then.
 """
 from __future__ import annotations
 
@@ -20,8 +22,16 @@ VENUES_PER_SLOT = 3
 ALMOST = 6  # nearly-free times shown when few exact slots exist
 
 
+def electives_for(secs: list) -> list[str]:
+    """Elective audiences (Section.kind == "elective") of the same department and year as these sections."""
+    years = {(s.dept, s.year) for s in secs}
+    chosen = {s.id for s in secs}
+    return [s.id for s in store().college.sections
+            if s.kind == "elective" and (s.dept, s.year) in years and s.id not in chosen]
+
+
 def audience(dept: str | None, year: int | None, sections: list[str], groups: list[str]) -> dict:
-    """Resolve the chosen audience to atomic groups (plus section ids, in case a class lists a whole section)."""
+    """Resolve the chosen audience to atomic groups, their sections, and the electives their students may take."""
     c = store().college
     if groups:
         owner = {g: s for s in c.sections for g in s.batches}
@@ -30,7 +40,8 @@ def audience(dept: str | None, year: int | None, sections: list[str], groups: li
             raise HTTPException(400, f"Unknown group {', '.join(unknown)}")
         chosen = list(dict.fromkeys(groups))
         size = sum(owner[g].size / max(len(owner[g].batches), 1) for g in chosen)
-        return {"label": ", ".join(chosen), "groups": chosen, "sections": [], "attendees": round(size)}
+        return {"label": ", ".join(chosen), "groups": chosen, "sections": [], "attendees": round(size),
+                "electives": electives_for([owner[g] for g in chosen])}
     if sections:
         unknown = [s for s in sections if s not in c.section_by_id]
         if unknown:
@@ -38,14 +49,14 @@ def audience(dept: str | None, year: int | None, sections: list[str], groups: li
         secs = [c.section_by_id[s] for s in dict.fromkeys(sections)]
         label = ", ".join(s.name for s in secs)
     elif dept and year:
-        secs = [s for s in c.sections if s.dept == dept and s.year == year]
+        secs = [s for s in c.sections if s.dept == dept and s.year == year and s.kind != "elective"]
         if not secs:
             raise HTTPException(400, f"No {dept} sections in year {year}.")
         label = f"{dept} year {year} ({len(secs)} section{'s' if len(secs) > 1 else ''})"
     else:
         raise HTTPException(400, "Choose who the event is for: a department and year, sections, or groups.")
     return {"label": label, "groups": [g for s in secs for g in s.batches], "sections": [s.id for s in secs],
-            "attendees": sum(s.size for s in secs)}
+            "attendees": sum(s.size for s in secs), "electives": electives_for(secs)}
 
 
 def as_date(value: str | None) -> date | None:
@@ -57,14 +68,26 @@ def as_date(value: str | None) -> date | None:
         raise HTTPException(400, f"'{value}' is not a date. Use YYYY-MM-DD, e.g. 2026-10-23.")
 
 
-def busy_by_group(occ, members: set[str]) -> dict[str, dict[int, str]]:
-    """For each audience member (group or section id): period -> the class it has then."""
+def busy_by_group(occ, members: set[str], by_lesson: dict[str, set[str]] | None = None) -> dict[str, dict[int, str]]:
+    """For each audience member (group or section id): period -> the class it has then. `by_lesson` maps a lesson
+    to the sections whose student types attend it, for classes that list none of the members' ids."""
     busy: dict[str, dict[int, str]] = {m: {} for m in members}
     for o in occ:
-        for b in o.batches:
-            if b in busy:
-                busy[b].update({p: o.title for p in o.slots})
+        hit = [b for b in o.batches if b in busy] or sorted((by_lesson or {}).get(o.lesson or "", ()))
+        for b in hit:
+            busy[b].update({p: o.title for p in o.slots})
     return busy
+
+
+def lessons_of_types(sections: list[str]) -> dict[str, set[str]]:
+    """lesson id -> the chosen sections with a student type that attends it or may share students with it."""
+    out: dict[str, set[str]] = {}
+    chosen = set(sections)
+    for t in store().college.student_types:
+        if t.section in chosen:
+            for lesson in (*t.lessons, *t.guards):
+                out.setdefault(lesson, set()).add(t.section)
+    return out
 
 
 def lunch_warning(busy: dict[str, dict[int, str]], groups: list[str], slot: set[int]) -> str | None:
@@ -85,7 +108,8 @@ def by_section(clash: dict[str, list[str]]) -> list[dict]:
         sec = next((s for s in c.sections if g in s.batches), None)
         key = sec.id if sec else g
         row = out.setdefault(key, {"section": sec.name if sec else g, "groups": [], "classes": [],
-                                   "size": len(sec.batches) if sec else 1})
+                                   "size": len(sec.batches) if sec else 1,
+                                   "elective": bool(sec and sec.kind == "elective")})
         row["groups"].append(g)
         row["classes"] += [x for x in classes if x not in row["classes"]]
     for r in out.values():
@@ -109,6 +133,19 @@ def groups_label(groups: list[str]) -> str:
                      for r in rows)
 
 
+def busy_summary(missing: list[dict], total: int) -> str:
+    """'3 of 36 groups in 2 sections have class then, plus 2 electives for this year'."""
+    own = [m for m in missing if not m["elective"]]
+    n = sum(len(m["groups"]) for m in own)
+    electives = len(missing) - len(own)
+    extra = f"{electives} elective{'s' if electives > 1 else ''} for this year" if electives else ""
+    if not n:
+        return f"Some students have an elective then ({extra})"
+    secs = f" in {len(own)} section{'s' if len(own) > 1 else ''}" if total > 1 else ""
+    text = f"{n} of {total} group{'s' if total > 1 else ''}{secs} {'has' if n == 1 else 'have'} class then"
+    return f"{text}, plus {extra}" if extra else text
+
+
 def find(aud: dict, duration: int, start: str, end: str, attendees: int | None, needs: list[str]) -> dict:
     if not 1 <= duration <= len(PERIODS):
         raise HTTPException(400, f"Duration must be 1 to {len(PERIODS)} periods.")
@@ -119,10 +156,14 @@ def find(aud: dict, duration: int, start: str, end: str, attendees: int | None, 
     if (last - first).days >= MAX_DAYS:
         raise HTTPException(400, f"Search up to {MAX_DAYS} days at a time.")
     people = attendees or aud["attendees"]
-    groups = aud["groups"]
-    section_of = {g: s.id for s in store().college.sections for g in s.batches}
-    owner = {g: section_of[g] for g in groups if g in section_of}
-    members = set(groups) | set(owner.values())
+    groups = aud["groups"]  # the audience's own groups (lunch, counts)
+    c = store().college
+    elective_groups = [g for sid in aud.get("electives", []) for g in c.section_by_id[sid].batches]
+    check = groups + elective_groups  # everyone whose class rules a slot out
+    section_of = {g: s.id for s in c.sections for g in s.batches}
+    owner = {g: section_of[g] for g in check if g in section_of}
+    members = set(check) | set(owner.values())
+    by_lesson = lessons_of_types(aud["sections"])
     slots, almost, days_without = [], [], []
     occ_by_day = {}
     today, now = date.today(), datetime.now().strftime("%H:%M")
@@ -130,7 +171,7 @@ def find(aud: dict, duration: int, start: str, end: str, attendees: int | None, 
     while d <= last:
         if d.weekday() < 5:
             occ_by_day[d] = occ = store().effective(d)
-            busy = busy_by_group(occ, members)
+            busy = busy_by_group(occ, members, by_lesson)
             for g, sid in owner.items():  # a class for the whole section blocks each of its groups
                 busy[g] = {**busy.get(sid, {}), **busy[g]}
             found_today = False
@@ -138,7 +179,7 @@ def find(aud: dict, duration: int, start: str, end: str, attendees: int | None, 
                 block = list(range(p, p + duration))
                 if d == today and PERIODS[p][1] <= now:
                     continue
-                clash = {g: sorted({busy[g][q] for q in block if q in busy[g]}) for g in groups}
+                clash = {g: sorted({busy[g][q] for q in block if q in busy[g]}) for g in check}
                 clash = {g: c for g, c in clash.items() if c}
                 slot = {"date": d.isoformat(), "day": day_label(d), "periods": block,
                         "when": f"{day_label(d)}, {periods_label(block)}"}
@@ -161,9 +202,7 @@ def find(aud: dict, duration: int, start: str, end: str, attendees: int | None, 
     for s in almost:  # nearly-free times: who would miss which class, and where it could happen
         s["venues"] = ranking.rank(s["_key"][2], s["periods"], people, needs,
                                    occ_by_day[s["_key"][2]])["venues"][:VENUES_PER_SLOT]
-        n, total = s["_key"][1], len(groups)
-        secs = f" in {len(s['missing'])} section{'s' if len(s['missing']) > 1 else ''}" if total > 1 else ""
-        s["warnings"] = [f"{n} of {total} group{'s' if total > 1 else ''}{secs} {'has' if n == 1 else 'have'} class then"]
+        s["warnings"] = [busy_summary(s["missing"], len(groups))]
     for s in slots + almost:
         del s["_key"]
     return {"audience": {**aud, "attendees": people}, "duration": duration, "from": first.isoformat(),

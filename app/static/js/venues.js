@@ -117,9 +117,10 @@ function venuesApp() {
     chip(status) { const [label, cls] = CHIPS[status] || [status, 'bg-slate-100']; return { label, cls }; },
 
     // ---------- event slot finder ----------
-    deptsWithSections() { return this.departments.filter(d => this.sections.some(s => s.dept === d.code)); },
-    yearsOf(dept) { return [...new Set(this.sections.filter(s => s.dept === dept).map(s => s.year))].sort(); },
-    sectionsOf(dept, year) { return this.sections.filter(s => s.dept === dept && s.year === year); },
+    deptsWithSections() { return this.departments.filter(d => this.regular().some(s => s.dept === d.code)); },
+    regular() { return this.sections.filter(s => s.kind !== 'elective'); },  // the server adds the year's electives itself
+    yearsOf(dept) { return [...new Set(this.regular().filter(s => s.dept === dept).map(s => s.year))].sort(); },
+    sectionsOf(dept, year) { return this.regular().filter(s => s.dept === dept && s.year === year); },
     yearLabel(y) { return y <= 4 ? `D${y} (year ${y})` : y === 5 ? 'M.Tech' : y === 6 ? 'PhD' : `Year ${y}`; },
     async findSlots() {
       this.busy = true; this.flash = null;
