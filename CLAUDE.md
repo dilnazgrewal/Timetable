@@ -87,7 +87,7 @@ Rules for every lane:
 - **Classes outside CSE rooms:** open electives (D4 `OE-II`: ERP, EVS or E-Waste, Mon/Wed/Fri 8:30) are taught in another department, so only FET's *groups* page shows them. `app/importers/fet.py` reads the rooms page and then `add_groups_html()` adds these as fixed lessons in the room `APPLIED SCIENCES` (never a free room). The optimiser never moves them. "Self Study · Library" slots are free periods, not classes, and are not imported.
 
 ## College rules (each college's own timetable habits)
-- Written per college in `data/<college>/rules.json`, read by `app/rules.py` (no solver code, so the validator and API use it too) into `College.rules`.
+- Written per college in `data/<college>/rules.json`, read by `app/rules.py` into `College.rules`. `app/rules.py` has no solver code: it is the independent rule check, used by the API, `optimise.save()` and the tests (the optimiser builds its own constraints from the same rules).
 - Rule types:
   - `keep_as_published`: never moves (mentoring, M.Tech/PhD, classes run with other departments)
   - `labs_apart`: a teacher's lab for two groups of one class on different days
