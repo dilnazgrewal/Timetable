@@ -50,7 +50,7 @@ Each lane **only edits the files it owns**. Shared files are owned by Lane A.
 
 | Lane | Owns |
 |---|---|
-| **A. Core and data** | `app/models.py`, `app/store.py`, `app/auth.py`, `app/substitutions.py`, `app/optimise.py`, `app/static/compare.html`, `app/main.py`, `app/seed.py`, `app/solver.py`, `app/validator.py`, `app/chat.py`, `app/importers/*`, `app/api/core.py`, `app/static/js/shell.js`, `.claude/launch.json`, `docs/API.md` (Core and Shared sections), `PLAN.md`, `CLAUDE.md`, `README.md`, `tests/test_core_*`, `tests/test_validator.py` |
+| **A. Core and data** | `app/models.py`, `app/store.py`, `app/auth.py`, `app/substitutions.py`, `app/optimise.py`, `app/static/compare.html`, `app/main.py`, `app/seed.py`, `app/solver.py`, `app/validator.py`, `app/chat.py`, `app/importers/*`, `data/gndec/*`, `app/api/core.py`, `app/static/js/shell.js`, `.claude/launch.json`, `docs/API.md` (Core and Shared sections), `PLAN.md`, `CLAUDE.md`, `README.md`, `tests/test_core_*`, `tests/test_validator.py` |
 | **B. Dashboards UI** | `app/static/index.html`, `app/static/js/dashboards.js`, `app/static/css/*`, `app/api/dashboards.py`, `docs/API.md` (Lane B section), `tests/test_dashboards_*` |
 | **C. Venues and events** | `app/static/venues.html`, `app/static/js/venues.js`, `app/venues/*`, `app/api/venues.py`, `docs/API.md` (Lane C section), `tests/test_venues_*` |
 
@@ -63,7 +63,11 @@ Rules for every lane:
 
 ## Domain glossary
 - **Period model:** 8 periods a day, 60 minutes each, 8:30–4:30 (P1 8:30 … P8 3:30). GNDEC's real timetable has a 9th slot, 4:30–5:30, mostly used for mentoring. **Lunch is flexible:** every batch and teacher gets at least one free period in the lunch window P4–P6 (11:30–2:30). The solver picks which, and that free period is not counted as idle time.
-- **Batch / group:** the atomic student group (GNDEC naming: `D3 CS A1`, i.e. year D3, section A, group 1). A whole-section class occupies all its groups, a lab occupies one group, and an elective occupies groups from several sections. No-overlap is enforced per group.
+- **Batch / group:** a group as the FET timetable names it (`D3 CS A1`). **Careful:** in GNDEC's 3rd and 4th year these numbers are reused slots, not sets of students. "D4 CS A2" = the 2nd option of Elective-III (DWDM) *and* of Elective-IV (Soft Computing) *and* TA lab batch 2, which are different people. In 1st and 2nd year, groups are real lab groups.
+- **Student type:** a real combination of students: section + actual group + electives + elective lab groups + TA lab group, e.g. `D4-CS-A:A2:CV:SCA1:TA3`, with the exact lessons they attend and how many students have it.
+  - Built from the department's distribution lists by `app/importers/gndec_students.py` (the lists live in git-ignored `data/private/`; only anonymous counts go to `data/gndec/students.json`).
+  - Sections without lists get one type per group.
+  - **No-overlap, the midday break, waiting gaps and "my timetable" are all per student type** (`College.units()`, `STORE.attends()`). Never decide a student's classes from a group id.
 - **Lesson:** a teaching assignment (subject + teacher + audience groups + sessions per week + duration).
 - **Session:** one weekly occurrence of a lesson; the solver places sessions.
 - **Entry:** a placed session (day, start period, duration, room).

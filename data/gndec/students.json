@@ -1,0 +1,898 @@
+{
+ "D4": [
+  {
+   "section": "D4-CS-A",
+   "actual": "A1",
+   "elective_iii": "CV",
+   "elective_iv": "SC",
+   "elective_iv_lab": "A1",
+   "ta_lab": 2,
+   "count": 6
+  },
+  {
+   "section": "D4-CS-A",
+   "actual": "A1",
+   "elective_iii": "CV",
+   "elective_iv": "SC",
+   "elective_iv_lab": "A2",
+   "ta_lab": 4,
+   "count": 1
+  },
+  {
+   "section": "D4-CS-A",
+   "actual": "A1",
+   "elective_iii": "DAAA",
+   "elective_iv": "WT",
+   "elective_iv_lab": "",
+   "ta_lab": 4,
+   "count": 2
+  },
+  {
+   "section": "D4-CS-A",
+   "actual": "A1",
+   "elective_iii": "DWDM",
+   "elective_iv": "ACC",
+   "elective_iv_lab": "A1",
+   "ta_lab": 1,
+   "count": 1
+  },
+  {
+   "section": "D4-CS-A",
+   "actual": "A1",
+   "elective_iii": "SDN",
+   "elective_iv": "ACC",
+   "elective_iv_lab": "A1",
+   "ta_lab": 1,
+   "count": 1
+  },
+  {
+   "section": "D4-CS-A",
+   "actual": "A2",
+   "elective_iii": "CV",
+   "elective_iv": "SC",
+   "elective_iv_lab": "A1",
+   "ta_lab": 2,
+   "count": 6
+  },
+  {
+   "section": "D4-CS-A",
+   "actual": "A2",
+   "elective_iii": "CV",
+   "elective_iv": "SC",
+   "elective_iv_lab": "A1",
+   "ta_lab": 3,
+   "count": 5
+  },
+  {
+   "section": "D4-CS-A",
+   "actual": "A2",
+   "elective_iii": "CV",
+   "elective_iv": "SC",
+   "elective_iv_lab": "A2",
+   "ta_lab": 4,
+   "count": 1
+  },
+  {
+   "section": "D4-CS-A",
+   "actual": "A2",
+   "elective_iii": "DAAA",
+   "elective_iv": "WT",
+   "elective_iv_lab": "",
+   "ta_lab": 4,
+   "count": 1
+  },
+  {
+   "section": "D4-CS-A",
+   "actual": "A2",
+   "elective_iii": "DAAA",
+   "elective_iv": "WT",
+   "elective_iv_lab": "",
+   "ta_lab": 5,
+   "count": 3
+  },
+  {
+   "section": "D4-CS-A",
+   "actual": "A2",
+   "elective_iii": "DWDM",
+   "elective_iv": "ACC",
+   "elective_iv_lab": "A1",
+   "ta_lab": 1,
+   "count": 2
+  },
+  {
+   "section": "D4-CS-A",
+   "actual": "A2",
+   "elective_iii": "SDN",
+   "elective_iv": "ACC",
+   "elective_iv_lab": "A1",
+   "ta_lab": 1,
+   "count": 1
+  },
+  {
+   "section": "D4-CS-B",
+   "actual": "B1",
+   "elective_iii": "CV",
+   "elective_iv": "SC",
+   "elective_iv_lab": "A1",
+   "ta_lab": 3,
+   "count": 7
+  },
+  {
+   "section": "D4-CS-B",
+   "actual": "B1",
+   "elective_iii": "DAAA",
+   "elective_iv": "WT",
+   "elective_iv_lab": "",
+   "ta_lab": 5,
+   "count": 1
+  },
+  {
+   "section": "D4-CS-B",
+   "actual": "B1",
+   "elective_iii": "DWDM",
+   "elective_iv": "ACC",
+   "elective_iv_lab": "A1",
+   "ta_lab": 1,
+   "count": 3
+  },
+  {
+   "section": "D4-CS-B",
+   "actual": "B1",
+   "elective_iii": "SDN",
+   "elective_iv": "ACC",
+   "elective_iv_lab": "A1",
+   "ta_lab": 1,
+   "count": 1
+  },
+  {
+   "section": "D4-CS-B",
+   "actual": "B2",
+   "elective_iii": "CV",
+   "elective_iv": "SC",
+   "elective_iv_lab": "A1",
+   "ta_lab": 3,
+   "count": 7
+  },
+  {
+   "section": "D4-CS-B",
+   "actual": "B2",
+   "elective_iii": "DAAA",
+   "elective_iv": "WT",
+   "elective_iv_lab": "",
+   "ta_lab": 5,
+   "count": 2
+  },
+  {
+   "section": "D4-CS-B",
+   "actual": "B2",
+   "elective_iii": "SDN",
+   "elective_iv": "ACC",
+   "elective_iv_lab": "A2",
+   "ta_lab": 2,
+   "count": 1
+  },
+  {
+   "section": "D4-CS-C",
+   "actual": "C1",
+   "elective_iii": "CV",
+   "elective_iv": "SC",
+   "elective_iv_lab": "A1",
+   "ta_lab": 3,
+   "count": 4
+  },
+  {
+   "section": "D4-CS-C",
+   "actual": "C1",
+   "elective_iii": "CV",
+   "elective_iv": "SC",
+   "elective_iv_lab": "A2",
+   "ta_lab": 3,
+   "count": 2
+  },
+  {
+   "section": "D4-CS-C",
+   "actual": "C1",
+   "elective_iii": "DAAA",
+   "elective_iv": "WT",
+   "elective_iv_lab": "",
+   "ta_lab": 5,
+   "count": 1
+  },
+  {
+   "section": "D4-CS-C",
+   "actual": "C1",
+   "elective_iii": "DWDM",
+   "elective_iv": "ACC",
+   "elective_iv_lab": "A1",
+   "ta_lab": 1,
+   "count": 7
+  },
+  {
+   "section": "D4-CS-C",
+   "actual": "C1",
+   "elective_iii": "SDN",
+   "elective_iv": "ACC",
+   "elective_iv_lab": "A1",
+   "ta_lab": 1,
+   "count": 1
+  },
+  {
+   "section": "D4-CS-C",
+   "actual": "C2",
+   "elective_iii": "CV",
+   "elective_iv": "SC",
+   "elective_iv_lab": "A2",
+   "ta_lab": 3,
+   "count": 5
+  },
+  {
+   "section": "D4-CS-C",
+   "actual": "C2",
+   "elective_iii": "CV",
+   "elective_iv": "SC",
+   "elective_iv_lab": "A2",
+   "ta_lab": 4,
+   "count": 1
+  },
+  {
+   "section": "D4-CS-C",
+   "actual": "C2",
+   "elective_iii": "DAAA",
+   "elective_iv": "WT",
+   "elective_iv_lab": "",
+   "ta_lab": 5,
+   "count": 4
+  },
+  {
+   "section": "D4-CS-C",
+   "actual": "C2",
+   "elective_iii": "DWDM",
+   "elective_iv": "ACC",
+   "elective_iv_lab": "A1",
+   "ta_lab": 1,
+   "count": 4
+  },
+  {
+   "section": "D4-CS-C",
+   "actual": "C2",
+   "elective_iii": "SDN",
+   "elective_iv": "ACC",
+   "elective_iv_lab": "A1",
+   "ta_lab": 1,
+   "count": 3
+  },
+  {
+   "section": "D4-CS-D",
+   "actual": "D1",
+   "elective_iii": "CV",
+   "elective_iv": "SC",
+   "elective_iv_lab": "A2",
+   "ta_lab": 4,
+   "count": 4
+  },
+  {
+   "section": "D4-CS-D",
+   "actual": "D1",
+   "elective_iii": "DAAA",
+   "elective_iv": "WT",
+   "elective_iv_lab": "",
+   "ta_lab": 5,
+   "count": 5
+  },
+  {
+   "section": "D4-CS-D",
+   "actual": "D1",
+   "elective_iii": "DWDM",
+   "elective_iv": "ACC",
+   "elective_iv_lab": "A2",
+   "ta_lab": 1,
+   "count": 3
+  },
+  {
+   "section": "D4-CS-D",
+   "actual": "D1",
+   "elective_iii": "DWDM",
+   "elective_iv": "ACC",
+   "elective_iv_lab": "A2",
+   "ta_lab": 2,
+   "count": 1
+  },
+  {
+   "section": "D4-CS-D",
+   "actual": "D1",
+   "elective_iii": "SDN",
+   "elective_iv": "ACC",
+   "elective_iv_lab": "A2",
+   "ta_lab": 1,
+   "count": 1
+  },
+  {
+   "section": "D4-CS-D",
+   "actual": "D1",
+   "elective_iii": "SDN",
+   "elective_iv": "ACC",
+   "elective_iv_lab": "A2",
+   "ta_lab": 2,
+   "count": 1
+  },
+  {
+   "section": "D4-CS-D",
+   "actual": "D2",
+   "elective_iii": "CV",
+   "elective_iv": "SC",
+   "elective_iv_lab": "A2",
+   "ta_lab": 4,
+   "count": 3
+  },
+  {
+   "section": "D4-CS-D",
+   "actual": "D2",
+   "elective_iii": "DAAA",
+   "elective_iv": "WT",
+   "elective_iv_lab": "",
+   "ta_lab": 5,
+   "count": 6
+  },
+  {
+   "section": "D4-CS-D",
+   "actual": "D2",
+   "elective_iii": "DWDM",
+   "elective_iv": "ACC",
+   "elective_iv_lab": "A2",
+   "ta_lab": 1,
+   "count": 2
+  },
+  {
+   "section": "D4-CS-D",
+   "actual": "D2",
+   "elective_iii": "DWDM",
+   "elective_iv": "ACC",
+   "elective_iv_lab": "A2",
+   "ta_lab": 2,
+   "count": 2
+  },
+  {
+   "section": "D4-CS-D",
+   "actual": "D2",
+   "elective_iii": "SDN",
+   "elective_iv": "ACC",
+   "elective_iv_lab": "A2",
+   "ta_lab": 2,
+   "count": 1
+  },
+  {
+   "section": "D4-CS-E",
+   "actual": "E1",
+   "elective_iii": "CV",
+   "elective_iv": "SC",
+   "elective_iv_lab": "A2",
+   "ta_lab": 4,
+   "count": 12
+  },
+  {
+   "section": "D4-CS-E",
+   "actual": "E1",
+   "elective_iii": "DAAA",
+   "elective_iv": "WT",
+   "elective_iv_lab": "",
+   "ta_lab": 5,
+   "count": 4
+  },
+  {
+   "section": "D4-CS-E",
+   "actual": "E1",
+   "elective_iii": "DWDM",
+   "elective_iv": "ACC",
+   "elective_iv_lab": "A2",
+   "ta_lab": 2,
+   "count": 4
+  },
+  {
+   "section": "D4-CS-E",
+   "actual": "E1",
+   "elective_iii": "SDN",
+   "elective_iv": "ACC",
+   "elective_iv_lab": "A2",
+   "ta_lab": 2,
+   "count": 3
+  },
+  {
+   "section": "D4-CS-E",
+   "actual": "E2",
+   "elective_iii": "CV",
+   "elective_iv": "SC",
+   "elective_iv_lab": "A2",
+   "ta_lab": 4,
+   "count": 5
+  },
+  {
+   "section": "D4-CS-E",
+   "actual": "E2",
+   "elective_iii": "DAAA",
+   "elective_iv": "WT",
+   "elective_iv_lab": "",
+   "ta_lab": 5,
+   "count": 4
+  },
+  {
+   "section": "D4-CS-E",
+   "actual": "E2",
+   "elective_iii": "DWDM",
+   "elective_iv": "ACC",
+   "elective_iv_lab": "A2",
+   "ta_lab": 2,
+   "count": 3
+  },
+  {
+   "section": "D4-CS-E",
+   "actual": "E2",
+   "elective_iii": "SDN",
+   "elective_iv": "ACC",
+   "elective_iv_lab": "A2",
+   "ta_lab": 2,
+   "count": 2
+  }
+ ],
+ "D3": [
+  {
+   "section": "D3-CS-A",
+   "actual": "A1",
+   "elective": "CNS",
+   "elective_section": "A",
+   "elective_lab": "A1",
+   "count": 7
+  },
+  {
+   "section": "D3-CS-A",
+   "actual": "A1",
+   "elective": "DWBI",
+   "elective_section": "A",
+   "elective_lab": "A1",
+   "count": 4
+  },
+  {
+   "section": "D3-CS-A",
+   "actual": "A1",
+   "elective": "GAI",
+   "elective_section": "A",
+   "elective_lab": "A1",
+   "count": 14
+  },
+  {
+   "section": "D3-CS-A",
+   "actual": "A1",
+   "elective": "OOAD",
+   "elective_section": "A",
+   "elective_lab": "A1",
+   "count": 5
+  },
+  {
+   "section": "D3-CS-A",
+   "actual": "A2",
+   "elective": "CNS",
+   "elective_section": "A",
+   "elective_lab": "A1",
+   "count": 6
+  },
+  {
+   "section": "D3-CS-A",
+   "actual": "A2",
+   "elective": "DWBI",
+   "elective_section": "A",
+   "elective_lab": "A1",
+   "count": 4
+  },
+  {
+   "section": "D3-CS-A",
+   "actual": "A2",
+   "elective": "GAI",
+   "elective_section": "A",
+   "elective_lab": "A1",
+   "count": 7
+  },
+  {
+   "section": "D3-CS-A",
+   "actual": "A2",
+   "elective": "OOAD",
+   "elective_section": "A",
+   "elective_lab": "A1",
+   "count": 12
+  },
+  {
+   "section": "D3-CS-B",
+   "actual": "B1",
+   "elective": "CNS",
+   "elective_section": "A",
+   "elective_lab": "A1",
+   "count": 14
+  },
+  {
+   "section": "D3-CS-B",
+   "actual": "B1",
+   "elective": "DWBI",
+   "elective_section": "A",
+   "elective_lab": "A1",
+   "count": 5
+  },
+  {
+   "section": "D3-CS-B",
+   "actual": "B1",
+   "elective": "GAI",
+   "elective_section": "A",
+   "elective_lab": "A1",
+   "count": 5
+  },
+  {
+   "section": "D3-CS-B",
+   "actual": "B1",
+   "elective": "OOAD",
+   "elective_section": "A",
+   "elective_lab": "A1",
+   "count": 5
+  },
+  {
+   "section": "D3-CS-B",
+   "actual": "B2",
+   "elective": "CNS",
+   "elective_section": "A",
+   "elective_lab": "A1",
+   "count": 3
+  },
+  {
+   "section": "D3-CS-B",
+   "actual": "B2",
+   "elective": "CNS",
+   "elective_section": "A",
+   "elective_lab": "A2",
+   "count": 10
+  },
+  {
+   "section": "D3-CS-B",
+   "actual": "B2",
+   "elective": "DWBI",
+   "elective_section": "A",
+   "elective_lab": "A1",
+   "count": 2
+  },
+  {
+   "section": "D3-CS-B",
+   "actual": "B2",
+   "elective": "GAI",
+   "elective_section": "A",
+   "elective_lab": "A1",
+   "count": 1
+  },
+  {
+   "section": "D3-CS-B",
+   "actual": "B2",
+   "elective": "GAI",
+   "elective_section": "A",
+   "elective_lab": "A2",
+   "count": 6
+  },
+  {
+   "section": "D3-CS-B",
+   "actual": "B2",
+   "elective": "OOAD",
+   "elective_section": "A",
+   "elective_lab": "A1",
+   "count": 2
+  },
+  {
+   "section": "D3-CS-B",
+   "actual": "B2",
+   "elective": "OOAD",
+   "elective_section": "A",
+   "elective_lab": "A2",
+   "count": 1
+  },
+  {
+   "section": "D3-CS-C",
+   "actual": "C1",
+   "elective": "CNS",
+   "elective_section": "A",
+   "elective_lab": "A2",
+   "count": 13
+  },
+  {
+   "section": "D3-CS-C",
+   "actual": "C1",
+   "elective": "DWBI",
+   "elective_section": "A",
+   "elective_lab": "A1",
+   "count": 4
+  },
+  {
+   "section": "D3-CS-C",
+   "actual": "C1",
+   "elective": "GAI",
+   "elective_section": "A",
+   "elective_lab": "A2",
+   "count": 10
+  },
+  {
+   "section": "D3-CS-C",
+   "actual": "C1",
+   "elective": "OOAD",
+   "elective_section": "A",
+   "elective_lab": "A2",
+   "count": 1
+  },
+  {
+   "section": "D3-CS-C",
+   "actual": "C2",
+   "elective": "CNS",
+   "elective_section": "A",
+   "elective_lab": "A2",
+   "count": 7
+  },
+  {
+   "section": "D3-CS-C",
+   "actual": "C2",
+   "elective": "CNS",
+   "elective_section": "B",
+   "elective_lab": "B1",
+   "count": 4
+  },
+  {
+   "section": "D3-CS-C",
+   "actual": "C2",
+   "elective": "DWBI",
+   "elective_section": "A",
+   "elective_lab": "A1",
+   "count": 3
+  },
+  {
+   "section": "D3-CS-C",
+   "actual": "C2",
+   "elective": "GAI",
+   "elective_section": "A",
+   "elective_lab": "A2",
+   "count": 11
+  },
+  {
+   "section": "D3-CS-C",
+   "actual": "C2",
+   "elective": "OOAD",
+   "elective_section": "A",
+   "elective_lab": "A2",
+   "count": 3
+  },
+  {
+   "section": "D3-CS-D",
+   "actual": "D1",
+   "elective": "CNS",
+   "elective_section": "B",
+   "elective_lab": "B1",
+   "count": 9
+  },
+  {
+   "section": "D3-CS-D",
+   "actual": "D1",
+   "elective": "DWBI",
+   "elective_section": "A",
+   "elective_lab": "A1",
+   "count": 2
+  },
+  {
+   "section": "D3-CS-D",
+   "actual": "D1",
+   "elective": "GAI",
+   "elective_section": "B",
+   "elective_lab": "B1",
+   "count": 17
+  },
+  {
+   "section": "D3-CS-D",
+   "actual": "D1",
+   "elective": "OOAD",
+   "elective_section": "A",
+   "elective_lab": "A2",
+   "count": 2
+  },
+  {
+   "section": "D3-CS-D",
+   "actual": "D2",
+   "elective": "CNS",
+   "elective_section": "B",
+   "elective_lab": "B1",
+   "count": 13
+  },
+  {
+   "section": "D3-CS-D",
+   "actual": "D2",
+   "elective": "DWBI",
+   "elective_section": "A",
+   "elective_lab": "A1",
+   "count": 6
+  },
+  {
+   "section": "D3-CS-D",
+   "actual": "D2",
+   "elective": "GAI",
+   "elective_section": "B",
+   "elective_lab": "B1",
+   "count": 5
+  },
+  {
+   "section": "D3-CS-D",
+   "actual": "D2",
+   "elective": "OOAD",
+   "elective_section": "A",
+   "elective_lab": "A2",
+   "count": 7
+  },
+  {
+   "section": "D3-CS-E",
+   "actual": "E1",
+   "elective": "CNS",
+   "elective_section": "B",
+   "elective_lab": "B1",
+   "count": 4
+  },
+  {
+   "section": "D3-CS-E",
+   "actual": "E1",
+   "elective": "CNS",
+   "elective_section": "B",
+   "elective_lab": "B2",
+   "count": 10
+  },
+  {
+   "section": "D3-CS-E",
+   "actual": "E1",
+   "elective": "DWBI",
+   "elective_section": "A",
+   "elective_lab": "A1",
+   "count": 1
+  },
+  {
+   "section": "D3-CS-E",
+   "actual": "E1",
+   "elective": "DWBI",
+   "elective_section": "A",
+   "elective_lab": "A2",
+   "count": 5
+  },
+  {
+   "section": "D3-CS-E",
+   "actual": "E1",
+   "elective": "GAI",
+   "elective_section": "B",
+   "elective_lab": "B1",
+   "count": 5
+  },
+  {
+   "section": "D3-CS-E",
+   "actual": "E1",
+   "elective": "GAI",
+   "elective_section": "B",
+   "elective_lab": "B2",
+   "count": 2
+  },
+  {
+   "section": "D3-CS-E",
+   "actual": "E1",
+   "elective": "OOAD",
+   "elective_section": "A",
+   "elective_lab": "A2",
+   "count": 3
+  },
+  {
+   "section": "D3-CS-E",
+   "actual": "E2",
+   "elective": "CNS",
+   "elective_section": "B",
+   "elective_lab": "B2",
+   "count": 8
+  },
+  {
+   "section": "D3-CS-E",
+   "actual": "E2",
+   "elective": "DWBI",
+   "elective_section": "A",
+   "elective_lab": "A2",
+   "count": 7
+  },
+  {
+   "section": "D3-CS-E",
+   "actual": "E2",
+   "elective": "GAI",
+   "elective_section": "B",
+   "elective_lab": "B2",
+   "count": 7
+  },
+  {
+   "section": "D3-CS-E",
+   "actual": "E2",
+   "elective": "OOAD",
+   "elective_section": "A",
+   "elective_lab": "A2",
+   "count": 6
+  },
+  {
+   "section": "D3-CS-F",
+   "actual": "F1",
+   "elective": "CNS",
+   "elective_section": "B",
+   "elective_lab": "B2",
+   "count": 6
+  },
+  {
+   "section": "D3-CS-F",
+   "actual": "F1",
+   "elective": "DWBI",
+   "elective_section": "A",
+   "elective_lab": "A1",
+   "count": 1
+  },
+  {
+   "section": "D3-CS-F",
+   "actual": "F1",
+   "elective": "DWBI",
+   "elective_section": "A",
+   "elective_lab": "A2",
+   "count": 8
+  },
+  {
+   "section": "D3-CS-F",
+   "actual": "F1",
+   "elective": "GAI",
+   "elective_section": "B",
+   "elective_lab": "B2",
+   "count": 10
+  },
+  {
+   "section": "D3-CS-F",
+   "actual": "F1",
+   "elective": "OOAD",
+   "elective_section": "A",
+   "elective_lab": "A1",
+   "count": 1
+  },
+  {
+   "section": "D3-CS-F",
+   "actual": "F1",
+   "elective": "OOAD",
+   "elective_section": "A",
+   "elective_lab": "A2",
+   "count": 1
+  },
+  {
+   "section": "D3-CS-F",
+   "actual": "F2",
+   "elective": "CNS",
+   "elective_section": "B",
+   "elective_lab": "B2",
+   "count": 6
+  },
+  {
+   "section": "D3-CS-F",
+   "actual": "F2",
+   "elective": "DWBI",
+   "elective_section": "A",
+   "elective_lab": "A2",
+   "count": 11
+  },
+  {
+   "section": "D3-CS-F",
+   "actual": "F2",
+   "elective": "GAI",
+   "elective_section": "B",
+   "elective_lab": "B2",
+   "count": 7
+  },
+  {
+   "section": "D3-CS-F",
+   "actual": "F2",
+   "elective": "OOAD",
+   "elective_section": "A",
+   "elective_lab": "A2",
+   "count": 1
+  }
+ ],
+ "source": {
+  "D4": "Elective Track distribution lists 2023-2027 batch (Departmental Elective-III, -IV, TA lab)",
+  "D3": "Elective Sections and Lab groups list (2024-2028 batch), cse.gndec.ac.in"
+ }
+}

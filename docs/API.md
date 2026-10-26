@@ -65,6 +65,11 @@ Every lane codes against this file. **Lane A owns the "Core" and "Shared buildin
 | `GET /api/compare/cse` | GNDEC's published CSE timetable vs TimeWeave's optimised version of the same lessons: `{available, running, status, moved, pinned, metrics:{college, optimised}, clashes:{college, optimised}, sections, teachers, college:[entry], optimised:[entry]}` (each entry has `code, name, section, batches, teachers, teacher_names, room, day, start, duration`) |
 | `POST /api/compare/cse/run?seconds=300` | re-run the optimiser in the background (CSE HOD or admin); poll `GET /api/compare/cse` |
 
+| `GET /api/students/types?section=&dept=&year=` | student types `{id, section, name, count, details}`: real combinations (section + actual group + electives + lab groups) |
+| `GET /api/students/{type_id}/timetable?on=` | exactly the classes students of that type attend: the week, or a real date with that day's changes |
+
+**Students:** a student account `s-<StudentType.id>` has `student_type` and `section` set; `group` is only their actual group. Use the type for anything "my timetable". In Python, `STORE.attends(type_id, occupancy)`. `/api/meta` also lists `student_types`.
+
 **CSE optimiser** (`app/optimise.py`, page `/compare.html`):
 - **Same lessons:** keeps every lesson (teachers incl. co-teachers, groups, electives, weekly hours, 2-hour labs) and uses only the rooms the college uses for them. M.Tech, PhD and mentoring stay pinned.
 - **Never worse:** the college's own numbers are hard ceilings (waiting periods, days with no midday break for students and teachers, 4+ in a row, days over 6 periods, classes after 4:30).

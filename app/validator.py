@@ -30,6 +30,12 @@ def validate(college: College, entries: list[Entry]) -> list[str]:
     room_at: dict[tuple, list[str]] = defaultdict(list)
     teacher_day: dict[tuple, int] = defaultdict(int)
     batch_day: dict[tuple, int] = defaultdict(int)
+    # students are checked per real combination (student type), not per timetable group number
+    units = college.units()
+    unit_of: dict[str, list[str]] = defaultdict(list)
+    for name, lessons in units:
+        for lid in lessons:
+            unit_of[lid].append(name)
 
     for e in entries:
         l = college.lesson_by_id.get(e.lesson)
@@ -60,12 +66,11 @@ def validate(college: College, entries: list[Entry]) -> list[str]:
             for tid in [l.teacher, *l.co_teachers]:
                 teacher_at[(tid, e.day, p)].append(l.id)
             room_at[(e.room, e.day, p)].append(l.id)
-            for b in l.batches:
-                batch_at[(b, e.day, p)].append(l.id)
+            for u in unit_of[l.id]:
+                batch_at[(u, e.day, p)].append(l.id)
+                batch_day[(u, e.day)] += 1
             for tid in [l.teacher, *l.co_teachers]:
                 teacher_day[(tid, e.day)] += 1
-            for b in l.batches:
-                batch_day[(b, e.day)] += 1
 
     for l in college.lessons:
         if placed[l.id] != l.sessions:
@@ -96,6 +101,7 @@ def validate(college: College, entries: list[Entry]) -> list[str]:
 
 def metrics(college: College, entries: list[Entry], fixed: bool | None = None) -> dict:
     """Quality numbers for the dashboard: student idle periods, single-lecture days, loads, room use.
+    Student numbers are per student type and day (a real combination of choices), not per group number.
     fixed=True: only imported (real) lessons; fixed=False: only generated ones; None: everything."""
     n_periods = len(PERIODS)
     occ: dict[tuple, set[int]] = defaultdict(set)
@@ -103,12 +109,16 @@ def metrics(college: College, entries: list[Entry], fixed: bool | None = None) -
     room_used: dict[str, int] = defaultdict(int)
     t_occ: dict[tuple, set[int]] = defaultdict(set)
     late = 0
+    unit_of: dict[str, list[str]] = defaultdict(list)  # per student type (real combination of choices)
+    for name, lessons in college.units():
+        for lid in lessons:
+            unit_of[lid].append(name)
     for e in entries:
         l = college.lesson_by_id[e.lesson]
         if fixed is not None and l.fixed != fixed:
             continue
-        for b in l.batches:
-            occ[(b, e.day)].update(e.slots)
+        for u in unit_of[l.id]:
+            occ[(u, e.day)].update(e.slots)
         for tid in [l.teacher, *l.co_teachers]:
             load[tid] += e.duration
             t_occ[(tid, e.day)].update(e.slots)

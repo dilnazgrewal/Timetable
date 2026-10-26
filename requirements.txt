@@ -4,3 +4,4 @@ ortools
 anthropic
 python-dotenv
 pytest
+pypdf

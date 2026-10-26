@@ -21,9 +21,17 @@ def demo_people(college: College) -> tuple[dict[str, User], dict[str, Club]]:
             users.append(User(f"hod-{d}", f"HOD {d} ({teachers[0].name})", "hod", d, teacher_id=teachers[0].id))
     for t in college.teachers:
         users.append(User(f"t-{t.id}", t.name, "teacher", t.dept, teacher_id=t.id))
-    for s in college.sections:
-        for b in s.batches:
-            users.append(User(f"s-{b}", f"Student · {s.name} {b.rsplit('-', 1)[-1]}", "student", s.dept, group=b))
+    # one demo student per real combination of choices (student type); see app/importers/gndec_students.py
+    for st in college.student_types:
+        s = college.section_by_id[st.section]
+        actual = st.details.get("Actual group") or st.details.get("Group") or ""
+        users.append(User(f"s-{st.id}", f"Student · {st.name}", "student", s.dept,
+                          group=f"{s.id}-{actual}" if actual else None, student_type=st.id, section=s.id))
+    if not college.student_types:  # no types: one student per group
+        for s in college.sections:
+            for b in s.batches:
+                users.append(User(f"s-{b}", f"Student · {s.name} {b.rsplit('-', 1)[-1]}", "student", s.dept,
+                                  group=b, section=s.id))
 
     def advisor(dept: str) -> str:
         t = next((t for t in college.teachers if t.dept == dept), college.teachers[0])

@@ -123,6 +123,15 @@ class Store:
                                        title=ov.title)
         return sorted(occ.values(), key=lambda o: (o.start, o.room))
 
+    def attends(self, student_type: str, o: Occupancy) -> bool:
+        """Does a student of this type sit in this class? (bookings: if their section is in the audience)"""
+        t = self.college.type_by_id.get(student_type)
+        if t is None:
+            return False
+        if o.lesson:
+            return o.lesson in t.lesson_set
+        return any(b.startswith(t.section + "-") for b in o.batches)
+
     def busy_rooms(self, occupancies: list[Occupancy], period: int) -> dict[str, Occupancy]:
         return {o.room: o for o in occupancies if period in o.slots}
 

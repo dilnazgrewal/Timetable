@@ -3,7 +3,7 @@ an Applied Sciences department teaching Maths to every 2nd-year section, teacher
 departments, and a visiting teacher available only Tue/Thu."""
 from __future__ import annotations
 
-from app.importers import fet
+from app.importers import fet, gndec_students
 from app.models import PERIODS, Building, College, Department, Lesson, Room, Section, Teacher
 
 DEPTS = [
@@ -119,8 +119,11 @@ def build_college() -> College:
     rooms.update({r.id: r for r in imported["rooms"]})  # real rooms win (e.g. "WS SEMINAR HALL")
     teachers = {t.id: t for t in seed.teachers}
     teachers.update({t.id: t for t in imported["teachers"]})
-    return College(DEPTS, list(rooms.values()), list(teachers.values()), imported["sections"] + seed.sections,
-                   imported["lessons"] + seed.lessons, BUILDINGS, fixed_entries=imported["entries"])
+    college = College(DEPTS, list(rooms.values()), list(teachers.values()), imported["sections"] + seed.sections,
+                      imported["lessons"] + seed.lessons, BUILDINGS, fixed_entries=imported["entries"])
+    types, _ = gndec_students.student_types(college, gndec_students.load())
+    college.set_student_types(types)
+    return college
 
 
 def _build_seed(depts: list[str]) -> College:

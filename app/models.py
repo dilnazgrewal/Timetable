@@ -129,6 +129,7 @@ class College:
     lessons: list[Lesson]
     buildings: list[Building] = field(default_factory=list)
     fixed_entries: list[Entry] = field(default_factory=list)  # placements of fixed (imported) lessons
+    student_types: list["StudentType"] = field(default_factory=list)  # real combinations of students
 
     def __post_init__(self) -> None:
         self.building_by_id = {b.id: b for b in self.buildings}
@@ -136,6 +137,19 @@ class College:
         self.teacher_by_id = {t.id: t for t in self.teachers}
         self.section_by_id = {s.id: s for s in self.sections}
         self.lesson_by_id = {l.id: l for l in self.lessons}
+        self.type_by_id = {t.id: t for t in self.student_types}
+
+    def set_student_types(self, types: list["StudentType"]) -> None:
+        self.student_types = types
+        self.type_by_id = {t.id: t for t in types}
+
+    def units(self) -> list[tuple[str, set[str]]]:
+        """Who must never have two classes at once: every student type (real combination of choices).
+        Without student types, every group is its own unit."""
+        if self.student_types:
+            return [(t.name, set(t.lessons)) for t in self.student_types]
+        groups = sorted({b for l in self.lessons for b in l.batches})
+        return [(g, {l.id for l in self.lessons if g in l.batches}) for g in groups]
 
 
 # --- date-specific layer, people and requests (v2) ---------------------------------------------
@@ -163,9 +177,11 @@ class User:
     name: str
     role: str
     dept: str | None = None
-    group: str | None = None  # student: their batch / group id, e.g. "D3-CS-A-A1"
+    group: str | None = None  # student: their actual group's id, e.g. "D4-CS-A-A2" (NOT enough to know their classes)
     teacher_id: str | None = None  # teacher / hod: their Teacher.id
     club: str | None = None  # club lead: Club.id
+    student_type: str | None = None  # student: StudentType.id = their real combination; use this for "my timetable"
+    section: str | None = None  # student: Section.id
 
 
 @dataclass
@@ -224,3 +240,20 @@ class Notification:
     link: str = ""  # e.g. "/venues.html#requests"
     at: str = ""
     read: bool = False
+
+
+@dataclass
+class StudentType:
+    """A combination of choices real students have (e.g. D4 CS A · A2 · CV · SC (A1 group) · TA A3) and the
+    exact classes they attend. Built from the department's distribution lists where groups are not simply
+    lab groups (GNDEC 3rd/4th year); elsewhere one type per group. count = students with this combination."""
+    id: str
+    section: str
+    name: str
+    lessons: list[str]
+    count: int = 0
+    details: dict = field(default_factory=dict)
+
+    @property
+    def lesson_set(self) -> set[str]:
+        return set(self.lessons)

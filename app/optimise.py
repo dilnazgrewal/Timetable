@@ -9,12 +9,14 @@ college put them, and everything else must fit around them.
 Rooms: the same rooms the college already uses for these classes (no borrowing of empty rooms), so the
 comparison is fair.
 
-Hard rules: no teacher / group / room double-booking; at most 8 periods a day for a group (D3 groups have
+Students are real combinations of choices ("student types" from the department's distribution lists:
+section + actual group + electives + lab groups), each with the exact classes it attends, so no real
+student can ever get two classes at once. Hard rules: no teacher / student type / room double-booking; at most 8 periods a day for a group (D3 groups have
 36 periods a week, so the college's full 8:30-17:30 day is allowed); a theory subject at most once a day
 where it fits.
 Never worse than the college on any measure (its own numbers are hard ceilings): days with no free
 midday hour (students and teachers), student waiting periods, teacher days with 4+ lectures in a row,
-classes in the 16:30-17:30 slot, days over 6 periods. Within those ceilings it minimises (weighted): days with no free hour between 11:30 and 14:30 (strongly; making it a hard rule is
+classes in the 16:30-17:30 slot, days over 6 periods, single-lecture days. Within those ceilings it minimises (weighted): days with no free hour between 11:30 and 14:30 (strongly; making it a hard rule is
 infeasible for the real CSE lessons), student waiting gaps, single-lecture days, teacher gaps, teachers
 teaching 4+ in a row, periods beyond 6 in a day, classes in the 16:30-17:30 slot, and use of spare rooms.
 """
@@ -80,6 +82,14 @@ def optimise_department(college: College, dept: str = "CSE", time_limit: float =
                 group_day[b, e.day] += e.duration
     day_cap = max([DAY_CAP, *group_day.values()])
 
+    # students = real combinations of choices (student types), each with the exact classes it attends
+    dept_ids = {l.id for l in lessons}
+    units = [(n, ls) for n, ls in college.units() if ls & dept_ids]
+    unit_of: dict[str, list[str]] = defaultdict(list)
+    for n, ls in units:
+        for lid in ls:
+            unit_of[lid].append(n)
+
     # the rooms the college itself uses for these classes
     used = {r for l in move for r in l.rooms}
     college_rooms = sorted(r for r in used if college.room_by_id[r].kind == "Classroom")
@@ -126,8 +136,8 @@ def optimise_department(college: College, dept: str = "CSE", time_limit: float =
                     for q in range(p, p + l.duration):
                         for t in (l.teacher, *l.co_teachers):
                             t_cov[t, d, q].append(v)
-                        for b in l.batches:
-                            g_cov[b, d, q].append(v)
+                        for u in unit_of[l.id]:
+                            g_cov[u, d, q].append(v)
                         if r:
                             r_cov[r, d, q].append(v)
                         else:
@@ -144,8 +154,8 @@ def optimise_department(college: College, dept: str = "CSE", time_limit: float =
         for q in e.slots:
             for t in (l.teacher, *l.co_teachers):
                 pin_t[t, e.day, q] += 1
-            for b in l.batches:
-                pin_g[b, e.day, q] += 1
+            for u in unit_of[l.id]:
+                pin_g[u, e.day, q] += 1
             pin_r[e.room, e.day, q] += 1
 
     for si in range(len(sessions)):
@@ -181,7 +191,7 @@ def optimise_department(college: College, dept: str = "CSE", time_limit: float =
             for k in range(l.sessions - 1):
                 m.Add(day_of[k] < day_of[k + 1])
 
-    groups = sorted({b for l in move for b in l.batches})
+    groups = sorted(n for n, ls in units if ls & move_ids)  # student types with something to move
     teachers = sorted({t for l in move for t in (l.teacher, *l.co_teachers)})
 
     def occupancy(table, pins, who, d):
@@ -213,10 +223,10 @@ def optimise_department(college: College, dept: str = "CSE", time_limit: float =
     for e in college.fixed_entries:
         l = college.lesson_by_id[e.lesson]
         if l.dept == dept:
-            for who in (*l.batches, l.teacher, *l.co_teachers):
+            for who in (*unit_of[l.id], l.teacher, *l.co_teachers):
                 occ_before[who, e.day].update(e.slots)
     window_full = lambda who, d: all(q in occ_before.get((who, d), ()) for q in LUNCH_WINDOW)
-    g_no_lunch, t_no_lunch_all, g_idle, t_streak_days, g_long = [], [], [], [], []
+    g_no_lunch, t_no_lunch_all, g_idle, t_streak_days, g_long, g_lonely = [], [], [], [], [], []
 
     def run_len(slots: set[int]) -> int:
         best = run = 0
@@ -248,6 +258,7 @@ def optimise_department(college: College, dept: str = "CSE", time_limit: float =
             m.Add(lonely >= 2 * has - sum(o))
             m.Add(extra >= sum(o) - SOFT_DAY)
             obj += [W_LONELY * lonely, W_LONG * extra]
+            g_lonely.append(lonely)
             is_long = m.NewBoolVar("")
             m.Add(sum(o) - SOFT_DAY <= n_per * is_long)
             g_long.append(is_long)
@@ -273,6 +284,7 @@ def optimise_department(college: College, dept: str = "CSE", time_limit: float =
     m.Add(sum(t_streak_days) <= sum(run_len(occ_before.get((t, d), set())) >= 4 for t in teachers for d in range(n_days)))
     m.Add(sum(late) <= sum(e.start + e.duration > n_per - 1 for e in original.values()))
     m.Add(sum(g_long) <= sum(len(occ_before.get((g, d), ())) > SOFT_DAY for g in groups for d in range(n_days)))
+    m.Add(sum(g_lonely) <= sum(len(occ_before.get((g, d), ())) == 1 for g in groups for d in range(n_days)))
     m.Minimize(sum(obj))
 
     # Large-neighbourhood search from the college's own timetable (it meets every rule and ceiling):
@@ -392,9 +404,11 @@ def optimise_department(college: College, dept: str = "CSE", time_limit: float =
 
 def department_college(college: College, dept: str = "CSE") -> College:
     """Just one department's imported lessons (for validating / measuring one timetable on its own)."""
-    return College(college.departments, college.rooms, college.teachers,
-                   [x for x in college.sections if x.dept == dept],
-                   [l for l in college.lessons if l.fixed and l.dept == dept], college.buildings)
+    sub = College(college.departments, college.rooms, college.teachers,
+                  [x for x in college.sections if x.dept == dept],
+                  [l for l in college.lessons if l.fixed and l.dept == dept], college.buildings)
+    sub.set_student_types([t for t in college.student_types if t.section in sub.section_by_id])
+    return sub
 
 
 OUT = Path(__file__).resolve().parent.parent / "data" / "gndec" / "cse_optimised.json"

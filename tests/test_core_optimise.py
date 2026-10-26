@@ -9,7 +9,8 @@ from app.optimise import OUT, department_college, movable
 from app.seed import build_college
 from app.validator import metrics, split_issues, validate
 
-NEVER_WORSE = ["idle_total", "no_lunch_days", "teacher_no_lunch_days", "teacher_streak_days", "late_sessions", "long_days"]
+NEVER_WORSE = ["idle_total", "no_lunch_days", "teacher_no_lunch_days", "teacher_streak_days", "late_sessions", "long_days",
+               "lonely_days"]
 
 
 @pytest.fixture(scope="module")
@@ -40,6 +41,7 @@ def test_same_lessons_only_times_change(college, result):
 
 
 def test_no_clashes_and_never_worse(college, result):
+    """Checked per real student type (department distribution lists), so no real student gets two classes."""
     sub = department_college(college, "CSE")
     after = [Entry(**e) for e in result["entries"]]
     clashes, _ = split_issues(validate(sub, after))

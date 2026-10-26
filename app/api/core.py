@@ -57,6 +57,7 @@ def meta() -> dict:
         "buildings": [asdict(b) for b in c.buildings],
         "features": list(FEATURES),
         "sections": [{**asdict(s), "batches": s.batches} for s in c.sections],
+        "student_types": [_type_view(t) for t in c.student_types],
         "teachers": [asdict(t) for t in c.teachers],
         "rooms": [asdict(r) for r in c.rooms],
         "counts": {"sections": len(c.sections), "teachers": len(c.teachers), "rooms": len(c.rooms),
@@ -184,11 +185,11 @@ class ChatRequest(BaseModel):
 
 
 @router.post("/chat")
-def chat(req: ChatRequest) -> dict:
+def chat(req: ChatRequest, user: User = Depends(current_user)) -> dict:
     if not (os.getenv("ANTHROPIC_API_KEY") or os.getenv("ANTHROPIC_AUTH_TOKEN")):
         return {"answer": "The assistant isn't configured: add ANTHROPIC_API_KEY to the .env file.", "tools_used": []}
     try:
-        return ASSISTANT.ask(req.messages)
+        return ASSISTANT.ask(req.messages, user)
     except anthropic.AuthenticationError:
         return {"answer": "The assistant isn't configured: add ANTHROPIC_API_KEY to the .env file.", "tools_used": []}
     except anthropic.APIConnectionError:
@@ -329,6 +330,8 @@ def compare_cse() -> dict:
     return {"available": True, "running": _opt["running"], "status": data["status"], "seconds": data["seconds"],
             "moved": data["moved"], "pinned": data["pinned"], "metrics": data["metrics"], "clashes": data["clashes"],
             "sections": [asdict(s) for s in c.sections if s.dept == "CSE"],
+            "types": [{**_type_view(t), "lessons": t.lessons} for t in c.student_types if t.section.startswith("D")
+                      and c.section_by_id[t.section].dept == "CSE"],
             "teachers": sorted({t for l in c.lessons if l.fixed and l.dept == "CSE" for t in (l.teacher, *l.co_teachers)}),
             "college": [_compare_entry(e) for e in before], "optimised": [_compare_entry(e) for e in after]}
 
@@ -355,3 +358,33 @@ def compare_cse_run(seconds: float = 300, user: User = Depends(current_user)) ->
 
     threading.Thread(target=work, daemon=True).start()
     return {"started": True}
+
+
+
+# --- students: real combinations of choices ("student types") --------------------------------------
+def _type_view(t) -> dict:
+    return {"id": t.id, "section": t.section, "name": t.name, "count": t.count, "details": t.details}
+
+
+@router.get("/students/types")
+def student_types(section: str = "", dept: str = "", year: int | None = None) -> dict:
+    """Student types (real combinations: section + actual group + electives + lab groups) to pick from."""
+    c = STORE.college
+    out = [t for t in c.student_types
+           if (not section or t.section == section)
+           and (not dept or c.section_by_id[t.section].dept == dept)
+           and (year is None or c.section_by_id[t.section].year == year)]
+    return {"types": [_type_view(t) for t in out]}
+
+
+@router.get("/students/{type_id}/timetable")
+def student_timetable(type_id: str, on: str = "") -> dict:
+    """Exactly the classes students of this type attend: the weekly timetable, or one real date (with
+    substitutions, cancellations and events booked for their section)."""
+    t = STORE.college.type_by_id.get(type_id)
+    if t is None:
+        raise HTTPException(404, f"No student type '{type_id}'")
+    occ = STORE.effective(_date_or_400(on)) if on else STORE.week()
+    items = [occupancy_view(o) for o in occ if STORE.attends(t.id, o)]
+    items.sort(key=lambda i: (i["day"], i["start"]))
+    return {"type": _type_view(t), "date": on or None, "items": items}

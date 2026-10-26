@@ -32,10 +32,11 @@ TOOLS = [
     },
     {
         "name": "get_schedule",
-        "description": "Schedule of a section (e.g. D3-CS-A), a student group (e.g. D3-CS-A-A1), a teacher (e.g. KD) "
-                       "or a room (e.g. G17) for one date/weekday, or the whole week if neither is given.",
+        "description": "Schedule of a student (their student type id: exactly their classes, incl. their electives), "
+                       "a section (e.g. D3-CS-A, every class of the section), a teacher (e.g. KD) or a room (e.g. G17) "
+                       "for one date/weekday, or the whole week if neither is given.",
         "input_schema": {"type": "object", "properties": {
-            "kind": {"type": "string", "enum": ["section", "group", "teacher", "room"]},
+            "kind": {"type": "string", "enum": ["student", "section", "teacher", "room"]},
             "id": {"type": "string"}, **WHEN},
             "required": ["kind", "id"], "additionalProperties": False},
     },
@@ -69,7 +70,7 @@ TOOLS = [
 LABELS = [p[0] for p in PERIODS]
 
 
-def _system() -> str:
+def _system(user=None) -> str:
     periods = ", ".join(f"{p} {s}-{e}" for p, s, e in PERIODS)
     buildings = "; ".join(f"{b.id} = {b.name}" for b in STORE.college.buildings)
     now = datetime.now()
@@ -85,7 +86,21 @@ def _system() -> str:
         f"Buildings: {buildings}. Room ids starting G are on the ground floor, F first floor, S second floor. "
         "Students may not sit in labs.\n"
         "Keep answers short and friendly for a phone screen. Use plain text with simple dash lists, no markdown."
+        + _asker(user)
     )
+
+
+def _asker(user) -> str:
+    if user is None:
+        return ""
+    if user.student_type:
+        t = STORE.college.type_by_id.get(user.student_type)
+        detail = ", ".join(f"{k}: {v}" for k, v in (t.details if t else {}).items())
+        return (f"\nThe person asking is a student: {user.name}. For 'my' timetable use get_schedule with kind "
+                f"'student' and id '{user.student_type}' ({detail}).")
+    if user.teacher_id:
+        return f"\nThe person asking is the teacher {user.name} (teacher id {user.teacher_id})."
+    return f"\nThe person asking: {user.name} ({user.role})."
 
 
 def _period(time: str | None) -> int:
@@ -153,8 +168,8 @@ class Assistant:
         def hit(o: Occupancy) -> bool:
             if kind == "section":
                 return any(b.startswith(id + "-") for b in o.batches)
-            if kind == "group":
-                return id in o.batches
+            if kind in ("student", "group"):
+                return STORE.attends(id, o) if id in STORE.college.type_by_id else id in o.batches
             if kind == "teacher":
                 return id == o.teacher or id in o.co_teachers
             return o.room == id
@@ -222,8 +237,8 @@ class Assistant:
             return json.dumps({"error": str(exc)})
 
     # --- conversation ----------------------------------------------------
-    def _create(self, client: anthropic.Anthropic, messages: list):
-        kwargs = dict(model=MODEL, max_tokens=4000, system=_system(), tools=TOOLS, messages=messages,
+    def _create(self, client: anthropic.Anthropic, messages: list, user=None):
+        kwargs = dict(model=MODEL, max_tokens=4000, system=_system(user), tools=TOOLS, messages=messages,
                       output_config={"effort": "low"})
         try:
             return client.beta.messages.create(betas=["server-side-fallback-2026-07-01"],
@@ -231,7 +246,7 @@ class Assistant:
         except anthropic.BadRequestError:
             return client.messages.create(**kwargs)
 
-    def ask(self, history: list[dict]) -> dict:
+    def ask(self, history: list[dict], user=None) -> dict:
         """history: [{role, content: str}] from the UI. Returns {answer, tools_used}."""
         if not STORE.entries:
             return {"answer": "No timetable has been generated yet.", "tools_used": []}
@@ -239,7 +254,7 @@ class Assistant:
         messages: list = [{"role": m["role"], "content": m["content"]} for m in history[-10:]]
         used: list[str] = []
         for _ in range(MAX_TOOL_ROUNDS):
-            resp = self._create(client, messages)
+            resp = self._create(client, messages, user)
             if resp.stop_reason == "refusal":
                 return {"answer": "Sorry, I can't help with that.", "tools_used": used}
             if resp.stop_reason != "tool_use":

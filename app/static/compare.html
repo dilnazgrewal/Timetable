@@ -18,7 +18,7 @@
 <div class="max-w-7xl mx-auto px-4"><div id="tw-shell"></div></div>
 <main x-data="compareApp()" x-init="init()" x-cloak class="max-w-7xl mx-auto px-4 pb-16">
   <h1 class="text-xl font-bold mt-2">CSE timetable: the college's version vs optimised</h1>
-  <p class="text-sm text-slate-500 max-w-3xl">Exactly the same lessons as GNDEC's published timetable: same teachers, subjects, weekly hours, 2-hour labs, A1/A2 groups and electives, in the same rooms. Only the times change, and every number below is checked by the independent validator.</p>
+  <p class="text-sm text-slate-500 max-w-3xl">Exactly the same lessons as GNDEC's published timetable: same teachers, subjects, weekly hours, 2-hour labs, groups and electives, in the same rooms. Every real combination of group and electives (from the department's distribution lists) is checked: no student gets two classes at once. Only the times change, and every number below is checked by the independent validator.</p>
 
   <div x-show="!d.available" class="mt-4 rounded-xl border bg-white p-6 text-slate-600">
     <span x-text="d.running ? 'The optimiser is running… this takes a few minutes.' : (d.error || 'No optimised timetable yet.')"></span>
@@ -51,21 +51,21 @@
         <div>
           <label class="block text-xs text-slate-500 mb-1">View</label>
           <div class="flex rounded-lg border overflow-hidden text-sm">
-            <template x-for="v in [['group','Group'],['section','Section'],['teacher','Teacher']]">
+            <template x-for="v in [['type','Student'],['section','Section'],['teacher','Teacher']]">
               <button @click="by = v[0]" class="px-3 py-1.5" :class="by === v[0] ? 'bg-indigo-600 text-white' : 'bg-white hover:bg-slate-50'" x-text="v[1]"></button>
             </template>
           </div>
         </div>
         <div x-show="by !== 'teacher'">
           <label class="block text-xs text-slate-500 mb-1">Section</label>
-          <select x-model="section" @change="group = groupsOf(section)[0]" class="border rounded-lg px-2 py-1.5 bg-white text-sm">
+          <select x-model="section" @change="type = typesOf(section)[0]?.id" class="border rounded-lg px-2 py-1.5 bg-white text-sm">
             <template x-for="s in d.sections.filter(s => s.year <= 4)" :key="s.id"><option :value="s.id" x-text="s.name" :selected="s.id === section"></option></template>
           </select>
         </div>
-        <div x-show="by === 'group'">
-          <label class="block text-xs text-slate-500 mb-1">Group</label>
-          <select x-model="group" class="border rounded-lg px-2 py-1.5 bg-white text-sm">
-            <template x-for="g in groupsOf(section)" :key="g"><option :value="g" x-text="g.split('-').pop()" :selected="g === group"></option></template>
+        <div x-show="by === 'type'" class="min-w-0">
+          <label class="block text-xs text-slate-500 mb-1">Group and electives</label>
+          <select x-model="type" class="border rounded-lg px-2 py-1.5 bg-white text-sm max-w-full sm:max-w-[28rem]">
+            <template x-for="t in typesOf(section)" :key="t.id"><option :value="t.id" x-text="typeLabel(t)" :selected="t.id === type"></option></template>
           </select>
         </div>
         <div x-show="by === 'teacher'">
@@ -134,7 +134,7 @@
 function compareApp() {
   return {
     d: { available: false }, meta: null, days: [], periods: [], user: null,
-    by: 'group', section: '', group: '', teacher: '', side: 'optimised', teacherList: [], lunch: [],
+    by: 'type', section: '', type: '', teacher: '', side: 'optimised', teacherList: [], lunch: [], typeLessons: {},
     collegeKeys: new Set(),
     cards: [
       { key: 'idle_total', label: 'Student waiting periods / week', hint: 'free periods between classes, all CSE groups' },
@@ -160,10 +160,11 @@ function compareApp() {
       const names = {};
       this.d.college.forEach(e => e.teachers.forEach((t, i) => names[t] = e.teacher_names[i] || t));
       this.teacherList = this.d.teachers.map(id => ({ id, name: names[id] || id })).sort((a, b) => a.name.localeCompare(b.name));
-      const mine = this.user.group && this.d.sections.find(s => s.groups.includes(this.user.group));
-      const best = mine ? null : this.bestGroup();  // others start on the group that gains the most
-      this.section = this.section || (mine ? mine.id : best.section);
-      this.group = this.group || (mine ? this.user.group : best.group);
+      this.typeLessons = Object.fromEntries(this.d.types.map(t => [t.id, new Set(t.lessons)]));
+      const mine = this.d.types.find(t => t.id === this.user.student_type);
+      const best = mine ? null : this.bestType();  // others start on the combination that gains the most
+      this.section = this.section || (mine ? mine.section : best.section);
+      this.type = this.type || (mine ? mine.id : best.type);
       this.teacher = this.teacher || (this.user.teacher_id && this.d.teachers.includes(this.user.teacher_id) ? this.user.teacher_id : this.teacherList[0]?.id);
       if (this.d.running) setTimeout(() => this.load(), 10000);
     },
@@ -171,25 +172,27 @@ function compareApp() {
       try { await TW.api('/api/compare/cse/run?seconds=300', { method: 'POST' }); this.d.running = true; setTimeout(() => this.load(), 10000); }
       catch (e) { alert(e.message); }
     },
-    groupsOf(sid) { return (this.d.sections || []).find(s => s.id === sid)?.groups || []; },
-    bestGroup() {
-      const keep = [this.by, this.group];
+    typesOf(sid) { return (this.d.types || []).filter(t => t.section === sid); },
+    typeLabel(t) {
+      const rest = Object.entries(t.details).map(([k, v]) => v).join(' · ');
+      return rest + (t.count ? ` (${t.count} student${t.count > 1 ? 's' : ''})` : '');
+    },
+    bestType() {
+      const keep = [this.by, this.type];
       let best = { gain: -1 };
-      this.by = 'group';
-      for (const s of this.d.sections.filter(s => s.year <= 4)) {
-        for (const g of s.groups) {
-          this.group = g;
-          const gain = this.stats('college').wait - this.stats('optimised').wait;
-          if (gain > best.gain) best = { gain, section: s.id, group: g };
-        }
+      this.by = 'type';
+      for (const t of this.d.types) {
+        this.type = t.id;
+        const gain = (this.stats('college').wait - this.stats('optimised').wait) * Math.max(1, t.count);
+        if (gain > best.gain) best = { gain, section: t.section, type: t.id };
       }
-      [this.by, this.group] = keep;
+      [this.by, this.type] = keep;
       return best;
     },
     match(e) {
       if (this.by === 'teacher') return e.teachers.includes(this.teacher);
       if (this.by === 'section') return e.batches.some(b => b.startsWith(this.section + '-'));
-      return e.batches.includes(this.group);
+      return !!this.typeLessons[this.type]?.has(e.lesson);
     },
     cell(which, d, p) { return (this.d[which] || []).filter(e => e.day === d && p >= e.start && p < e.start + e.duration && this.match(e)); },
     busy(which, d) {

@@ -22,16 +22,21 @@ def entries(college):
     return res.entries
 
 
-def generated_groups(college):
-    return {b for l in college.lessons if not l.fixed for b in l.batches}
+def generated_units(college):
+    """Student types whose classes we generate (not imported)."""
+    return {name for name, lessons in college.units() if lessons and not any(college.lesson_by_id[l].fixed for l in lessons)}
+
+
+def mentions(issue, names):
+    return any(f" {n} on " in issue or f" {n} has " in issue or f" {n} at " in issue for n in names)
 
 
 def test_solver_output_has_no_clashes(college, entries):
     clashes, notes = split_issues(validate(college, entries))
     assert clashes == []
     # quality notes may only come from imported (real) data, never from what we generated
-    mine = generated_groups(college)
-    assert not [n for n in notes if any(f" {g} " in n for g in mine)]
+    mine = generated_units(college)
+    assert not [n for n in notes if mentions(n, mine)]
 
 
 def test_every_session_placed_once(college, entries):
@@ -43,10 +48,11 @@ def _first(entries, college, kind):
 
 
 def test_detects_student_and_teacher_clash(college, entries):
+    # two classes the same real students attend (same student type)
+    lessons_of = [ls for _, ls in college.units()]
     a = _first(entries, college, "theory")
-    batches = set(college.lesson_by_id[a.lesson].batches)
-    b = next(e for e in entries if e is not a and e.duration == 1
-             and batches & set(college.lesson_by_id[e.lesson].batches))
+    b = next(e for e in entries if e is not a and e.duration == 1 and e.lesson != a.lesson
+             and any(a.lesson in ls and e.lesson in ls for ls in lessons_of))
     mutated = [replace(a, day=b.day, start=b.start) if e is a else e for e in entries]
     assert any(i.startswith("CLASH Students") for i in validate(college, mutated))
 
@@ -66,8 +72,8 @@ def test_detects_block_past_end_of_day(college, entries):
 
 
 def test_every_generated_group_gets_lunch(college, entries):
-    mine = generated_groups(college)
-    assert not [i for i in validate(college, entries) if i.startswith("NO LUNCH") and any(f" {g} " in i for g in mine)]
+    mine = generated_units(college)
+    assert not [i for i in validate(college, entries) if i.startswith("NO LUNCH") and mentions(i, mine)]
 
 
 def test_detects_missing_lunch(college):
