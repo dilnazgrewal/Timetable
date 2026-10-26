@@ -5,9 +5,8 @@
 > **How it was checked:** every claim comes from the repository (code, docs, git history), the test suite, or a command run on **Mon 26 Oct 2026**. Nothing is from memory. The commands are listed under [Sources](#18-sources). Anything that could not be confirmed yet is listed under [Pending](#19-pending).
 >
 > **State of the repo when this was written:**
-> - Last commit: `aac5df1` (26 Oct 2026), 45 commits in total.
-> - Lane A (core) had uncommitted work in progress: importing D4's open elective from the FET *groups* page, plus 3 new tests for it. The saved optimised CSE timetable is being re-built around that new class.
-> - Numbers that depend on that re-run are marked **pending**.
+> - Final numbers are from commit `3acc154` (26 Oct 2026; 47 commits up to and including it). That commit imports D4's open elective from the FET *groups* page and re-optimises CSE around it.
+> - **All 87 tests pass** on that commit.
 
 ---
 
@@ -55,10 +54,7 @@ What it does:
 - **State:** in memory, persisted to JSON files.
 - **Chatbot:** Anthropic SDK, model `claude-opus-5-5` at low effort.
 
-**Tests:** **87 automated tests** in the working tree.
-- 85 pass.
-- 2 are pending the optimiser re-run (see [11](#11-testing-every-test-and-the-edge-case-it-covers)).
-- At the last commit (`aac5df1`) all **84 of 84 pass**.
+**Tests:** **87 automated tests, all 87 pass** (commit `3acc154`; see [11](#11-testing-every-test-and-the-edge-case-it-covers)).
 
 ---
 
@@ -165,7 +161,7 @@ Seed data ──────────► other departments (IT, ECE, ME, CE, 
 ### 4.2 What was imported (`data/gndec/cse.json`, measured 26 Oct)
 | Item | Count |
 |---|---|
-| Rooms | 41 (includes one placeholder, "APPLIED SCIENCES", for classes taught in another department: in-progress work) |
+| Rooms | 41 (includes one placeholder, "APPLIED SCIENCES", for the open elective taught in another department) |
 | Teachers | 62 (incl. Applied Sciences and other-department teachers who teach CSE classes) |
 | Sections | 26: D1–D3 CS A–F, D4 CS A–E, M1-CS, M3-CS, PHD-CS |
 | Lessons | 318 in the file (320 after Elective-IV labs are split per lab group) |
@@ -187,10 +183,11 @@ Seed data ──────────► other departments (IT, ECE, ME, CE, 
 - **Teacher tags:** tags such as "(App. Sci.)" or "(JDS-CE)" map to departments.
 - **Subject names:** subject codes map to full names (e.g. `ERP` = Entrepreneurship Practices; `CV E(T)` = Computer Vision (elective)).
 - **Lesson groups:** sessions with the same subject, teacher, groups and length are grouped into one lesson.
-- **In progress (uncommitted):** the importer also reads the **groups page**, which shows two kinds of class the rooms page cannot:
-  - D4's **open elective OE-II** (ERP / EVS / E-waste), taught in another department's rooms: Mon, Wed and Fri at 8:30 for all D4 groups. It is "pinned" (never moved).
-  - A **class in two rooms at once** (D1 CS C mentoring in S202 + S203).
-  - "Self Study" (library) slots are deliberately skipped, because they are not classes.
+- **The groups page** (commit `3acc154`): the importer also reads FET's groups page (`add_groups_html()`, which also parses the small tables nested inside its cells). It adds two kinds of class the rooms page cannot show; both are fixed, and the optimiser never moves them:
+  - D4's **open elective OE-II** (ERP, EVS or E-Waste) for D4 CS A–E, Mon, Wed and Fri at 8:30. It is taught in another department; its room is a placeholder, "APPLIED SCIENCES", which never shows as a free room.
+  - A **class in two rooms at once:** D1 CS C mentoring, Thu 10:30, in S202 + S203 together (stored in S202).
+  - "Self Study · Library" slots (D4, Mon/Tue 1:30) are deliberately skipped: they are free periods, not classes.
+- **A real bug a student caught:** ERP was missing from their timetable. The importer only read the rooms page, so classes held outside CSE rooms were silently dropped. Reading the groups page fixed it, and a test now guards it.
 
 ### 4.3 The FET quirk, and how it was fixed with "student types"
 - **The quirk:** in GNDEC's 3rd and 4th year, FET's numbered sub-groups (A1…A6) are **re-used slots, not sets of students**. "D4 CS A2" is at the same time:
@@ -238,7 +235,7 @@ Seed data ──────────► other departments (IT, ECE, ME, CE, 
 ---
 
 ## 5. Feature list (everything built)
-Status as of commit `aac5df1` plus the in-progress work noted. ✅ built and committed · 🟡 in progress / partial · ⬜ designed, not built.
+Status as of commit `3acc154`. ✅ built and committed · ⬜ designed, not built.
 
 ### 5.1 Core and data (Lane A)
 | # | Feature | Status |
@@ -248,13 +245,13 @@ Status as of commit `aac5df1` plus the in-progress work noted. ✅ built and com
 | A3 | Flexible lunch: a free hour anywhere in 11:30–14:30 per batch and teacher | ✅ |
 | A4 | Independent validator: hard clashes vs quality notes, and quality metrics | ✅ |
 | A5 | FET importer for GNDEC's real CSE timetable (rooms page), re-checked by the validator | ✅ |
-| A5b | FET groups page: open elective OE-II and a two-room class | 🟡 uncommitted |
+| A5b | FET groups page: open elective OE-II and a two-room class | ✅ |
 | A6 | Student types from the elective distribution lists (privacy-safe) | ✅ |
 | A7 | Elective-IV labs split per lab group (A1 Thursday, A2 Friday) | ✅ |
 | A8 | Shared store: `effective(date)` = base ⊕ that date's overrides (cancel / substitute / room change / booking / leave) | ✅ |
 | A9 | Free-room finder: by day or real date, building, floor, sittable-only, capacity; "free until"; booking-aware | ✅ |
 | A10 | Leave and ranked substitutes, with notifications to the substitute, the absent teacher and the students | ✅ |
-| A11 | Optimiser for the real CSE timetable: same lessons, never worse, large-neighbourhood search | ✅ (re-run 🟡) |
+| A11 | Optimiser for the real CSE timetable: same lessons, never worse, large-neighbourhood search | ✅ |
 | A12 | Propose (department) → publish / unpublish (timetable office), re-validated on publish | ✅ |
 | A13 | Sign-in (session cookie, demo accounts), 8 roles, PERMISSIONS table, capabilities, audit log | ✅ |
 | A14 | In-app notifications (🔔 in the shared top bar) | ✅ |
@@ -401,7 +398,7 @@ Theory rooms are then assigned per day with a small exact model that prefers the
 
 **Output:** `data/gndec/cse_optimised.json` with before/after metrics and clash counts. It is re-validated by tests. A department can re-run it from the page (`POST /api/compare/cse/run`, background thread, 60–1800 s).
 
-**In progress:** `add_new_pins()` puts newly imported pinned classes (OE-II) into the saved optimised timetable and re-measures it, without re-solving.
+**New pins:** `add_new_pins()` puts newly imported pinned classes (e.g. OE-II) into the saved optimised timetable and re-measures it, without re-solving. The final result (§10.3) comes from a full 15-minute re-run with these classes pinned.
 
 ### 6.4 Shared store and date overrides (`app/store.py`)
 - `STORE.week()` is the base weekly timetable.
@@ -620,26 +617,33 @@ Generated part, first feasible solution ("baseline") vs optimised:
 | Classes in the 4:30–5:30 slot | 7 | 0 |
 
 ### 10.3 Optimised CSE timetable (same lessons, better times)
-**Final numbers are pending the optimiser re-run** (see [19](#19-pending)). Below is the **last committed result** (`aac5df1`, `data/gndec/cse_optimised.json`: a 15-minute run of 900 s, 340 sessions moved, 65 pinned):
+**Final result** (commit `3acc154`, `data/gndec/cse_optimised.json`):
+- a 15-minute run (896 s) with the open elective and the two-room mentoring class pinned
+- status IMPROVED
+- **326 sessions moved, 69 pinned**
+- 537 sessions in total
 
 | Measure (CSE only, per real student type) | College (published) | TimeWeave optimised |
 |---|---|---|
 | Clashes (independent validator) | 0 | **0** |
-| Student waiting periods (total) | 181 | **16** (−91%) |
-| Waiting periods per student day | 0.29 | **0.03** |
-| Student days with **no free hour 11:30–2:30** | 44 | **0** |
-| Teacher days with no free hour 11:30–2:30 | 5 | **0** |
-| Teacher days with 4+ lectures in a row | 5 | **1** |
-| Teacher waiting periods | 315 | **98** |
-| Single-lecture days | 9 | **7** |
-| Days over 6 periods | 263 | **248** |
-| Classes in the 4:30–5:30 slot | 7 | 7 (pinned mentoring) |
+| Student waiting periods per week | 181 | **81** (−55%) |
+| Waiting periods per student day | 0.29 | **0.13** |
+| Student-type days with **no free hour 11:30–2:30** | 44 | **0** |
+| Single-lecture days | 11 | **10** |
+| Student-type days over 6 periods | 280 | **265** |
+| Teacher waiting periods | 314 | **91** (−71%) |
+| Teacher days with 4+ lectures in a row | 5 | **4** |
+| Teacher days with no free hour 11:30–2:30 | 5 | **1** |
+| Classes after 4:30 (4:30–5:30 slot) | 7 | 7 (pinned mentoring) |
 | Worst gap | 4 | 4 |
 | Room use (classrooms / labs) | 17.8% / 29.9% | 17.8% / 29.9% (same rooms) |
 
-**Working-tree state on 26 Oct** (after importing OE-II, before the re-run): the saved file shows 1 clash (*Pf. Lakhvir Kaur at Thu P3*: an optimised class now overlaps a newly imported pinned class) and student waiting periods of 236. That is why:
-- the "never worse" test is currently pending
-- **Publish is refused (409)**, which is exactly the safety rule working
+**Why the numbers changed from the earlier run:**
+- An earlier committed run (`aac5df1`) showed waiting periods 181 → **16**. That was measured **without** the open elective.
+- Three 8:30 classes a week for all of D4 (OE-II, which can't be moved) make some longer waits unavoidable, so **81 is the honest number**.
+- The college column changed slightly too, because the open elective is now counted.
+
+**Publishing is guarded.** While the re-run was going on, the saved optimised file briefly had 1 clash (a moved class overlapping the newly pinned OE-II), and publishing was correctly refused with 409.
 
 ---
 
@@ -650,34 +654,31 @@ Commands: `.venv/Scripts/python -m pytest -q -rA` and `pytest --collect-only -q`
 
 | Code state | Tests | Passed | Failed | Time |
 |---|---|---|---|---|
-| **Last commit `aac5df1`** (clean checkout) | 84 | **84** | 0 | 64 s |
-| **Working tree** (Lane A's uncommitted open-elective import + 3 new tests) | 87 | **85** | 2 (pending the optimiser re-run, expected) | 44 s |
-| **Final, after Lane A commits the re-run** | 87 | **pending** | **pending** | |
+| **Final: commit `3acc154`** | 87 | **87** | **0** | 28 s |
+| Earlier: commit `aac5df1` (before the 3 groups-page tests) | 84 | 84 | 0 | 64 s |
 
-| File | Lane | Tests | Pass (working tree) |
+| File | Lane | Tests | Pass |
 |---|---|---|---|
 | `tests/test_validator.py` | A | 12 | 12 |
-| `tests/test_core_permissions.py` | A | 17 (incl. 5 parametrised) | 16 + 1 pending |
-| `tests/test_core_fet.py` | A | 7 (3 new, uncommitted) | 7 |
+| `tests/test_core_permissions.py` | A | 17 (incl. 5 parametrised) | 17 |
+| `tests/test_core_fet.py` | A | 7 (3 added in `3acc154`) | 7 |
 | `tests/test_core_students.py` | A | 6 | 6 |
 | `tests/test_core_store.py` | A | 4 | 4 |
 | `tests/test_core_substitutions.py` | A | 4 | 4 |
-| `tests/test_core_optimise.py` | A | 2 | 1 + 1 pending |
-| **Lane A total** | | **52** | 50 + 2 pending |
+| `tests/test_core_optimise.py` | A | 2 | 2 |
+| **Lane A total** | | **52** | **52** |
 | `tests/test_dashboards_api.py` | B | **14** | 14 |
 | `tests/test_venues_approvals.py` | C | 7 | 7 |
 | `tests/test_venues_ranking.py` | C | 8 (incl. 4 parametrised) | 8 |
 | `tests/test_venues_slots.py` | C | 6 | 6 |
 | **Lane C total** | | **21** | 21 |
-| **Overall** | | **87** | **85 + 2 pending** |
+| **Overall** | | **87** | **87** |
 
-**The 2 pending tests:**
+**Note:** while the optimiser re-run was in progress, 2 tests failed as expected:
 - `test_core_optimise.py::test_no_clashes_and_never_worse`
 - `test_core_permissions.py::test_propose_publish_unpublish_keeps_zero_clashes`
 
-**Why:** Lane A imported D4's open elective (a new pinned class) and is re-building the saved optimised timetable around it. Until then, the saved file has 1 clash, so:
-- the never-worse test fails
-- publishing is (correctly) refused with 409
+The saved optimised timetable didn't yet fit around the newly pinned open elective, and publishing was refused with 409. Both pass on `3acc154`. This shows the tests catch a stale optimised timetable.
 
 **Test hygiene (applies to all files):**
 - **Tests never write to `data/`:** every test that changes state monkeypatches `app.store.STATE` to a pytest temp folder. One dashboards test checks this (`STATE.exists()` in the temp path). The permissions tests also restore the published state, audit log and notifications after each test.
@@ -718,7 +719,7 @@ These are "testing the tester": mutation tests inject each kind of mistake and c
 | `test_capabilities_follow_the_table` | `/api/me.can` matches the table: a student can request meetings but not publish or approve; the admin has everything except the teacher-only items; HOD CSE can propose and substitute but not publish; the ME HOD can't see the CSE optimiser |
 | `test_endpoint_refusals` | Real HTTP calls: student → 403 on compare, users, audit, demo reset; ME HOD → 403 on the CSE compare; CSE HOD → 403 on publish; Dean → 403 on propose but 200 on view; a student can read their own timetable |
 | `test_refusals_are_audited` | A refused demo reset by a student lands in the audit log with `allowed: false`, and the Dean sees it first in `/api/audit` |
-| `test_propose_publish_unpublish_keeps_zero_clashes` | **(pending)** Coordinator proposes → admin notified → admin publishes → the independent validator finds 0 issues → unpublish → still 0. Today publish is refused with 409 because the saved optimised file has 1 clash, which is the "publish refused when there are clashes" safety rule |
+| `test_propose_publish_unpublish_keeps_zero_clashes` | Coordinator proposes → admin notified → admin publishes → the independent validator finds 0 issues → unpublish → still 0. Edge case seen for real: while the saved optimised file had 1 clash (during the re-run), publish was refused with 409, the "publish refused when there are clashes" rule |
 
 ### 11.4 `tests/test_core_fet.py`: importing GNDEC's real timetable (7)
 | Test | What it checks · edge case |
@@ -727,9 +728,9 @@ These are "testing the tester": mutation tests inject each kind of mistake and c
 | `test_sections_groups_and_labs` | D2 CS A has groups A1/A2; D3 CS A has **6 elective sub-groups**; every lab is a 2-period block; some lessons have 2–3 co-teachers |
 | `test_real_timetable_has_no_clashes` | GNDEC's real timetable has **0 hard clashes**; the only notes are `NO LUNCH` and `LONG DAY` quality notes |
 | `test_cell_parsers` | Parsing of group lists ("D3 CS A1, D3 CS B1"), a whole section with no sub-group ("D2 CS D"), teacher tags that are departments ("(App. Sci.)" → AS, "(JDS-CE)" → CE), lab vs lecture codes, elective names |
-| `test_groups_page_adds_open_elective_and_two_room_class` | *(new)* The rooms page can't show OE-II; the groups page adds exactly 4 classes and **skips "Self Study"**; OE-II covers all D4 groups, 3 sessions, pinned, Mon/Wed/Fri 8:30 in the other-department room; the **two-room class** (S202 + S203) is added once; still 0 clashes |
-| `test_open_elective_is_pinned_and_in_d4_timetables` | *(new)* The optimiser may not move OE-II; **every D4 student type** has it in its timetable |
-| `test_outside_room_is_never_a_free_room` | *(new)* The "other department" placeholder room never shows up as a free room |
+| `test_groups_page_adds_open_elective_and_two_room_class` | *(added in `3acc154`)* The rooms page can't show OE-II; the groups page adds exactly 4 classes and **skips "Self Study"**; OE-II covers all D4 groups, 3 sessions, pinned, Mon/Wed/Fri 8:30 in the other-department room; the **two-room class** (S202 + S203) is added once; still 0 clashes |
+| `test_open_elective_is_pinned_and_in_d4_timetables` | *(added in `3acc154`)* The optimiser may not move OE-II; **every D4 student type** has it in its timetable |
+| `test_outside_room_is_never_a_free_room` | *(added in `3acc154`)* The "other department" placeholder room never shows up as a free room |
 
 ### 11.5 `tests/test_core_students.py`: real students (6)
 | Test | What it checks · edge case |
@@ -761,7 +762,7 @@ These are "testing the tester": mutation tests inject each kind of mistake and c
 | Test | What it checks · edge case |
 |---|---|
 | `test_same_lessons_only_times_change` | The same lessons with the same number and length of sessions; every room is of the kind the lesson needs; **pinned sessions (M.Tech, PhD, mentoring) are exactly where the college put them** |
-| `test_no_clashes_and_never_worse` | **(pending)** Checked per real student type: 0 clashes; **never worse** on 7 measures (waiting periods, no-lunch days for students and teachers, teacher streak days, late sessions, long days, single-lecture days); strictly better on waiting periods; **the numbers saved in the file are honest** (they equal a fresh measurement) |
+| `test_no_clashes_and_never_worse` | Checked per real student type: 0 clashes; **never worse** on 7 measures (waiting periods, no-lunch days for students and teachers, teacher streak days, late sessions, long days, single-lecture days); strictly better on waiting periods; **the numbers saved in the file are honest** (they equal a fresh measurement) |
 
 (Both skip cleanly if no optimised timetable has been saved yet.)
 
@@ -824,7 +825,7 @@ Runs against a freshly solved seed college, with state in a temp file.
 ---
 
 ## 12. Timeline: how it was built
-From `git log` (45 commits). Commits per day: 21 Oct 15 · 22 Oct 14 · 26 Oct 16.
+From `git log` (47 commits up to `3acc154`). Commits per day: 21 Oct 15 · 22 Oct 14 · 26 Oct 18.
 
 ### Day 1: Wed 21 Oct, prototype (v0.1), demo at 4 PM
 - Scaffold, `CLAUDE.md`, plan.
@@ -863,7 +864,7 @@ From `git log` (45 commits). Commits per day: 21 Oct 15 · 22 Oct 14 · 26 Oct 1
   - clubs get the slot finder
   - events booked for a batch notify its students
   - `TW.can` and sign-in
-- **In progress (uncommitted, Lane A):** the FET groups page (open elective OE-II, a two-room class) and re-optimisation around it.
+- **Lane A, last:** the FET groups page (open elective OE-II, the two-room mentoring class; fixes ERP missing from students' timetables) and a 15-minute re-optimisation around it (`3acc154`). This report was committed alongside.
 
 ### Cross-lane requests (`docs/REQUESTS.md`)
 11 entries:
@@ -934,7 +935,7 @@ Suggested, about 5 minutes. Built only from features listed above.
 6. **Event slot finder as T&P:** D4 CS for a 2-hour talk: slots where every group is free, venues attached, lunch protected, and "nearly free" times showing who would miss which class. **Book this** notifies the batch.
 7. **Optimised CSE timetable** (`/compare.html`, as the CSE HOD): college vs optimised, side by side.
    - Same lessons, times only.
-   - Use the **final numbers** after the re-run (last committed: waiting periods 181 → 16, no-lunch days 44 → 0).
+   - Student waiting periods 181 → 81, no-lunch days 44 → 0, teacher waiting periods 314 → 91, 0 clashes.
    - **Propose**, then as the admin **Publish**; the validator re-checks it.
 8. **Trust:** the independent validator, 87 automated tests, and the audit log (`/audit.html` as the Dean) showing a refused action.
 9. **Ask TimeWeave** (optional, uses API credit): "Will G17 be free at 12:30 on Friday?"
@@ -966,7 +967,8 @@ Suggested, about 5 minutes. Built only from features listed above.
 **Optimiser:**
 - Built for CSE (the `/api/compare/cse` routes are CSE-specific).
 - 7 classes in the 4:30–5:30 slot stay (pinned mentoring).
-- Days over 6 periods improve only partly (263 → 248 in the last committed run), because D3 groups have 36 periods a week.
+- Days over 6 periods improve only partly (280 → 265), because D3 groups have 36 periods a week.
+- Three fixed 8:30 open-elective classes a week for all of D4 limit how far waiting periods can drop (181 → 81).
 
 **Open cross-lane request:** a `leave_board` capability for the Dean.
 
@@ -987,13 +989,14 @@ Suggested, about 5 minutes. Built only from features listed above.
 | **150 / 48** | D4 students / real elective combinations modelled |
 | **340 / 57** | D3 students / real elective combinations modelled |
 | **164** | student types, so every real student's timetable is exact |
-| **44 → 0** | CSE student-days with no midday break: college vs optimised (last committed run; final **pending**) |
-| **181 → 16** | CSE student waiting periods per week (last committed run; final **pending**) |
+| **44 → 0** | CSE student-days with no midday break: college vs optimised |
+| **181 → 81** | CSE student waiting periods per week (−55%), same lessons, 0 clashes |
+| **314 → 91** | CSE teacher waiting periods per week (−71%) |
 | **1.34 → 0.00** | idle periods per day in generated departments (first feasible vs optimised) |
 | **8** | roles, with a deny-by-default permission table and an audit log |
 | **35** | API routes |
-| **87** | automated tests (84/84 at the last commit; final pass count **pending**) |
-| **3** | parallel build lanes, 45 commits |
+| **87 / 87** | automated tests passing |
+| **3** | parallel build lanes, 47 commits |
 
 ---
 
@@ -1013,20 +1016,24 @@ Suggested, about 5 minutes. Built only from features listed above.
 - **Not read:** `data/private/`
 
 **Commands (26 Oct 2026):**
-- `pytest -q -rA` on the working tree (85 passed, 2 failed) and on a clean checkout of `aac5df1` (84 passed)
+- `pytest -q` on commit `3acc154`: **87 passed** (final)
+- earlier: `pytest -q -rA` on the working tree before the re-run (85 passed, 2 failed as expected) and on a clean checkout of `aac5df1` (84 passed)
 - `pytest --collect-only -q` (87 tests)
 - a Python check printing college counts, metrics and `compare` from `app.store.STORE`
 - `git log`, `git log --stat`, `git diff --stat`, `git status`
 
-**Deliberately not run:** `python -m app.optimise` (a re-run was in progress) and `/api/chat` (limited API credit).
+**Deliberately not run:** `python -m app.optimise` (Lane A ran the 15-minute re-run) and `/api/chat` (limited API credit).
+
+**From Lane A's session:** the background of the groups-page import (the student who noticed ERP was missing). The resulting numbers were checked here against the committed `data/gndec/cse_optimised.json` and `data/gndec/cse.json`.
 
 ---
 
 ## 19. Pending
-1. **Final test totals.** Re-run `pytest -q` after Lane A commits the optimiser re-run. Expected 87 tests; today 85 pass and these 2 are pending:
-   - `test_core_optimise.py::test_no_clashes_and_never_worse`
-   - `test_core_permissions.py::test_propose_publish_unpublish_keeps_zero_clashes`
-2. **Final optimised CSE numbers** (§10.3, §17): take them from the committed `data/gndec/cse_optimised.json` after the re-run (moved, pinned, clashes, and the before/after metrics). The college-side numbers may shift slightly too, because OE-II is now part of the college's timetable.
-3. **College counts after the open-elective import is committed:** rooms, teachers, lessons, accounts (§4, §7.1). Today they include the in-progress import.
-4. The 3 new FET tests (§11.4) are uncommitted at the time of writing.
-5. UI behaviour was described from page source (labels, tabs, `x-show` rules), not from clicking through every screen in a browser.
+**Resolved on 26 Oct** (after commit `3acc154`):
+- Final test totals: **87 / 87 pass** (re-run here).
+- Final optimised CSE numbers (§10.3, §17): checked against the committed `data/gndec/cse_optimised.json`.
+- College counts (§4, §7.1): these were measured on data that already included the open-elective import. They match the committed `data/gndec/cse.json` (41 rooms, 62 teachers, 26 sections, 318 lessons, 537 sessions).
+- The 3 groups-page tests are committed.
+
+**Still not verified:**
+- UI behaviour was described from page source (labels, tabs, `x-show` rules), not from clicking through every screen in a browser.
