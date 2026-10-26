@@ -14,6 +14,7 @@ from app.auth import current_user, require
 from app.chat import Assistant
 from app.models import DAYS, FEATURES, LUNCH_WINDOW, PERIODS, Entry, User
 from app.solver import solve
+from app import substitutions as subs
 from app.store import STORE, Occupancy
 from app.validator import metrics
 
@@ -173,7 +174,7 @@ def demo_reset(user: User = Depends(current_user)) -> dict:
     return {"ok": True}
 
 
-ASSISTANT = Assistant(STORE.college, lambda: STORE.entries)
+ASSISTANT = Assistant()
 
 
 class ChatRequest(BaseModel):
@@ -195,3 +196,98 @@ def chat(req: ChatRequest) -> dict:
         return {"answer": f"The AI service returned an error ({e.status_code}). Please try again.", "tools_used": []}
     except anthropic.AnthropicError:  # e.g. no credentials configured at all
         return {"answer": "The assistant isn't configured: add ANTHROPIC_API_KEY to the .env file.", "tools_used": []}
+
+
+# --- absences and substitutions ---------------------------------------------------------------
+class LeaveIn(BaseModel):
+    teacher: str
+    date: str
+    periods: list[int] = []  # empty = the whole day
+    reason: str = ""
+
+
+class SubstituteIn(BaseModel):
+    date: str
+    entry_key: str
+    teacher: str | None = None  # the substitute; omit with cancel=true
+    cancel: bool = False
+
+
+def _teacher_or_404(teacher_id: str):
+    t = STORE.college.teacher_by_id.get(teacher_id)
+    if t is None:
+        raise HTTPException(404, f"No teacher '{teacher_id}'")
+    return t
+
+
+@router.post("/leave")
+def mark_leave(body: LeaveIn, user: User = Depends(current_user)) -> dict:
+    """Mark a teacher absent for a date: returns the affected classes with ranked substitutes."""
+    t = _teacher_or_404(body.teacher)
+    require(user, "leave.mark", t)
+    d = _date_or_400(body.date)
+    if d.weekday() >= len(DAYS):
+        raise HTTPException(400, "That's a weekend: there are no classes to cover.")
+    if any(not 0 <= p < len(PERIODS) for p in body.periods):
+        raise HTTPException(400, "Invalid period")
+    ov = subs.mark_leave(t.id, d.isoformat(), body.periods, body.reason, user.id)
+    rows = subs.affected(t.id, d, body.periods)
+    hods = [u.id for u in STORE.users.values() if u.role == "hod" and u.dept == t.dept]
+    for h in hods:
+        STORE.notify(h, f"{t.name} is on leave on {d:%a %d %b}: {sum(r['state'] == 'open' for r in rows)} class(es) need cover",
+                     "/#subs")
+    return {"leave": asdict(ov), "classes": rows}
+
+
+@router.get("/leave")
+def leaves(on: str, dept: str = "", user: User = Depends(current_user)) -> dict:
+    """Everyone on leave on a date (optionally one department), with each affected class and its cover."""
+    d = _date_or_400(on)
+    out = []
+    for ov in STORE.overrides:
+        if ov.kind != "leave" or ov.date != d.isoformat() or not ov.teacher:
+            continue
+        t = STORE.college.teacher_by_id.get(ov.teacher)
+        if t is None or (dept and t.dept != dept):
+            continue
+        if user.role != "admin" and not (user.teacher_id == t.id or (user.role == "hod" and user.dept == t.dept)):
+            continue  # HODs see their department, teachers see themselves
+        out.append({"leave": asdict(ov), "teacher_name": t.name, "dept": t.dept,
+                    "classes": subs.affected(t.id, d, ov.periods)})
+    return {"date": d.isoformat(), "leaves": out}
+
+
+@router.post("/substitutions")
+def substitute(body: SubstituteIn, user: User = Depends(current_user)) -> dict:
+    """HOD/admin: put a substitute on one class on one date, or cancel it. Notifies everyone affected."""
+    d = _date_or_400(body.date)
+    o = next((x for x in (STORE._occ(e) for e in STORE.entries if e.day == d.weekday())
+              if x.key == body.entry_key), None)
+    if o is None:
+        raise HTTPException(404, "That class doesn't happen on that date.")
+    lesson = STORE.college.lesson_by_id[o.lesson]
+    require(user, "override.create", lesson.dept)
+    absent = next((ov.teacher for ov in STORE.overrides if ov.kind == "leave" and ov.date == d.isoformat()
+                   and ov.teacher in (o.teacher, *o.co_teachers)), o.teacher)
+    when = f"{d:%a %d %b} {subs.class_view(o)['time']}"
+    if body.cancel:
+        ov = subs.assign(d.isoformat(), o.key, None, True, user.id)
+        msg = f"Cancelled: {lesson.code} for {lesson.section} on {when} ({o.room}). The room is free."
+    else:
+        t = _teacher_or_404(body.teacher or "")
+        if t.id not in {c["teacher"] for c in subs.candidates(o, d, absent, limit=10_000)}:
+            raise HTTPException(409, f"{t.name} isn't free for this class on {d:%a %d %b}.")
+        ov = subs.assign(d.isoformat(), o.key, t.id, False, user.id)
+        msg = f"Substitute: {t.name} takes {lesson.code} for {lesson.section} on {when} in {o.room}."
+        for u in subs.users_of_teacher(t.id):
+            STORE.notify(u, f"You're substituting {lesson.code} for {lesson.section} on {when} in {o.room}.", "/")
+    for u in subs.users_of_groups(o.batches) + subs.users_of_teacher(absent):
+        STORE.notify(u, msg, "/")
+    return {"override": asdict(ov), "message": msg}
+
+
+def _date_or_400(value: str) -> date:
+    try:
+        return date.fromisoformat(value)
+    except ValueError:
+        raise HTTPException(400, "Use a date like 2026-10-30")

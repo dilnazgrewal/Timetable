@@ -200,6 +200,7 @@ class BookingRequest:
     steps: list[ApprovalStep] = field(default_factory=list)
     created_at: str = ""
     purpose: str = ""
+    audience: list[str] = field(default_factory=list)  # group ids the event is for (e.g. from the slot finder)
 
 
 @dataclass

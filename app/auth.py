@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from fastapi import Header, HTTPException
 
-from app.models import BookingRequest, Club, College, MeetingRequest, User
+from app.models import BookingRequest, Club, College, MeetingRequest, Teacher, User
 
 DEFAULT_USER = "admin"
 
@@ -74,7 +74,11 @@ def authorize(user: User, action: str, resource: object = None) -> bool:
         # department rooms: that department's HOD; central rooms: admin only (handled above)
         return r == "hod" and room is not None and room.dept == user.dept
     if action == "slotfinder.use":
-        return r in ("org", "hod", "teacher")
+        return r in ("org", "hod", "teacher", "club")
+    if action == "leave.mark" and isinstance(resource, Teacher):  # mark a teacher absent for a date
+        return user.teacher_id == resource.id or (r == "hod" and user.dept == resource.dept)
+    if action == "leave.view" and isinstance(resource, Teacher):
+        return user.teacher_id == resource.id or r == "hod"
     if action == "meeting.request":
         return r == "student"
     if action == "meeting.reply" and isinstance(resource, MeetingRequest):
@@ -82,6 +86,17 @@ def authorize(user: User, action: str, resource: object = None) -> bool:
     return False
 
 
+ACTION_TEXT = {
+    "timetable.generate": "regenerate the timetable", "override.create": "change this department's classes",
+    "booking.request": "request venues", "booking.cancel": "cancel this booking",
+    "booking.endorse": "endorse this request (only the club's faculty advisor can)",
+    "booking.approve": "approve this booking (only the HOD who owns the room can)",
+    "slotfinder.use": "use the event slot finder", "meeting.request": "request meetings",
+    "meeting.reply": "reply to this meeting request", "leave.mark": "mark this teacher on leave",
+    "leave.view": "see this teacher's leave", "demo.reset": "reset the demo",
+}
+
+
 def require(user: User, action: str, resource: object = None) -> None:
     if not authorize(user, action, resource):
-        raise HTTPException(403, f"{user.name} is not allowed to {action.replace('.', ' ')}")
+        raise HTTPException(403, f"{user.name} is not allowed to {ACTION_TEXT.get(action, action.replace('.', ' '))}.")

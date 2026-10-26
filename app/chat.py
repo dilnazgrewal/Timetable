@@ -7,15 +7,24 @@ from datetime import datetime
 
 import anthropic
 
-from app.models import DAYS, PERIODS, College, Entry
+from app.models import DAYS, PERIODS
+from app.store import STORE, Occupancy, to_date
 
 MODEL = "claude-opus-5-5"
 MAX_TOOL_ROUNDS = 6
 
+WHEN = {
+    "date": {"type": "string", "description": "A real date YYYY-MM-DD (includes bookings, cancellations and "
+                                              "substitutions). Prefer this; work it out from today's date."},
+    "day": {"type": "string", "enum": DAYS, "description": "Weekday of the regular weekly timetable (no one-off changes)."},
+}
+AT = {"time": {"type": "string", "description": "A clock time HH:MM (24h), e.g. 12:45, or a period label P1..P9. "
+                                              "Omit for right now."}}
+
 TOOLS = [
     {
         "name": "search",
-        "description": "Find teachers, sections or rooms by (partial) name. Always use this first to turn a "
+        "description": "Find teachers, sections/groups or rooms by (partial) name. Always use this first to turn a "
                        "name the user typed into an exact id.",
         "input_schema": {"type": "object", "properties": {"query": {"type": "string"}},
                          "required": ["query"], "additionalProperties": False},
@@ -23,103 +32,188 @@ TOOLS = [
     },
     {
         "name": "get_schedule",
-        "description": "Weekly or single-day schedule of a section (e.g. D3-CS-A), teacher (e.g. KD) or room "
-                       "(e.g. G17). day is Mon..Fri, or omit for the whole week.",
+        "description": "Schedule of a section (e.g. D3-CS-A), a student group (e.g. D3-CS-A-A1), a teacher (e.g. KD) "
+                       "or a room (e.g. G17) for one date/weekday, or the whole week if neither is given.",
         "input_schema": {"type": "object", "properties": {
-            "kind": {"type": "string", "enum": ["section", "teacher", "room"]},
-            "id": {"type": "string"},
-            "day": {"type": "string", "enum": DAYS}},
+            "kind": {"type": "string", "enum": ["section", "group", "teacher", "room"]},
+            "id": {"type": "string"}, **WHEN},
             "required": ["kind", "id"], "additionalProperties": False},
     },
     {
         "name": "free_rooms",
-        "description": "Rooms with no class in a given period. kind filters by room type, e.g. Classroom, "
-                       "Computer Lab, Lecture Theatre, Seminar Hall.",
+        "description": "Rooms with nothing happening at a given time, grouped by building and floor, with when each "
+                       "becomes busy again. By default only rooms students may sit in (labs excluded).",
         "input_schema": {"type": "object", "properties": {
-            "day": {"type": "string", "enum": DAYS},
-            "period": {"type": "string", "enum": [p[0] for p in PERIODS]},
-            "kind": {"type": "string"}},
-            "required": ["day", "period"], "additionalProperties": False},
+            **WHEN, **AT,
+            "building": {"type": "string", "description": "Building id, e.g. MBA (CSE & IT block)."},
+            "floor": {"type": "string", "enum": ["Ground", "First", "Second"]},
+            "sittable_only": {"type": "boolean", "description": "Default true. False includes labs and halls."},
+            "min_seats": {"type": "integer"}},
+            "additionalProperties": False},
+    },
+    {
+        "name": "room_status",
+        "description": "Is one room free at a given time? Returns what is happening there, until when it stays free "
+                       "or busy, and the next class. Use for questions like 'will G17 be empty at 12:30 on Friday?'.",
+        "input_schema": {"type": "object", "properties": {"room": {"type": "string"}, **WHEN, **AT},
+                         "required": ["room"], "additionalProperties": False},
     },
     {
         "name": "teacher_free_slots",
-        "description": "Periods on a day when a teacher (by id) is free and available.",
-        "input_schema": {"type": "object", "properties": {
-            "teacher_id": {"type": "string"}, "day": {"type": "string", "enum": DAYS}},
-            "required": ["teacher_id", "day"], "additionalProperties": False},
+        "description": "Periods on a date/weekday when a teacher (by id) is free: not teaching (including labs they "
+                       "co-teach), not on leave and on campus.",
+        "input_schema": {"type": "object", "properties": {"teacher_id": {"type": "string"}, **WHEN},
+                         "required": ["teacher_id"], "additionalProperties": False},
     },
 ]
+LABELS = [p[0] for p in PERIODS]
 
 
 def _system() -> str:
     periods = ", ".join(f"{p} {s}-{e}" for p, s, e in PERIODS)
+    buildings = "; ".join(f"{b.id} = {b.name}" for b in STORE.college.buildings)
     now = datetime.now()
     return (
-        "You are TimeWeave's timetable assistant for a college. Answer ONLY from tool results; never guess "
+        "You are TimeWeave's timetable assistant for GNDEC Ludhiana. Answer ONLY from tool results; never guess "
         "a room, time, teacher or class. If a name is ambiguous, list the matches and ask which one. If the "
-        "tools cannot answer, say so. You cannot change the timetable: if asked to, explain that changes go "
-        "through the coordinator's editor with a preview and confirmation.\n"
-        f"Week: {', '.join(DAYS)}. Periods: {periods}. Lunch is flexible: each class and teacher gets a free hour somewhere in 11:30-14:30 (P4-P6); 'after lunch' means after that class's own break, so check its schedule. "
-        f"Now: {now:%A %H:%M}. Keep answers short and friendly, suitable for a phone screen. Use plain text with simple dash lists, no markdown formatting."
+        "tools cannot answer, say so. You cannot change anything: for changes, point people to the right screen "
+        "(venue booking for halls, their HOD for timetable changes).\n"
+        f"Today is {now:%A %Y-%m-%d}, time {now:%H:%M}. Resolve 'today', 'tomorrow', 'Friday' etc. to a real date "
+        "and pass `date`. Weekends have no classes.\n"
+        f"Periods: {periods}. Lunch is flexible: each class gets a free hour somewhere in 11:30-14:30, so 'after "
+        "lunch' depends on the class; check its schedule.\n"
+        f"Buildings: {buildings}. Room ids starting G are on the ground floor, F first floor, S second floor. "
+        "Students may not sit in labs.\n"
+        "Keep answers short and friendly for a phone screen. Use plain text with simple dash lists, no markdown."
     )
 
 
+def _period(time: str | None) -> int:
+    """'P5' / '12:45' / None (now) -> period index."""
+    if time and time.upper() in LABELS:
+        return LABELS.index(time.upper())
+    hm = time or datetime.now().strftime("%H:%M")
+    for i, (_, s, e) in enumerate(PERIODS):
+        if s <= hm < e:
+            return i
+    raise ValueError(f"{hm} is outside college hours ({PERIODS[0][1]}-{PERIODS[-1][2]})")
+
+
+def _today_weekday() -> str:
+    return DAYS[min(datetime.now().weekday(), len(DAYS) - 1)]
+
+
 class Assistant:
-    def __init__(self, college: College, entries_fn) -> None:
-        self.college = college
-        self.entries_fn = entries_fn  # returns the current list[Entry]
+    """Tools read the shared STORE: a real `date` gives what actually happens (bookings, cancellations,
+    substitutions); a `day` gives the regular weekly timetable."""
+
+    # --- helpers ---------------------------------------------------------
+    def _occ(self, date: str | None = None, day: str | None = None) -> tuple[list[Occupancy], str, int | None]:
+        """-> (occupancies, human 'when', weekday index or None for the whole week)."""
+        if date:
+            d = to_date(date)
+            if d.weekday() >= len(DAYS):
+                return [], f"{d:%A %Y-%m-%d} (weekend: no classes)", None
+            return STORE.effective(d), f"{d:%A %Y-%m-%d}", d.weekday()
+        if day:
+            wd = DAYS.index(day)
+            return [o for o in STORE.week() if o.day == wd], f"every {day} (regular timetable)", wd
+        return STORE.week(), "whole week (regular timetable)", None
+
+    def _describe(self, o: Occupancy) -> dict:
+        c = STORE.college
+        l = c.lesson_by_id.get(o.lesson or "")
+        names = [c.teacher_by_id[t].name for t in [o.teacher, *o.co_teachers] if t in c.teacher_by_id]
+        out = {"day": DAYS[o.day], "time": f"{PERIODS[o.start][1]}-{PERIODS[o.start + o.duration - 1][2]}",
+               "periods": [LABELS[p] for p in o.slots], "room": o.room}
+        if l:
+            out |= {"subject": f"{l.name} ({l.code})", "type": l.kind, "class": l.section, "teachers": names}
+        else:
+            out |= {"event": o.title, "type": "booked event"}
+        if o.status != "normal":
+            out["change_today"] = o.status.replace("_", " ")
+        return out
 
     # --- tools -----------------------------------------------------------
-    def _describe(self, e: Entry) -> dict:
-        l = self.college.lesson_by_id[e.lesson]
-        end = PERIODS[e.start + e.duration - 1][2]
-        return {"day": DAYS[e.day], "time": f"{PERIODS[e.start][1]}-{end}",
-                "periods": [PERIODS[p][0] for p in e.slots], "subject": f"{l.name} ({l.code})",
-                "type": l.kind, "class": l.section, "teacher": self.college.teacher_by_id[l.teacher].name,
-                "room": e.room}
-
     def search(self, query: str) -> dict:
-        q = query.lower().replace("prof.", "").replace("dr.", "").strip()
-        c = self.college
+        q = query.lower().replace("prof.", "").replace("dr.", "").replace("pf.", "").strip()
+        c = STORE.college
         return {
-            "teachers": [{"id": t.id, "name": t.name, "dept": t.dept} for t in c.teachers if q in t.name.lower()][:8],
-            "sections": [{"id": s.id, "name": s.name} for s in c.sections
-                         if q in s.id.lower() or q in s.name.lower()][:8],
-            "rooms": [{"id": r.id, "kind": r.kind} for r in c.rooms if q in r.id.lower() or q in r.kind.lower()][:8],
+            "teachers": [{"id": t.id, "name": t.name, "dept": t.dept} for t in c.teachers
+                         if q in t.name.lower() or q == t.id.lower()][:8],
+            "sections": [{"id": s.id, "name": s.name, "groups": s.groups} for s in c.sections
+                         if q.replace(" ", "-") in s.id.lower() or q in s.name.lower()][:8],
+            "rooms": [{"id": r.id, "kind": r.kind, "building": r.building, "floor": r.floor} for r in c.rooms
+                      if q in r.id.lower() or q in r.kind.lower()][:8],
         }
 
-    def get_schedule(self, kind: str, id: str, day: str | None = None) -> dict:
-        def hit(e: Entry) -> bool:
-            l = self.college.lesson_by_id[e.lesson]
+    def get_schedule(self, kind: str, id: str, date: str | None = None, day: str | None = None) -> dict:
+        occ, when, _ = self._occ(date, day)
+
+        def hit(o: Occupancy) -> bool:
             if kind == "section":
-                return any(b.startswith(id + "-") for b in l.batches)
+                return any(b.startswith(id + "-") for b in o.batches)
+            if kind == "group":
+                return id in o.batches
             if kind == "teacher":
-                return l.teacher == id
-            return e.room == id
-        d = DAYS.index(day) if day else None
-        rows = [e for e in self.entries_fn() if hit(e) and (d is None or e.day == d)]
-        rows.sort(key=lambda e: (e.day, e.start))
-        return {"kind": kind, "id": id, "day": day or "whole week", "classes": [self._describe(e) for e in rows]}
+                return id == o.teacher or id in o.co_teachers
+            return o.room == id
+        rows = sorted((o for o in occ if hit(o)), key=lambda o: (o.day, o.start))
+        return {"kind": kind, "id": id, "when": when, "classes": [self._describe(o) for o in rows]}
 
-    def free_rooms(self, day: str, period: str, kind: str | None = None) -> dict:
-        d, p = DAYS.index(day), [x[0] for x in PERIODS].index(period)
-        busy = {e.room for e in self.entries_fn() if e.day == d and p in e.slots}
-        free = [{"room": r.id, "kind": r.kind, "seats": r.capacity} for r in self.college.rooms
-                if r.id not in busy and (not kind or kind.lower() in r.kind.lower())]
-        return {"day": day, "period": period, "free": free}
+    def free_rooms(self, date: str | None = None, day: str | None = None, time: str | None = None,
+                   building: str | None = None, floor: str | None = None, sittable_only: bool = True,
+                   min_seats: int = 0) -> dict:
+        p = _period(time)
+        occ, when, _ = self._occ(date, day or (None if date else _today_weekday()))
+        busy = STORE.busy_rooms(occ, p)
+        floors: dict[str, list[dict]] = {}
+        for r in STORE.college.rooms:
+            if (r.id in busy or (sittable_only and not r.sittable) or r.capacity < min_seats
+                    or (building and r.building != building) or (floor and r.floor != floor)):
+                continue
+            nxt = min((o.start for o in occ if o.room == r.id and o.start > p), default=None)
+            floors.setdefault(f"{r.building} · {r.floor} floor", []).append(
+                {"room": r.id, "seats": r.capacity, "free_until": PERIODS[nxt][1] if nxt is not None else PERIODS[-1][2]})
+        return {"when": when, "at": f"{LABELS[p]} {PERIODS[p][1]}-{PERIODS[p][2]}", "free_by_floor": floors,
+                "note": "Labs are left out: students may not sit in them." if sittable_only else ""}
 
-    def teacher_free_slots(self, teacher_id: str, day: str) -> dict:
-        t = self.college.teacher_by_id.get(teacher_id)
+    def room_status(self, room: str, date: str | None = None, day: str | None = None, time: str | None = None) -> dict:
+        r = STORE.college.room_by_id.get(room)
+        if r is None:
+            return {"error": f"No room '{room}'. Use search first."}
+        p = _period(time)
+        occ, when, _ = self._occ(date, day or (None if date else _today_weekday()))
+        mine = sorted((o for o in occ if o.room == room), key=lambda o: o.start)
+        now = next((o for o in mine if p in o.slots), None)
+        nxt = next((o for o in mine if o.start > p), None)
+        out = {"room": room, "building": r.building, "floor": r.floor, "kind": r.kind, "when": when,
+               "at": f"{LABELS[p]} {PERIODS[p][1]}-{PERIODS[p][2]}", "free": now is None,
+               "students_may_sit_here": r.sittable}
+        if now:
+            out["happening"] = self._describe(now)
+            out["busy_until"] = PERIODS[now.start + now.duration - 1][2]
+        else:
+            out["free_until"] = PERIODS[nxt.start][1] if nxt else PERIODS[-1][2]
+        if nxt:
+            out["next"] = self._describe(nxt)
+        return out
+
+    def teacher_free_slots(self, teacher_id: str, date: str | None = None, day: str | None = None) -> dict:
+        t = STORE.college.teacher_by_id.get(teacher_id)
         if not t:
             return {"error": f"No teacher with id {teacher_id}; use search first."}
-        d = DAYS.index(day)
-        unav = {tuple(u) for u in t.unavailable}
-        busy = {p for e in self.entries_fn() if e.day == d
-                and self.college.lesson_by_id[e.lesson].teacher == teacher_id for p in e.slots}
-        free = [f"{PERIODS[p][0]} {PERIODS[p][1]}-{PERIODS[p][2]}" for p in range(len(PERIODS))
-                if p not in busy and (d, p) not in unav]
-        return {"teacher": t.name, "day": day, "free_periods": free,
-                "note": "not on campus this day" if all((d, p) in unav for p in range(len(PERIODS))) else ""}
+        occ, when, wd = self._occ(date, day or (None if date else _today_weekday()))
+        if wd is None:
+            return {"teacher": t.name, "when": when, "free_periods": []}
+        busy = {p for o in occ if teacher_id in (o.teacher, *o.co_teachers) for p in o.slots}
+        off = {p for d, p in t.unavailable if d == wd}
+        if date:
+            off |= {p for ov in STORE.overrides if ov.kind == "leave" and ov.teacher == teacher_id
+                    and ov.date == to_date(date).isoformat() for p in (ov.periods or range(len(PERIODS)))}
+        free = [f"{LABELS[p]} {PERIODS[p][1]}-{PERIODS[p][2]}" for p in range(len(PERIODS)) if p not in busy | off]
+        return {"teacher": t.name, "when": when, "free_periods": free,
+                "note": "not on campus / on leave" if len(off) == len(PERIODS) else ""}
 
     def _run_tool(self, name: str, args: dict) -> str:
         try:
@@ -139,7 +233,7 @@ class Assistant:
 
     def ask(self, history: list[dict]) -> dict:
         """history: [{role, content: str}] from the UI. Returns {answer, tools_used}."""
-        if not self.entries_fn():
+        if not STORE.entries:
             return {"answer": "No timetable has been generated yet.", "tools_used": []}
         client = anthropic.Anthropic()
         messages: list = [{"role": m["role"], "content": m["content"]} for m in history[-10:]]
