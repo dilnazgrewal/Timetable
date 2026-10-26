@@ -157,6 +157,9 @@ def generate(time_limit: float = 30, user: User = Depends(current_user)) -> dict
         raise HTTPException(409, "A timetable is already being generated.")
     try:
         c = STORE.college
+        if all(l.fixed for l in c.lessons):
+            raise HTTPException(409, "Every department's timetable is imported from the college, so there is nothing to "
+                                     "generate. See the optimised timetables instead.")
         base = solve(c, optimize=False, time_limit=15)
         res = solve(c, time_limit=time_limit)
         if not res.entries:

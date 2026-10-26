@@ -295,9 +295,9 @@ def _renumber(entries: list, lessons: list[Lesson]) -> list:
 
 
 def _central() -> College:
-    """Only the central rooms (halls, lecture theatres, library, central computer labs) of the seed."""
+    """Only the central venues of the seed (seminar halls, auditorium, lecture theatres, library reading room)."""
     seed = _build_seed(["CSE"])
-    keep = [r for r in seed.rooms if r.dept != "CSE" or r.kind == "Seminar Hall"]
+    keep = [r for r in seed.rooms if r.kind in ("Seminar Hall", "Auditorium", "Lecture Theatre", "Study Area")]
     return College(DEPTS, keep, [], [], [], BUILDINGS)
 
 

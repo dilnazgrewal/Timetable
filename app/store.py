@@ -92,7 +92,10 @@ class Store:
             raw["entries"] = [asdict(e) for e in entries]
             raw["issues"], raw["notes"] = split_issues(validate(self.college, entries))
             raw["metrics"] = metrics(self.college, entries)
-            if any(l.fixed for l in self.college.lessons):  # real (imported) vs generated departments
+            if not any(not l.fixed for l in self.college.lessons):  # every department is real (imported)
+                raw["source"] = "Real timetables of every GNDEC department (imported from the FET pages they publish)"
+                raw.pop("compare", None)
+            elif any(l.fixed for l in self.college.lessons):  # real (imported) vs generated departments
                 raw["compare"] = {k: {m: v for m, v in metrics(self.college, entries, fixed=f).items() if m != "teacher_load"}
                                   for k, f in (("real", True), ("generated", False))}
             self.result, self.entries = raw, entries

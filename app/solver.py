@@ -232,11 +232,11 @@ def solve(college: College, time_limit: float = 30.0, optimize: bool = True, wor
 if __name__ == "__main__":
     import sys
 
-    from app.seed import build_college
+    from app.seed import SEED_DEPTS, _build_seed
     from app.validator import metrics, validate
 
     limit = float(sys.argv[1]) if len(sys.argv) > 1 else 30
-    college = build_college()
+    college = _build_seed(SEED_DEPTS)  # the real departments are imported, not generated: demo on the seed
     print(f"{len(college.sections)} sections, {len(college.teachers)} teachers, "
           f"{sum(l.sessions for l in college.lessons)} sessions to place")
     base = solve(college, optimize=False)

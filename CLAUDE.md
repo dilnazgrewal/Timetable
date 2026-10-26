@@ -34,7 +34,7 @@ It is built to be adaptable to any college: a college profile plus importers, wi
 ## Commands
 ```bash
 python -m venv .venv && .venv/Scripts/python -m pip install -r requirements.txt   # setup (Windows)
-.venv/Scripts/python -m app.solver          # solve seeded college from CLI, print status + validator result
+.venv/Scripts/python -m app.solver          # generate the synthetic seeded college from scratch (CLI demo), print status + validator result
 .venv/Scripts/python -m app.importers.fet_dept ALL   # re-import IT/ME/CE/ECE/EE from data/gndec/raw/<dept>/ -> data/gndec/<dept>.json
 .venv/Scripts/python -m app.optimise 300 IT ME      # optimise departments (or ALL) -> data/gndec/<dept>_optimised.json
 .venv/Scripts/python -m uvicorn app.main:app --reload --port 8001   # run app → http://localhost:8001
@@ -94,7 +94,7 @@ Rules for every lane:
   - Numbered classrooms (`S-213` = `S213`) are one room across departments; labs and halls with the same name stay separate (`DBMSLAB (IT)`).
   - A class taught by one department to another's students appears in both exports: it is kept once.
   - Hours a group spends in another department's rooms become fixed placeholders in room `OTHER DEPARTMENT`, so nothing is moved onto them.
-  - Only central halls come from the synthetic seed. The generator (`app/solver.py`) is tested on the fully seeded college.
+  - Only the central venues (seminar halls, auditorium, lecture theatres, library reading room) come from the synthetic seed. The generator (`app/solver.py`) is tested on the fully seeded college.
 - **Sections:** `Section.kind` is `section` or `elective`. Group names that don't follow the department's section pattern (electives, minor courses, other departments' first years) are `elective` audiences.
 - **Student types without lists:** one type per lab group, with `guards`: electives of the same year that may share its students. The validator and optimiser never put a group's class at the same time as a guard, but guards never conflict with each other.
 - **Optimising other departments safely** (rules in `rules.json`):
