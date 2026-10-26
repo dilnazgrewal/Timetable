@@ -6,7 +6,7 @@
 <title>TimeWeave</title>
 <script src="https://cdn.tailwindcss.com/3.4.16"></script>
 <script src="/static/js/shell.js"></script>
-<script src="/static/js/dashboards.js?v=2026-10-26e"></script>
+<script src="/static/js/dashboards.js?v=2026-10-26f"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
 <style>
   [x-cloak] { display: none !important; }
@@ -44,9 +44,10 @@
     <div class="flex items-center gap-2">
       <button x-show="can.mark_own_leave && !leave.open" @click="openLeave(user.teacher_id)"
               class="text-sm px-3 py-1.5 rounded-lg border border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100">🗓 Mark leave</button>
-      <span x-show="tt.ready" class="text-xs px-2 py-1 rounded-full"
+      <!-- issues are for staff only: they come from the published data and are not about a student's own week -->
+      <span x-show="tt.ready && (showInsights || !tt.issues.length)" class="text-xs px-2 py-1 rounded-full"
             :class="tt.issues.length ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-800'"
-            x-text="tt.issues.length ? '✖ ' + tt.issues.length + ' timetable issues' : '✔ Timetable verified: 0 clashes'"></span>
+            :title="issuesHelp()" x-text="issuesLabel()"></span>
     </div>
   </div>
 

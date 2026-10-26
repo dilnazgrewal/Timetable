@@ -122,6 +122,17 @@ function dash() {
       try { this.tt = await TW.api('/api/timetable'); } catch { this.tt = { ready: false }; }
       if (!this.tt.ready) this.tt = { ready: false, issues: [], entries: [] };
     },
+    // header badge (staff see issues; the published data can list one combined class in two departments)
+    teacherClashes() { return (this.tt.issues || []).filter(i => i.startsWith('CLASH Teacher')).length; },
+    issuesLabel() {
+      const n = (this.tt.issues || []).length;
+      if (!n) return '✔ Timetable verified: 0 clashes';
+      return n === this.teacherClashes() ? `⚠ ${n} teacher double-booking${n === 1 ? '' : 's'}, as published` : `✖ ${n} timetable issues`;
+    },
+    issuesHelp() {
+      const n = this.teacherClashes();
+      return n ? `${n} place${n === 1 ? '' : 's'} where a teacher appears in two departments' timetables at once (combined classes, as published).` : '';
+    },
     flash(msg) { this.toast = msg; clearTimeout(this._t); this._t = setTimeout(() => this.toast = '', 3500); },
 
     // ---------------------------------------------------------------- timetable filters
