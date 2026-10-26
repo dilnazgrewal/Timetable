@@ -9,7 +9,7 @@
   const remembered = () => { try { return localStorage.getItem(KEY); } catch { return null; } };
   const remember = id => { try { id ? localStorage.setItem(KEY, id) : localStorage.removeItem(KEY); } catch {} };
   // four kinds of people; the other roles are extra duties shown next to the name
-  const GROUPS = [['Students', ['student', 'club']], ['Teachers', ['teacher', 'coordinator']], ['HODs', ['hod']], ['Admin', ['admin', 'dean', 'org']]];
+  const GROUPS = [['Students', ['student', 'club']], ['Teachers', ['teacher', 'coordinator']], ['HODs', ['hod']], ['Timetable office', ['admin', 'dean', 'org']]];
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const toLogin = () => { location.href = '/login.html?next=' + encodeURIComponent(location.pathname + location.search + location.hash); };
 

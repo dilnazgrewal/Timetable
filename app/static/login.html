@@ -45,20 +45,48 @@
       </div>
 
       <div x-show="role" class="mt-4">
+        <!-- students: department, year, section; then (optional) their group and subjects -->
         <template x-if="role === 'student'">
-          <div class="flex flex-wrap gap-2 mb-2">
-            <select x-model="dept" @change="section = ''" class="border rounded-lg px-2 py-1.5 bg-white text-sm">
-              <option value="">Department…</option>
-              <template x-for="d in depts()" :key="d"><option :value="d" x-text="d"></option></template>
-            </select>
-            <select x-model="section" class="border rounded-lg px-2 py-1.5 bg-white text-sm" :disabled="!dept">
-              <option value="">Section…</option>
-              <template x-for="s in sections()" :key="s"><option :value="s" x-text="s.replaceAll('-', ' ')"></option></template>
-            </select>
+          <div class="space-y-3">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <label class="text-xs text-slate-500">Department
+                <select x-model="dept" @change="year = ''; section = ''; choice = {}" class="mt-0.5 w-full border rounded-lg px-2 py-1.5 bg-white text-sm text-slate-800">
+                  <option value="">Choose…</option>
+                  <template x-for="d in depts()" :key="d"><option :value="d" x-text="d"></option></template>
+                </select></label>
+              <label class="text-xs text-slate-500">Year
+                <select x-model="year" @change="section = ''; choice = {}" :disabled="!dept" class="mt-0.5 w-full border rounded-lg px-2 py-1.5 bg-white text-sm text-slate-800">
+                  <option value="">Choose…</option>
+                  <template x-for="y in years()" :key="y"><option :value="y" x-text="yearLabel(y)"></option></template>
+                </select></label>
+              <label class="text-xs text-slate-500">Section
+                <select x-model="section" @change="pickSection()" :disabled="!year" class="mt-0.5 w-full border rounded-lg px-2 py-1.5 bg-white text-sm text-slate-800">
+                  <option value="">Choose…</option>
+                  <template x-for="x in sections()" :key="x.id"><option :value="x.id" x-text="x.name"></option></template>
+                </select></label>
+            </div>
+            <div x-show="section && keys().length" class="rounded-lg bg-slate-50 border p-3">
+              <div class="text-xs text-slate-500 mb-2">Your group and subjects: we filled in the most common choice, change any that differ for you.</div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <template x-for="k in keys()" :key="k">
+                  <label class="text-xs text-slate-500"><span x-text="k"></span>
+                    <select @change="setChoice(k, $event.target.value)" class="mt-0.5 w-full border rounded-lg px-2 py-1.5 bg-white text-sm text-slate-800">
+                      <template x-for="o in options(k)" :key="o"><option :value="o" :selected="o === choice[k]" x-text="o"></option></template>
+                    </select></label>
+                </template>
+              </div>
+            </div>
+            <button x-show="section" @click="match() && signIn(match().id)" :disabled="!match()"
+                    class="w-full sm:w-auto rounded-lg bg-indigo-600 text-white px-4 py-2 text-sm font-semibold disabled:opacity-50">Show my timetable</button>
+            <div x-show="clubs().length" class="text-xs text-slate-500">Club lead?
+              <template x-for="u in clubs()" :key="u.id">
+                <button @click="signIn(u.id)" class="ml-1 underline text-indigo-700" x-text="u.name.replace(' (student lead)', '')"></button>
+              </template>
+            </div>
           </div>
         </template>
-        <input x-show="role !== 'student'" x-model="q" placeholder="Search by name or department" class="w-full border rounded-lg px-3 py-2 text-sm mb-2">
-        <div class="max-h-80 overflow-y-auto divide-y rounded-lg border">
+        <input x-show="role && role !== 'student'" x-model="q" placeholder="Search by name or department" class="w-full border rounded-lg px-3 py-2 text-sm mb-2">
+        <div x-show="role && role !== 'student'" class="max-h-80 overflow-y-auto divide-y rounded-lg border">
           <template x-for="u in list()" :key="u.id">
             <button @click="signIn(u.id)" class="w-full text-left px-3 py-2 text-sm hover:bg-indigo-50">
               <span x-text="label(u)"></span>
@@ -66,9 +94,7 @@
               <span x-show="u.dept && role !== 'student'" class="text-xs text-slate-400" x-text="' · ' + u.dept"></span>
             </button>
           </template>
-          <div x-show="!list().length" class="px-3 py-3 text-sm text-slate-400"
-               x-text="role === 'student' ? 'Pick your department and section.' : 'No match.'"></div>
-          <div x-show="role === 'student' && !section && list().length" class="px-3 py-2 text-xs text-slate-400">Pick your department and section to find your class.</div>
+          <div x-show="!list().length" class="px-3 py-3 text-sm text-slate-400">No match.</div>
         </div>
       </div>
       <p x-show="error" class="mt-2 text-sm text-red-700" x-text="error"></p>
@@ -79,13 +105,14 @@
 <script>
 function loginApp() {
   return {
-    demo: false, loaded: false, accounts: { roles: {}, role_names: {} }, role: '', q: '', dept: '', section: '', error: '',
-    // four kinds of people; club lead, timetable coordinator, Dean and the offices are extra duties
+    demo: false, loaded: false, accounts: { roles: {}, role_names: {} }, role: '', q: '', dept: '', year: '', section: '',
+    choice: {}, error: '',
+    // four roles; club lead, timetable coordinator, Dean and the offices are extra duties inside them
     groups: {
       student: { name: 'Student', roles: ['club', 'student'], about: 'Your timetable, free rooms, meet a teacher (club leads too)' },
       teacher: { name: 'Teacher', roles: ['teacher', 'coordinator'], about: 'Your schedule, leave, meetings, venues (timetable coordinators too)' },
       hod: { name: 'HOD', roles: ['hod'], about: 'Your department: substitutions, venue approvals, optimised timetable' },
-      admin: { name: 'Admin', roles: ['admin', 'dean', 'org'], about: 'Timetable office, Dean, Training & Placement, visitors' },
+      admin: { name: 'Timetable office', roles: ['admin', 'dean', 'org'], about: 'Publishes timetables; also the Dean, T&P cell and visitors' },
     },
     next() { const n = new URLSearchParams(location.search).get('next'); return n && n.startsWith('/') && !n.startsWith('//') ? n : '/'; },
     async init() {
@@ -97,9 +124,36 @@ function loginApp() {
     },
     pick(r) { this.role = r; this.q = ''; this.error = ''; },
     students() { return this.accounts.roles.student || []; },
+    clubs() { return this.accounts.roles.club || []; },
     depts() { return [...new Set(this.students().map(u => u.dept))].sort(); },
-    sections() { return [...new Set(this.students().filter(u => u.dept === this.dept).map(u => this.sectionOf(u)))].sort(); },
-    sectionOf(u) { return u.section || ''; },
+    years() { return [...new Set(this.students().filter(u => u.dept === this.dept).map(u => String(u.year)))].sort(); },
+    yearLabel(y) { return { 1: '1st year', 2: '2nd year', 3: '3rd year', 4: '4th year', 5: 'M.Tech', 6: 'PhD' }[y] || y; },
+    sections() {
+      const seen = {};
+      this.students().filter(u => u.dept === this.dept && String(u.year) === this.year).forEach(u => seen[u.section] = u.section_name);
+      return Object.entries(seen).map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name));
+    },
+    types() { return this.students().filter(u => u.section === this.section); },
+    keys() { const t = this.types()[0]; return t ? Object.keys(t.details || {}) : []; },
+    fits(t, upto) { return this.keys().slice(0, upto).every(k => t.details[k] === this.choice[k]); },
+    options(k) {  // only choices that exist together with the ones above it
+      const i = this.keys().indexOf(k);
+      return [...new Set(this.types().filter(t => this.fits(t, i)).map(t => t.details[k]))].sort();
+    },
+    fill() {  // keep every choice valid, preferring the most common combination
+      const keys = this.keys();
+      keys.forEach((k, i) => {
+        const ok = this.types().filter(t => this.fits(t, i));
+        if (!ok.some(t => t.details[k] === this.choice[k])) {
+          const best = ok.reduce((a, t) => (t.count || 0) > (a.count || 0) ? t : a, ok[0]);
+          this.choice[k] = best ? best.details[k] : '';
+        }
+      });
+      this.choice = { ...this.choice };
+    },
+    pickSection() { this.choice = {}; this.fill(); },
+    setChoice(k, v) { this.choice[k] = v; this.fill(); },
+    match() { return this.types().find(t => this.keys().every(k => t.details[k] === this.choice[k])); },
     label(u) { return u.role === 'student' ? u.name.replace(/^Student · /, '').replace(/^[^·]+· /, '') : u.name; },
     duty(u) { return u.role === this.groups[this.role].roles.find(r => r === 'student' || r === 'teacher' || r === 'hod' || r === 'admin') ? '' : (this.accounts.role_names[u.role] || ''); },
     list() {

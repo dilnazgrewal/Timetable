@@ -77,9 +77,14 @@ def me(user: User = Depends(current_user)) -> dict:
 
 
 def _accounts() -> dict:
+    c = STORE.college
     groups: dict[str, list[dict]] = {}
     for u in STORE.users.values():
-        groups.setdefault(u.role, []).append({"id": u.id, "name": u.name, "dept": u.dept, "section": u.section})
+        a = {"id": u.id, "name": u.name, "dept": u.dept, "section": u.section}
+        if u.student_type and (t := c.type_by_id.get(u.student_type)) and (s := c.section_by_id.get(t.section)):
+            # for sign-in: year, section, then the student's group and subjects
+            a.update(year=s.year, section_name=s.name, details=t.details, count=t.count)
+        groups.setdefault(u.role, []).append(a)
     return {"roles": groups, "role_names": ROLES, "clubs": [asdict(c) for c in STORE.clubs.values()]}
 
 
