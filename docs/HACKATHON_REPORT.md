@@ -5,8 +5,9 @@
 > **How it was checked:** every claim comes from the repository (code, docs, git history), the test suite, or a command run on **Mon 26 Oct 2026**. Nothing is from memory. The commands are listed under [Sources](#18-sources). Anything that could not be confirmed yet is listed under [Pending](#19-pending).
 >
 > **State of the repo when this was written:**
-> - Final numbers are from commit `3acc154` (26 Oct 2026; 47 commits up to and including it). That commit imports D4's open elective from the FET *groups* page and re-optimises CSE around it.
-> - **All 87 tests pass** on that commit.
+> - Final numbers are from commit `becb48e` (26 Oct 2026; 49 commits up to and including it). That commit adds the rule "a teacher's lab for two groups of one class stays on two days" and re-optimises CSE.
+> - The commit before it, `3acc154`, imported D4's open elective from the FET *groups* page.
+> - **All 88 tests pass** on `becb48e`.
 
 ---
 
@@ -54,7 +55,7 @@ What it does:
 - **State:** in memory, persisted to JSON files.
 - **Chatbot:** Anthropic SDK, model `claude-opus-5-5` at low effort.
 
-**Tests:** **87 automated tests, all 87 pass** (commit `3acc154`; see [11](#11-testing-every-test-and-the-edge-case-it-covers)).
+**Tests:** **88 automated tests, all 88 pass** (commit `becb48e`; see [11](#11-testing-every-test-and-the-edge-case-it-covers)).
 
 ---
 
@@ -235,7 +236,7 @@ Seed data ──────────► other departments (IT, ECE, ME, CE, 
 ---
 
 ## 5. Feature list (everything built)
-Status as of commit `3acc154`. ✅ built and committed · ⬜ designed, not built.
+Status as of commit `becb48e`. ✅ built and committed · ⬜ designed, not built.
 
 ### 5.1 Core and data (Lane A)
 | # | Feature | Status |
@@ -252,6 +253,7 @@ Status as of commit `3acc154`. ✅ built and committed · ⬜ designed, not buil
 | A9 | Free-room finder: by day or real date, building, floor, sittable-only, capacity; "free until"; booking-aware | ✅ |
 | A10 | Leave and ranked substitutes, with notifications to the substitute, the absent teacher and the students | ✅ |
 | A11 | Optimiser for the real CSE timetable: same lessons, never worse, large-neighbourhood search | ✅ |
+| A11b | Rule: a teacher's lab for two groups of one class stays on two different days (e.g. SC Lab A1 / A2); `lab_same_day` metric; card on the compare page | ✅ |
 | A12 | Propose (department) → publish / unpublish (timetable office), re-validated on publish | ✅ |
 | A13 | Sign-in (session cookie, demo accounts), 8 roles, PERMISSIONS table, capabilities, audit log | ✅ |
 | A14 | In-app notifications (🔔 in the shared top bar) | ✅ |
@@ -349,6 +351,7 @@ One free period in the lunch window is the lunch break, not idle time.
 | Students | idle periods (total, per day, worst gap), single-lecture days, days with no lunch, days over 6 periods |
 | Teachers | streak days (4+ in a row), no-lunch days, idle periods, load |
 | Rooms and late classes | late sessions (P9), classroom and lab utilisation |
+| Lab pairs | `lab_same_day`: how often a teacher's lab for two groups of one class falls on the same day |
 
 ### 6.3 Optimising the real CSE timetable (`app/optimise.py`, page `/compare.html`)
 **Kept exactly as the college decided:**
@@ -367,6 +370,16 @@ One free period in the lunch window is the lunch break, not idle time.
 
 Pinned sessions occupy teachers, groups and rooms as constants.
 
+**Lab pairs on different days** (commit `becb48e`; a student reported it):
+- **The problem:** in an earlier optimised run, Soft Computing lab A1 and A2 were both on Friday with the same teacher.
+- **Lab pairs:** `College.lab_pairs()` in `app/models.py` finds pairs of labs one teacher gives to two groups of the same class, e.g. "SC Lab A1" / "SC Lab A2", or D2 CS B's OOP Lab for B1 and for B2. There are 86 pairs in the college, 54 of them in CSE.
+- **The rule:** wherever the college already keeps a pair on different days, the optimiser forbids putting both on one day (a hard constraint).
+- **Existing same-day pairs:** the college itself has 12 same-day pairs (mostly 2nd year, e.g. D2 CS B's OOP lab with both groups on Friday). Those may stay, so the college's own timetable is still a valid starting point.
+- **Result:**
+  - SC Lab A1 Thu 10:30 and A2 Fri 10:30 (teacher DN)
+  - ACC Lab A1 Mon 2:30 and A2 Tue 12:30
+  - same-day pairs 12 → 10
+
 **Never worse:** the college's own numbers are hard ceilings for:
 - days with no free midday hour (students and teachers)
 - student waiting periods
@@ -374,6 +387,7 @@ Pinned sessions occupy teachers, groups and rooms as constants.
 - classes in the 4:30–5:30 slot
 - days over 6 periods
 - single-lecture days
+- the same lab for two groups on one day (`lab_same_day`), via the rule above
 
 Within the ceilings it minimises (weighted):
 
@@ -617,10 +631,10 @@ Generated part, first feasible solution ("baseline") vs optimised:
 | Classes in the 4:30–5:30 slot | 7 | 0 |
 
 ### 10.3 Optimised CSE timetable (same lessons, better times)
-**Final result** (commit `3acc154`, `data/gndec/cse_optimised.json`):
-- a 15-minute run (896 s) with the open elective and the two-room mentoring class pinned
+**Final result** (commit `becb48e`, `data/gndec/cse_optimised.json`):
+- a 15-minute run (900.7 s) with the open elective and the two-room mentoring class pinned, and the lab-pair rule on
 - status IMPROVED
-- **326 sessions moved, 69 pinned**
+- **307 sessions moved, 69 pinned**
 - 537 sessions in total
 
 | Measure (CSE only, per real student type) | College (published) | TimeWeave optimised |
@@ -629,19 +643,19 @@ Generated part, first feasible solution ("baseline") vs optimised:
 | Student waiting periods per week | 181 | **81** (−55%) |
 | Waiting periods per student day | 0.29 | **0.13** |
 | Student-type days with **no free hour 11:30–2:30** | 44 | **0** |
-| Single-lecture days | 11 | **10** |
-| Student-type days over 6 periods | 280 | **265** |
-| Teacher waiting periods | 314 | **91** (−71%) |
-| Teacher days with 4+ lectures in a row | 5 | **4** |
+| Single-lecture days | 11 | **9** |
+| Student-type days over 6 periods | 280 | **263** |
+| Teacher waiting periods | 314 | **109** (−65%) |
+| Teacher days with 4+ lectures in a row | 5 | **1** |
 | Teacher days with no free hour 11:30–2:30 | 5 | **1** |
+| Same lab for two groups on one day (`lab_same_day`) | 12 | **10** |
 | Classes after 4:30 (4:30–5:30 slot) | 7 | 7 (pinned mentoring) |
 | Worst gap | 4 | 4 |
 | Room use (classrooms / labs) | 17.8% / 29.9% | 17.8% / 29.9% (same rooms) |
 
-**Why the numbers changed from the earlier run:**
-- An earlier committed run (`aac5df1`) showed waiting periods 181 → **16**. That was measured **without** the open elective.
-- Three 8:30 classes a week for all of D4 (OE-II, which can't be moved) make some longer waits unavoidable, so **81 is the honest number**.
-- The college column changed slightly too, because the open elective is now counted.
+**Why the numbers changed between runs:**
+- **The `aac5df1` run** showed waiting periods 181 → **16**. That was measured **without** the open elective. Three 8:30 classes a week for all of D4 (OE-II, which can't be moved) make some longer waits unavoidable, so **81 is the honest number**. The college column changed slightly too, because the open elective is now counted.
+- **The `3acc154` run** had teacher waiting periods 314 → 91, but it put SC Lab A1 and A2 on the same day (reported by a student). The lab-pair rule fixes that. It restricts which days labs can go on, so teacher waiting periods are now **109**: a small, deliberate trade.
 
 **Publishing is guarded.** While the re-run was going on, the saved optimised file briefly had 1 clash (a moved class overlapping the newly pinned OE-II), and publishing was correctly refused with 409.
 
@@ -654,7 +668,8 @@ Commands: `.venv/Scripts/python -m pytest -q -rA` and `pytest --collect-only -q`
 
 | Code state | Tests | Passed | Failed | Time |
 |---|---|---|---|---|
-| **Final: commit `3acc154`** | 87 | **87** | **0** | 28 s |
+| **Final: commit `becb48e`** | 88 | **88** | **0** | 67 s |
+| Earlier: commit `3acc154` (before the lab-pair test) | 87 | 87 | 0 | 28 s |
 | Earlier: commit `aac5df1` (before the 3 groups-page tests) | 84 | 84 | 0 | 64 s |
 
 | File | Lane | Tests | Pass |
@@ -665,20 +680,20 @@ Commands: `.venv/Scripts/python -m pytest -q -rA` and `pytest --collect-only -q`
 | `tests/test_core_students.py` | A | 6 | 6 |
 | `tests/test_core_store.py` | A | 4 | 4 |
 | `tests/test_core_substitutions.py` | A | 4 | 4 |
-| `tests/test_core_optimise.py` | A | 2 | 2 |
-| **Lane A total** | | **52** | **52** |
+| `tests/test_core_optimise.py` | A | 3 (1 added in `becb48e`) | 3 |
+| **Lane A total** | | **53** | **53** |
 | `tests/test_dashboards_api.py` | B | **14** | 14 |
 | `tests/test_venues_approvals.py` | C | 7 | 7 |
 | `tests/test_venues_ranking.py` | C | 8 (incl. 4 parametrised) | 8 |
 | `tests/test_venues_slots.py` | C | 6 | 6 |
 | **Lane C total** | | **21** | 21 |
-| **Overall** | | **87** | **87** |
+| **Overall** | | **88** | **88** |
 
 **Note:** while the optimiser re-run was in progress, 2 tests failed as expected:
 - `test_core_optimise.py::test_no_clashes_and_never_worse`
 - `test_core_permissions.py::test_propose_publish_unpublish_keeps_zero_clashes`
 
-The saved optimised timetable didn't yet fit around the newly pinned open elective, and publishing was refused with 409. Both pass on `3acc154`. This shows the tests catch a stale optimised timetable.
+The saved optimised timetable didn't yet fit around the newly pinned open elective, and publishing was refused with 409. Both pass from `3acc154` on. This shows the tests catch a stale optimised timetable.
 
 **Test hygiene (applies to all files):**
 - **Tests never write to `data/`:** every test that changes state monkeypatches `app.store.STATE` to a pytest temp folder. One dashboards test checks this (`STATE.exists()` in the temp path). The permissions tests also restore the published state, audit log and notifications after each test.
@@ -758,13 +773,14 @@ These are "testing the tester": mutation tests inject each kind of mistake and c
 | `test_substitute_is_not_offered_twice_at_the_same_time` | A teacher already substituting at that time is no longer offered for another class at the same time |
 | `test_permissions` | A teacher may mark their own leave but not a colleague's; HOD yes, other department's HOD no; only department staff create overrides; students never |
 
-### 11.8 `tests/test_core_optimise.py`: optimised real CSE timetable (2)
+### 11.8 `tests/test_core_optimise.py`: optimised real CSE timetable (3)
 | Test | What it checks · edge case |
 |---|---|
 | `test_same_lessons_only_times_change` | The same lessons with the same number and length of sessions; every room is of the kind the lesson needs; **pinned sessions (M.Tech, PhD, mentoring) are exactly where the college put them** |
-| `test_no_clashes_and_never_worse` | Checked per real student type: 0 clashes; **never worse** on 7 measures (waiting periods, no-lunch days for students and teachers, teacher streak days, late sessions, long days, single-lecture days); strictly better on waiting periods; **the numbers saved in the file are honest** (they equal a fresh measurement) |
+| `test_no_clashes_and_never_worse` | Checked per real student type: 0 clashes; **never worse** on 8 measures (waiting periods, no-lunch days for students and teachers, teacher streak days, late sessions, long days, single-lecture days, same lab for two groups on one day); strictly better on waiting periods; **the numbers saved in the file are honest** (they equal a fresh measurement) |
+| `test_a_teachers_lab_for_two_groups_stays_on_two_days` | *(added in `becb48e`, after a student's report)* Every lab pair the college keeps on different days stays on different days after optimising; **SC Lab A1 / A2 is a known pair** (the case the student pointed out). Edge case: pairs the college itself has on one day may stay, so "never worse" still holds |
 
-(Both skip cleanly if no optimised timetable has been saved yet.)
+(All three skip cleanly if no optimised timetable has been saved yet.)
 
 ### 11.9 `tests/test_dashboards_api.py`: Lane B (14)
 Runs against a freshly solved seed college, with state in a temp file.
@@ -825,7 +841,7 @@ Runs against a freshly solved seed college, with state in a temp file.
 ---
 
 ## 12. Timeline: how it was built
-From `git log` (47 commits up to `3acc154`). Commits per day: 21 Oct 15 · 22 Oct 14 · 26 Oct 18.
+From `git log` (49 commits up to `becb48e`, including 2 commits of this report). Commits per day: 21 Oct 15 · 22 Oct 14 · 26 Oct 20.
 
 ### Day 1: Wed 21 Oct, prototype (v0.1), demo at 4 PM
 - Scaffold, `CLAUDE.md`, plan.
@@ -864,7 +880,7 @@ From `git log` (47 commits up to `3acc154`). Commits per day: 21 Oct 15 · 22 Oc
   - clubs get the slot finder
   - events booked for a batch notify its students
   - `TW.can` and sign-in
-- **Lane A, last:** the FET groups page (open elective OE-II, the two-room mentoring class; fixes ERP missing from students' timetables) and a 15-minute re-optimisation around it (`3acc154`). This report was committed alongside.
+- **Lane A, last:** the FET groups page (open elective OE-II, the two-room mentoring class; fixes ERP missing from students' timetables) and a 15-minute re-optimisation around it (`3acc154`). Then the lab-pair rule (SC Lab A1 / A2 stay on two days, reported by a student) and another 15-minute re-optimisation (`becb48e`). This report was committed alongside.
 
 ### Cross-lane requests (`docs/REQUESTS.md`)
 11 entries:
@@ -935,9 +951,10 @@ Suggested, about 5 minutes. Built only from features listed above.
 6. **Event slot finder as T&P:** D4 CS for a 2-hour talk: slots where every group is free, venues attached, lunch protected, and "nearly free" times showing who would miss which class. **Book this** notifies the batch.
 7. **Optimised CSE timetable** (`/compare.html`, as the CSE HOD): college vs optimised, side by side.
    - Same lessons, times only.
-   - Student waiting periods 181 → 81, no-lunch days 44 → 0, teacher waiting periods 314 → 91, 0 clashes.
+   - Student waiting periods 181 → 81, no-lunch days 44 → 0, teacher waiting periods 314 → 109, 0 clashes.
+   - Show the "Same lab for two groups on one day" card: SC Lab A1 Thursday, A2 Friday.
    - **Propose**, then as the admin **Publish**; the validator re-checks it.
-8. **Trust:** the independent validator, 87 automated tests, and the audit log (`/audit.html` as the Dean) showing a refused action.
+8. **Trust:** the independent validator, 88 automated tests, and the audit log (`/audit.html` as the Dean) showing a refused action.
 9. **Ask TimeWeave** (optional, uses API credit): "Will G17 be free at 12:30 on Friday?"
 
 ---
@@ -967,7 +984,8 @@ Suggested, about 5 minutes. Built only from features listed above.
 **Optimiser:**
 - Built for CSE (the `/api/compare/cse` routes are CSE-specific).
 - 7 classes in the 4:30–5:30 slot stay (pinned mentoring).
-- Days over 6 periods improve only partly (280 → 265), because D3 groups have 36 periods a week.
+- Days over 6 periods improve only partly (280 → 263), because D3 groups have 36 periods a week.
+- 10 lab pairs stay on one day, because the college itself schedules them that way (12 in the college's version), mostly in 2nd year. The rule only keeps apart pairs the college already splits.
 - Three fixed 8:30 open-elective classes a week for all of D4 limit how far waiting periods can drop (181 → 81).
 
 **Open cross-lane request:** a `leave_board` capability for the Dean.
@@ -991,12 +1009,13 @@ Suggested, about 5 minutes. Built only from features listed above.
 | **164** | student types, so every real student's timetable is exact |
 | **44 → 0** | CSE student-days with no midday break: college vs optimised |
 | **181 → 81** | CSE student waiting periods per week (−55%), same lessons, 0 clashes |
-| **314 → 91** | CSE teacher waiting periods per week (−71%) |
+| **314 → 109** | CSE teacher waiting periods per week (−65%) |
+| **5 → 1** | CSE teacher-days with 4+ lectures in a row |
 | **1.34 → 0.00** | idle periods per day in generated departments (first feasible vs optimised) |
 | **8** | roles, with a deny-by-default permission table and an audit log |
 | **35** | API routes |
-| **87 / 87** | automated tests passing |
-| **3** | parallel build lanes, 47 commits |
+| **88 / 88** | automated tests passing |
+| **3** | parallel build lanes, 49 commits |
 
 ---
 
@@ -1016,9 +1035,11 @@ Suggested, about 5 minutes. Built only from features listed above.
 - **Not read:** `data/private/`
 
 **Commands (26 Oct 2026):**
-- `pytest -q` on commit `3acc154`: **87 passed** (final)
+- `pytest -q` on commit `becb48e`: **88 passed** (final)
+- `pytest -q` on commit `3acc154`: 87 passed
+- a Python check of `College.lab_pairs()` (86 pairs, 54 in CSE) and of the SC/ACC lab days in the optimised file
 - earlier: `pytest -q -rA` on the working tree before the re-run (85 passed, 2 failed as expected) and on a clean checkout of `aac5df1` (84 passed)
-- `pytest --collect-only -q` (87 tests)
+- `pytest --collect-only -q` (87 tests at `3acc154`; 88 at `becb48e`)
 - a Python check printing college counts, metrics and `compare` from `app.store.STORE`
 - `git log`, `git log --stat`, `git diff --stat`, `git status`
 
@@ -1029,8 +1050,8 @@ Suggested, about 5 minutes. Built only from features listed above.
 ---
 
 ## 19. Pending
-**Resolved on 26 Oct** (after commit `3acc154`):
-- Final test totals: **87 / 87 pass** (re-run here).
+**Resolved on 26 Oct** (after commit `becb48e`):
+- Final test totals: **88 / 88 pass** (re-run here).
 - Final optimised CSE numbers (§10.3, §17): checked against the committed `data/gndec/cse_optimised.json`.
 - College counts (§4, §7.1): these were measured on data that already included the open-elective import. They match the committed `data/gndec/cse.json` (41 rooms, 62 teachers, 26 sections, 318 lessons, 537 sessions).
 - The 3 groups-page tests are committed.
