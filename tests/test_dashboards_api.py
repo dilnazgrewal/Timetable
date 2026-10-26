@@ -111,7 +111,7 @@ def test_every_department_has_a_view(client, store):
 def test_teacher_and_room_views(client, store):
     t, _ = busy_teacher(store)
     items = client.get(f"/api/dash/views?teacher={t.id}").json()["items"]
-    assert items and all(i["teacher"] == t.id for i in items)
+    assert items and all(i["teacher"] == t.id or t.id in i["co_teachers"] for i in items)  # co-taught labs count
     room = items[0]["room"]
     assert all(i["room"] == room for i in client.get(f"/api/dash/views?room={room}").json()["items"])
 

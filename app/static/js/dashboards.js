@@ -127,19 +127,21 @@ function dash() {
     // ---------------------------------------------------------------- timetable filters
     deptOptions() {
       if (!this.meta) return [];
-      const withSections = new Set(this.meta.sections.map(s => s.dept));
+      const withSections = new Set(this.meta.sections.filter(s => s.kind !== 'elective').map(s => s.dept));
       if (['student', 'section', 'year'].includes(this.f.by)) return this.meta.departments.filter(d => withSections.has(d.code));
-      if (this.f.by === 'room') return [...this.meta.departments.filter(d => this.meta.rooms.some(r => r.dept === d.code)),
+      if (this.f.by === 'room') return [...this.meta.departments.filter(d => this.meta.rooms.some(r => r.dept === d.code && r.kind !== 'Other department')),
                                         { code: 'CENTRAL', name: 'Shared / central' }];
       return this.meta.departments;
     },
-    yearOptions() { return [...new Set((this.meta?.sections || []).filter(s => s.dept === this.f.dept).map(s => s.year))].sort(); },
+    yearOptions() { return [...new Set((this.meta?.sections || []).filter(s => s.dept === this.f.dept && s.kind !== 'elective').map(s => s.year))].sort(); },
     sectionOptions() {
-      return (this.meta?.sections || []).filter(s => s.dept === this.f.dept && (this.f.by === 'section' || this.f.by === 'student' ? true : String(s.year) === String(this.f.year)));
+      // real class sections only: elective audiences (kind "elective") have no student types of their own
+      return (this.meta?.sections || []).filter(s => s.dept === this.f.dept && s.kind !== 'elective' && (this.f.by === 'section' || this.f.by === 'student' ? true : String(s.year) === String(this.f.year)));
     },
     studentOptions() { return (this.meta?.student_types || []).filter(t => t.section === this.f.section); },
     teacherOptions() { return (this.meta?.teachers || []).filter(t => t.dept === this.f.dept); },
-    roomOptions() { return (this.meta?.rooms || []).filter(r => (this.f.dept === 'CENTRAL' ? !r.dept : r.dept === this.f.dept)); },
+    // "Other department" rooms are placeholders for classes taught elsewhere, not real rooms
+    roomOptions() { return (this.meta?.rooms || []).filter(r => r.kind !== 'Other department' && (this.f.dept === 'CENTRAL' ? !r.dept : r.dept === this.f.dept)); },
     yearLabel(y) { return { 1: '1st year', 2: '2nd year', 3: '3rd year', 4: '4th year' }[y] || `Year ${y}`; },
     // "D4 CS A · A2 · CV · SC A1 group · TA A3" -> "A2 · CV · SC A1 group · TA A3"
     typeLabel(t) { return t ? t.name.split(' · ').slice(1).join(' · ') || t.name : ''; },
@@ -416,7 +418,7 @@ function dash() {
       return out.filter(b => b.floors.length);
     },
     floorName(f) { return f === 'Ground' ? 'Ground floor' : f ? `${f} floor` : 'Floor not set'; },
-    buildingRooms(bid) { return (this.meta?.rooms || []).filter(r => r.building === bid); },
+    buildingRooms(bid) { return (this.meta?.rooms || []).filter(r => r.building === bid && r.kind !== 'Other department'); },
     features(r) { return (r.features || []).map(f => FEATURE_ICON[f] || '').join(' '); },
     isWeekend(s) { const d = new Date(s + 'T12:00').getDay(); return d === 0 || d === 6; },
 
