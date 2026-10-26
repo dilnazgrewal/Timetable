@@ -1443,7 +1443,7 @@
   {
    "id": "CSE:0003",
    "code": "ERP",
-   "name": "Enterprise Resource Planning",
+   "name": "Entrepreneurship Practices",
    "kind": "theory",
    "dept": "CSE",
    "teacher": "ME-ManjotSinghBedi",
@@ -1475,7 +1475,7 @@
    "kind": "theory",
    "dept": "CSE",
    "teacher": "KC",
-   "section": "D4 CS (combined)",
+   "section": "D4 CS \u00b7 5 groups",
    "batches": [
     "D4-CS-A-A4",
     "D4-CS-B-B4",
@@ -1525,11 +1525,11 @@
   {
    "id": "CSE:0006",
    "code": "DWBI Group A",
-   "name": "Data Warehousing & Business Intelligencegroup A)",
+   "name": "Data Warehousing & Business Intelligence (group A)",
    "kind": "theory",
    "dept": "CSE",
    "teacher": "KWK",
-   "section": "D3 CS (combined)",
+   "section": "D3 CS \u00b7 6 groups",
    "batches": [
     "D3-CS-A-A5",
     "D3-CS-B-B5",
@@ -1703,7 +1703,7 @@
    "kind": "theory",
    "dept": "CSE",
    "teacher": "MKG",
-   "section": "D4 CS (combined)",
+   "section": "D4 CS \u00b7 5 groups",
    "batches": [
     "D4-CS-A-A1",
     "D4-CS-B-B1",
@@ -1725,11 +1725,11 @@
   {
    "id": "CSE:0014",
    "code": "GAI Group A",
-   "name": "Generative AIgroup A)",
+   "name": "Generative AI (group A)",
    "kind": "theory",
    "dept": "CSE",
    "teacher": "JSK",
-   "section": "D3 CS (combined)",
+   "section": "D3 CS \u00b7 6 groups",
    "batches": [
     "D3-CS-A-A2",
     "D3-CS-B-B2",
@@ -2079,7 +2079,7 @@
    "kind": "theory",
    "dept": "CSE",
    "teacher": "KD",
-   "section": "D3 CS (combined)",
+   "section": "D3 CS \u00b7 3 groups",
    "batches": [
     "D3-CS-A-A1",
     "D3-CS-A-A2",
@@ -2105,7 +2105,7 @@
    "kind": "theory",
    "dept": "CSE",
    "teacher": "PA",
-   "section": "D3 CS (combined)",
+   "section": "D3 CS \u00b7 3 groups",
    "batches": [
     "D3-CS-D-D1",
     "D3-CS-D-D2",
@@ -2131,7 +2131,7 @@
    "kind": "theory",
    "dept": "CSE",
    "teacher": "DN",
-   "section": "D3 CS (combined)",
+   "section": "D3 CS \u00b7 3 groups",
    "batches": [
     "D3-CS-C-C1",
     "D3-CS-C-C2",
@@ -2304,11 +2304,11 @@
   {
    "id": "CSE:0037",
    "code": "CNS Group A",
-   "name": "Cryptography & Network Securitygroup A)",
+   "name": "Cryptography & Network Security (group A)",
    "kind": "theory",
    "dept": "CSE",
    "teacher": "NY",
-   "section": "D3 CS (combined)",
+   "section": "D3 CS \u00b7 6 groups",
    "batches": [
     "D3-CS-A-A4",
     "D3-CS-B-B4",
@@ -2467,7 +2467,7 @@
    "kind": "theory",
    "dept": "CSE",
    "teacher": "DN",
-   "section": "D4 CS (combined)",
+   "section": "D4 CS \u00b7 5 groups",
    "batches": [
     "D4-CS-A-A2",
     "D4-CS-B-B2",
@@ -2617,7 +2617,7 @@
    "kind": "theory",
    "dept": "CSE",
    "teacher": "HSK",
-   "section": "D4 CS (combined)",
+   "section": "D4 CS \u00b7 5 groups",
    "batches": [
     "D4-CS-A-A2",
     "D4-CS-B-B2",
@@ -2834,7 +2834,7 @@
    "kind": "theory",
    "dept": "CSE",
    "teacher": "MKM",
-   "section": "D3 CS (combined)",
+   "section": "D3 CS \u00b7 3 groups",
    "batches": [
     "D3-CS-B-B1",
     "D3-CS-B-B2",
@@ -2884,7 +2884,7 @@
    "kind": "theory",
    "dept": "CSE",
    "teacher": "DS",
-   "section": "D3 CS (combined)",
+   "section": "D3 CS \u00b7 3 groups",
    "batches": [
     "D3-CS-E-E1",
     "D3-CS-E-E2",
@@ -2993,7 +2993,7 @@
    "kind": "theory",
    "dept": "CSE",
    "teacher": "AJ",
-   "section": "D4 CS (combined)",
+   "section": "D4 CS \u00b7 5 groups",
    "batches": [
     "D4-CS-A-A3",
     "D4-CS-B-B3",
@@ -3059,7 +3059,7 @@
   {
    "id": "CSE:0067",
    "code": "ERP",
-   "name": "Enterprise Resource Planning",
+   "name": "Entrepreneurship Practices",
    "kind": "theory",
    "dept": "CSE",
    "teacher": "ME-ManjotSinghBedi",
@@ -3142,7 +3142,7 @@
    "kind": "theory",
    "dept": "CSE",
    "teacher": "KC",
-   "section": "D4 CS (combined)",
+   "section": "D4 CS \u00b7 5 groups",
    "batches": [
     "D4-CS-A-A4",
     "D4-CS-B-B4",
@@ -3165,7 +3165,7 @@
   {
    "id": "CSE:0071",
    "code": "ERP",
-   "name": "Enterprise Resource Planning",
+   "name": "Entrepreneurship Practices",
    "kind": "theory",
    "dept": "CSE",
    "teacher": "ME-KawalpreetSahni",
@@ -3216,11 +3216,11 @@
   {
    "id": "CSE:0073",
    "code": "CNS Group B",
-   "name": "Cryptography & Network Securitygroup B)",
+   "name": "Cryptography & Network Security (group B)",
    "kind": "theory",
    "dept": "CSE",
    "teacher": "AKS",
-   "section": "D3 CS (combined)",
+   "section": "D3 CS \u00b7 6 groups",
    "batches": [
     "D3-CS-A-A3",
     "D3-CS-B-B3",
@@ -3244,11 +3244,11 @@
   {
    "id": "CSE:0074",
    "code": "OOAD Group A",
-   "name": "Object Oriented Analysis & Designgroup A)",
+   "name": "Object Oriented Analysis & Design (group A)",
    "kind": "theory",
    "dept": "CSE",
    "teacher": "DS",
-   "section": "D3 CS (combined)",
+   "section": "D3 CS \u00b7 6 groups",
    "batches": [
     "D3-CS-A-A6",
     "D3-CS-B-B6",
@@ -3296,7 +3296,7 @@
   {
    "id": "CSE:0076",
    "code": "ERP",
-   "name": "Enterprise Resource Planning",
+   "name": "Entrepreneurship Practices",
    "kind": "theory",
    "dept": "CSE",
    "teacher": "ME-KawalpreetSahni",
@@ -3348,7 +3348,7 @@
   {
    "id": "CSE:0078",
    "code": "ERP",
-   "name": "Enterprise Resource Planning",
+   "name": "Entrepreneurship Practices",
    "kind": "theory",
    "dept": "CSE",
    "teacher": "ME-ManjotSinghBedi",
@@ -3537,7 +3537,7 @@
    "kind": "theory",
    "dept": "CSE",
    "teacher": "SH",
-   "section": "D4 CS (combined)",
+   "section": "D4 CS \u00b7 3 groups",
    "batches": [
     "D4-CS-B-B1",
     "D4-CS-B-B2",
@@ -3608,7 +3608,7 @@
    "kind": "theory",
    "dept": "CSE",
    "teacher": "AJ",
-   "section": "D4 CS (combined)",
+   "section": "D4 CS \u00b7 5 groups",
    "batches": [
     "D4-CS-A-A3",
     "D4-CS-B-B3",
@@ -3955,7 +3955,7 @@
    "kind": "theory",
    "dept": "CSE",
    "teacher": "JST",
-   "section": "D4 CS (combined)",
+   "section": "D4 CS \u00b7 5 groups",
    "batches": [
     "D4-CS-A-A3",
     "D4-CS-B-B3",
@@ -3977,7 +3977,7 @@
   {
    "id": "CSE:0103",
    "code": "ERP",
-   "name": "Enterprise Resource Planning",
+   "name": "Entrepreneurship Practices",
    "kind": "theory",
    "dept": "CSE",
    "teacher": "ME-KawalpreetSahni",
@@ -4400,7 +4400,7 @@
    "kind": "theory",
    "dept": "CSE",
    "teacher": "DH",
-   "section": "D4 CS (combined)",
+   "section": "D4 CS \u00b7 5 groups",
    "batches": [
     "D4-CS-A-A1",
     "D4-CS-B-B1",
@@ -4523,7 +4523,7 @@
    "kind": "theory",
    "dept": "CSE",
    "teacher": "HSK",
-   "section": "D4 CS (combined)",
+   "section": "D4 CS \u00b7 5 groups",
    "batches": [
     "D4-CS-A-A2",
     "D4-CS-B-B2",
@@ -4738,11 +4738,11 @@
   {
    "id": "CSE:0134",
    "code": "GAI Group B",
-   "name": "Generative AIgroup B)",
+   "name": "Generative AI (group B)",
    "kind": "theory",
    "dept": "CSE",
    "teacher": "DN",
-   "section": "D3 CS (combined)",
+   "section": "D3 CS \u00b7 6 groups",
    "batches": [
     "D3-CS-A-A1",
     "D3-CS-B-B1",
@@ -5047,7 +5047,7 @@
    "kind": "lab",
    "dept": "CSE",
    "teacher": "JSK",
-   "section": "D3 CS (combined)",
+   "section": "D3 CS \u00b7 6 groups",
    "batches": [
     "D3-CS-A-A1",
     "D3-CS-B-B1",
@@ -5138,7 +5138,7 @@
    "kind": "lab",
    "dept": "CSE",
    "teacher": "MKM",
-   "section": "D4 CS (combined)",
+   "section": "D4 CS \u00b7 5 groups",
    "batches": [
     "D4-CS-A-A2",
     "D4-CS-B-B2",
@@ -5229,7 +5229,7 @@
    "kind": "lab",
    "dept": "CSE",
    "teacher": "SPS",
-   "section": "D4 CS (combined)",
+   "section": "D4 CS \u00b7 5 groups",
    "batches": [
     "D4-CS-A-A1",
     "D4-CS-B-B1",
@@ -5664,7 +5664,7 @@
    "kind": "lab",
    "dept": "CSE",
    "teacher": "DN",
-   "section": "D4 CS (combined)",
+   "section": "D4 CS \u00b7 5 groups",
    "batches": [
     "D4-CS-A-A2",
     "D4-CS-B-B2",
@@ -5777,7 +5777,7 @@
    "kind": "theory",
    "dept": "CSE",
    "teacher": "TBA-JPALJPAL",
-   "section": "D4 CS (combined)",
+   "section": "D4 CS \u00b7 5 groups",
    "batches": [
     "D4-CS-A-A1",
     "D4-CS-A-A2",
@@ -5823,7 +5823,7 @@
    "kind": "lab",
    "dept": "CSE",
    "teacher": "DN",
-   "section": "D3 CS (combined)",
+   "section": "D3 CS \u00b7 6 groups",
    "batches": [
     "D3-CS-A-A2",
     "D3-CS-B-B2",
@@ -5914,7 +5914,7 @@
    "kind": "lab",
    "dept": "CSE",
    "teacher": "DN",
-   "section": "D3 CS (combined)",
+   "section": "D3 CS \u00b7 6 groups",
    "batches": [
     "D3-CS-A-A2",
     "D3-CS-B-B2",
@@ -5983,7 +5983,7 @@
    "kind": "lab",
    "dept": "CSE",
    "teacher": "AJ",
-   "section": "D4 CS (combined)",
+   "section": "D4 CS \u00b7 5 groups",
    "batches": [
     "D4-CS-A-A4",
     "D4-CS-B-B4",
@@ -6093,7 +6093,7 @@
    "kind": "lab",
    "dept": "CSE",
    "teacher": "DS",
-   "section": "D3 CS (combined)",
+   "section": "D3 CS \u00b7 6 groups",
    "batches": [
     "D3-CS-A-A6",
     "D3-CS-B-B6",
@@ -6205,7 +6205,7 @@
    "kind": "lab",
    "dept": "CSE",
    "teacher": "DS",
-   "section": "D3 CS (combined)",
+   "section": "D3 CS \u00b7 6 groups",
    "batches": [
     "D3-CS-A-A6",
     "D3-CS-B-B6",
@@ -6274,7 +6274,7 @@
    "kind": "lab",
    "dept": "CSE",
    "teacher": "PA",
-   "section": "D4 CS (combined)",
+   "section": "D4 CS \u00b7 5 groups",
    "batches": [
     "D4-CS-A-A1",
     "D4-CS-B-B1",
@@ -6429,7 +6429,7 @@
    "kind": "lab",
    "dept": "CSE",
    "teacher": "JSK",
-   "section": "D3 CS (combined)",
+   "section": "D3 CS \u00b7 6 groups",
    "batches": [
     "D3-CS-A-A1",
     "D3-CS-B-B1",
@@ -6498,7 +6498,7 @@
    "kind": "lab",
    "dept": "CSE",
    "teacher": "AKS",
-   "section": "D3 CS (combined)",
+   "section": "D3 CS \u00b7 6 groups",
    "batches": [
     "D3-CS-A-A4",
     "D3-CS-B-B4",
@@ -6758,7 +6758,7 @@
    "kind": "lab",
    "dept": "CSE",
    "teacher": "AKS",
-   "section": "D3 CS (combined)",
+   "section": "D3 CS \u00b7 6 groups",
    "batches": [
     "D3-CS-A-A4",
     "D3-CS-B-B4",
@@ -6982,7 +6982,7 @@
    "kind": "lab",
    "dept": "CSE",
    "teacher": "JST",
-   "section": "D4 CS (combined)",
+   "section": "D4 CS \u00b7 5 groups",
    "batches": [
     "D4-CS-A-A5",
     "D4-CS-B-B5",
@@ -7159,7 +7159,7 @@
    "kind": "lab",
    "dept": "CSE",
    "teacher": "KWK",
-   "section": "D3 CS (combined)",
+   "section": "D3 CS \u00b7 6 groups",
    "batches": [
     "D3-CS-A-A5",
     "D3-CS-B-B5",
@@ -7271,7 +7271,7 @@
    "kind": "lab",
    "dept": "CSE",
    "teacher": "KWK",
-   "section": "D3 CS (combined)",
+   "section": "D3 CS \u00b7 6 groups",
    "batches": [
     "D3-CS-A-A5",
     "D3-CS-B-B5",
@@ -7383,7 +7383,7 @@
    "kind": "lab",
    "dept": "CSE",
    "teacher": "JST",
-   "section": "D4 CS (combined)",
+   "section": "D4 CS \u00b7 5 groups",
    "batches": [
     "D4-CS-A-A3",
     "D4-CS-B-B3",
@@ -7536,7 +7536,7 @@
    "kind": "theory",
    "dept": "CSE",
    "teacher": "MKG",
-   "section": "D4 CS (combined)",
+   "section": "D4 CS \u00b7 5 groups",
    "batches": [
     "D4-CS-A-A1",
     "D4-CS-B-B1",
@@ -7561,7 +7561,7 @@
    "kind": "lab",
    "dept": "CSE",
    "teacher": "HSK",
-   "section": "D4 CS (combined)",
+   "section": "D4 CS \u00b7 5 groups",
    "batches": [
     "D4-CS-A-A3",
     "D4-CS-B-B3",
@@ -7713,7 +7713,7 @@
    "kind": "lab",
    "dept": "CSE",
    "teacher": "NY",
-   "section": "D3 CS (combined)",
+   "section": "D3 CS \u00b7 6 groups",
    "batches": [
     "D3-CS-A-A3",
     "D3-CS-B-B3",
@@ -7830,7 +7830,7 @@
    "kind": "lab",
    "dept": "CSE",
    "teacher": "NY",
-   "section": "D3 CS (combined)",
+   "section": "D3 CS \u00b7 6 groups",
    "batches": [
     "D3-CS-A-A3",
     "D3-CS-B-B3",
@@ -8239,7 +8239,7 @@
    "kind": "theory",
    "dept": "CSE",
    "teacher": "KD",
-   "section": "D4 CS (combined)",
+   "section": "D4 CS \u00b7 5 groups",
    "batches": [
     "D4-CS-A-A1",
     "D4-CS-A-A2",
@@ -8289,7 +8289,7 @@
    "kind": "theory",
    "dept": "CSE",
    "teacher": "JSS",
-   "section": "D4 CS (combined)",
+   "section": "D4 CS \u00b7 5 groups",
    "batches": [
     "D4-CS-A-A1",
     "D4-CS-A-A2",
@@ -8340,7 +8340,7 @@
    "kind": "theory",
    "dept": "CSE",
    "teacher": "AKS",
-   "section": "D4 CS (combined)",
+   "section": "D4 CS \u00b7 5 groups",
    "batches": [
     "D4-CS-A-A1",
     "D4-CS-A-A2",
@@ -8395,7 +8395,7 @@
    "kind": "theory",
    "dept": "CSE",
    "teacher": "MKM",
-   "section": "D4 CS (combined)",
+   "section": "D4 CS \u00b7 5 groups",
    "batches": [
     "D4-CS-A-A1",
     "D4-CS-A-A2",
@@ -8468,7 +8468,7 @@
    "kind": "theory",
    "dept": "CSE",
    "teacher": "MKM",
-   "section": "D4 CS (combined)",
+   "section": "D4 CS \u00b7 5 groups",
    "batches": [
     "D4-CS-A-A1",
     "D4-CS-A-A2",
@@ -8597,7 +8597,7 @@
    "kind": "theory",
    "dept": "CSE",
    "teacher": "JSS",
-   "section": "D4 CS (combined)",
+   "section": "D4 CS \u00b7 5 groups",
    "batches": [
     "D4-CS-A-A1",
     "D4-CS-A-A2",

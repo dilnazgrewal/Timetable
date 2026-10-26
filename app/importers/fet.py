@@ -40,7 +40,7 @@ SUBJECTS = {
     "DBMS": "Database Management Systems", "CS": "Cyber Security", "CNS": "Cryptography & Network Security",
     "GAI": "Generative AI", "DWBI": "Data Warehousing & Business Intelligence",
     "OOAD": "Object Oriented Analysis & Design", "SC": "Soft Computing", "CV": "Computer Vision",
-    "WT": "Web Technologies", "ERP": "Enterprise Resource Planning", "APP. MATH": "Applied Mathematics",
+    "WT": "Web Technologies", "ERP": "Entrepreneurship Practices", "APP. MATH": "Applied Mathematics",
     "Ind. Con.": "Indian Constitution", "Ind. KS": "Indian Knowledge System",
     "Dis. Mgmt.": "Disaster Management", "MC": "Mentoring", "DWDM": "Data Warehousing & Data Mining",
     "SDN": "Software Defined Networks", "Desg. Think.": "Design Thinking", "ACC": "Accounting",
