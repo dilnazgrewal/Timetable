@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TimeWeave · Optimised CSE</title>
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script src="/static/js/shell.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+<style>
+  [x-cloak] { display: none !important; }
+  body { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .wait { background: repeating-linear-gradient(135deg, #fff1f2, #fff1f2 6px, #ffe4e6 6px, #ffe4e6 12px); }
+</style>
+</head>
+<!-- Lane A owns this page: GNDEC's published CSE timetable vs TimeWeave's optimised version of the same lessons. -->
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+<div class="max-w-7xl mx-auto px-4"><div id="tw-shell"></div></div>
+<main x-data="compareApp()" x-init="init()" x-cloak class="max-w-7xl mx-auto px-4 pb-16">
+  <h1 class="text-xl font-bold mt-2">CSE timetable: the college's version vs optimised</h1>
+  <p class="text-sm text-slate-500 max-w-3xl">Exactly the same lessons as GNDEC's published timetable: same teachers, subjects, weekly hours, 2-hour labs, A1/A2 groups and electives, in the same rooms. Only the times change, and every number below is checked by the independent validator.</p>
+
+  <div x-show="!d.available" class="mt-4 rounded-xl border bg-white p-6 text-slate-600">
+    <span x-text="d.running ? 'The optimiser is running… this takes a few minutes.' : (d.error || 'No optimised timetable yet.')"></span>
+  </div>
+
+  <template x-if="d.available">
+    <div>
+      <!-- headline numbers -->
+      <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-4">
+        <template x-for="m in cards" :key="m.key">
+          <div class="rounded-xl border bg-white p-3">
+            <div class="text-xs text-slate-500" x-text="m.label"></div>
+            <div class="flex items-baseline gap-2 mt-1">
+              <span class="text-slate-400 line-through text-sm" x-text="fmt(d.metrics.college[m.key])"></span>
+              <span class="text-xl font-bold" :class="cls(m)" x-text="fmt(d.metrics.optimised[m.key])"></span>
+              <span class="text-xs font-semibold" :class="cls(m)" x-text="delta(m)"></span>
+            </div>
+            <div class="text-[11px] text-slate-400" x-text="m.hint"></div>
+          </div>
+        </template>
+      </section>
+      <p class="text-xs text-slate-500 mt-2">
+        <b x-text="d.clashes.college === 0 && d.clashes.optimised === 0 ? '✔ 0 clashes in both' : `Clashes: college ${d.clashes.college}, optimised ${d.clashes.optimised}`"></b>
+        · <span x-text="d.moved"></span> classes moved to a better time · <span x-text="d.pinned"></span> kept exactly as published (M.Tech, PhD, mentoring)
+        <template x-if="canRun"><button @click="run()" :disabled="d.running" class="ml-2 underline text-indigo-700 disabled:opacity-50" x-text="d.running ? 'optimising…' : 'Re-run optimiser'"></button></template>
+      </p>
+
+      <!-- what to look at -->
+      <section class="mt-4 flex flex-wrap items-end gap-3 rounded-xl border bg-white p-3">
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">View</label>
+          <div class="flex rounded-lg border overflow-hidden text-sm">
+            <template x-for="v in [['group','Group'],['section','Section'],['teacher','Teacher']]">
+              <button @click="by = v[0]" class="px-3 py-1.5" :class="by === v[0] ? 'bg-indigo-600 text-white' : 'bg-white hover:bg-slate-50'" x-text="v[1]"></button>
+            </template>
+          </div>
+        </div>
+        <div x-show="by !== 'teacher'">
+          <label class="block text-xs text-slate-500 mb-1">Section</label>
+          <select x-model="section" @change="group = groupsOf(section)[0]" class="border rounded-lg px-2 py-1.5 bg-white text-sm">
+            <template x-for="s in d.sections.filter(s => s.year <= 4)" :key="s.id"><option :value="s.id" x-text="s.name" :selected="s.id === section"></option></template>
+          </select>
+        </div>
+        <div x-show="by === 'group'">
+          <label class="block text-xs text-slate-500 mb-1">Group</label>
+          <select x-model="group" class="border rounded-lg px-2 py-1.5 bg-white text-sm">
+            <template x-for="g in groupsOf(section)" :key="g"><option :value="g" x-text="g.split('-').pop()" :selected="g === group"></option></template>
+          </select>
+        </div>
+        <div x-show="by === 'teacher'">
+          <label class="block text-xs text-slate-500 mb-1">Teacher</label>
+          <select x-model="teacher" class="border rounded-lg px-2 py-1.5 bg-white text-sm max-w-[16rem]">
+            <template x-for="t in teacherList" :key="t.id"><option :value="t.id" x-text="t.name" :selected="t.id === teacher"></option></template>
+          </select>
+        </div>
+        <div class="sm:hidden ml-auto">
+          <div class="flex rounded-lg border overflow-hidden text-sm">
+            <button @click="side = 'college'" class="px-3 py-1.5" :class="side === 'college' ? 'bg-slate-800 text-white' : 'bg-white'">College</button>
+            <button @click="side = 'optimised'" class="px-3 py-1.5" :class="side === 'optimised' ? 'bg-emerald-600 text-white' : 'bg-white'">Optimised</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- the two timetables -->
+      <section class="mt-3 grid gap-4 lg:grid-cols-2">
+        <template x-for="which in ['college', 'optimised']" :key="which">
+          <div :class="side !== which ? 'hidden sm:block' : ''" class="rounded-xl border bg-white overflow-hidden">
+            <div class="flex items-center justify-between px-3 py-2 border-b" :class="which === 'college' ? 'bg-slate-50' : 'bg-emerald-50'">
+              <div class="font-semibold text-sm" x-text="which === 'college' ? 'GNDEC published timetable' : 'TimeWeave optimised'"></div>
+              <div class="text-xs" :class="which === 'college' ? 'text-rose-700' : 'text-emerald-700'">
+                waiting <b x-text="stats(which).wait"></b> periods/week · <span x-text="stats(which).classes"></span> classes
+              </div>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full table-fixed text-[11px] min-w-[520px]">
+                <thead><tr class="bg-slate-50 text-slate-500">
+                  <th class="w-14 p-1 text-left font-medium">Time</th>
+                  <template x-for="day in days"><th class="p-1 text-left font-semibold text-slate-700" x-text="day"></th></template>
+                </tr></thead>
+                <tbody>
+                  <template x-for="(p, pi) in periods" :key="pi">
+                    <tr class="border-t align-top">
+                      <td class="p-1 text-slate-500"><div class="font-semibold" x-text="p.label"></div><div x-text="p.start"></div></td>
+                      <template x-for="(day, di) in days" :key="di">
+                        <td class="p-0.5 h-12" :class="isWait(which, di, pi) ? 'wait' : ''">
+                          <template x-for="e in cell(which, di, pi)" :key="e.lesson + e.session + e.room">
+                            <div class="rounded px-1 py-0.5 mb-0.5 leading-tight border-l-4"
+                                 :style="`background:hsl(${hue(e.code)} 85% 95%);border-color:hsl(${hue(e.code)} 60% 50%)`">
+                              <div class="flex justify-between gap-1">
+                                <span class="font-semibold truncate" x-text="e.code"></span>
+                                <span x-show="which === 'optimised' && moved(e)" class="text-[9px] text-emerald-700" title="moved to a better time">↔</span>
+                              </div>
+                              <div class="text-slate-500 truncate" x-text="sub(e)"></div>
+                            </div>
+                          </template>
+                          <div x-show="isWait(which, di, pi)" class="text-[10px] text-rose-600 text-center pt-3">waiting</div>
+                        </td>
+                      </template>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </template>
+      </section>
+      <p class="text-xs text-slate-500 mt-2">Striped cells are free periods <i>between</i> classes, when students (or the teacher) are on campus waiting for the next one. One free hour around midday is not counted as waiting.</p>
+    </div>
+  </template>
+</main>
+
+<script>
+function compareApp() {
+  return {
+    d: { available: false }, meta: null, days: [], periods: [], user: null,
+    by: 'group', section: '', group: '', teacher: '', side: 'optimised', teacherList: [], lunch: [],
+    collegeKeys: new Set(),
+    cards: [
+      { key: 'idle_total', label: 'Student waiting periods / week', hint: 'free periods between classes, all CSE groups' },
+      { key: 'no_lunch_days', label: 'Group-days with no break 11:30–2:30', hint: 'classes straight through midday' },
+      { key: 'teacher_idle_total', label: 'Teacher waiting periods / week', hint: 'gaps in teachers\' days' },
+      { key: 'teacher_no_lunch_days', label: 'Teacher-days with no midday break', hint: '' },
+      { key: 'lonely_days', label: 'Days with a single lecture', hint: 'coming in for just one class' },
+      { key: 'teacher_streak_days', label: 'Teacher-days with 4+ lectures in a row', hint: '' },
+      { key: 'long_days', label: 'Group-days over 6 periods', hint: 'D3 has 36 periods a week' },
+      { key: 'late_sessions', label: 'Classes after 4:30', hint: 'mentoring hours stay as published' },
+    ],
+    async init() {
+      this.user = await TW.ready;
+      this.meta = await TW.api('/api/meta');
+      this.days = this.meta.days; this.periods = this.meta.periods; this.lunch = this.meta.lunch.window;
+      await this.load();
+    },
+    get canRun() { return this.user && (this.user.role === 'admin' || (this.user.role === 'hod' && this.user.dept === 'CSE')); },
+    async load() {
+      this.d = await TW.api('/api/compare/cse');
+      if (!this.d.available) { if (this.d.running) setTimeout(() => this.load(), 10000); return; }
+      this.collegeKeys = new Set(this.d.college.map(e => `${e.lesson}|${e.day}|${e.start}`));
+      const names = {};
+      this.d.college.forEach(e => e.teachers.forEach((t, i) => names[t] = e.teacher_names[i] || t));
+      this.teacherList = this.d.teachers.map(id => ({ id, name: names[id] || id })).sort((a, b) => a.name.localeCompare(b.name));
+      const mine = this.user.group && this.d.sections.find(s => s.groups.includes(this.user.group));
+      const best = mine ? null : this.bestGroup();  // others start on the group that gains the most
+      this.section = this.section || (mine ? mine.id : best.section);
+      this.group = this.group || (mine ? this.user.group : best.group);
+      this.teacher = this.teacher || (this.user.teacher_id && this.d.teachers.includes(this.user.teacher_id) ? this.user.teacher_id : this.teacherList[0]?.id);
+      if (this.d.running) setTimeout(() => this.load(), 10000);
+    },
+    async run() {
+      try { await TW.api('/api/compare/cse/run?seconds=300', { method: 'POST' }); this.d.running = true; setTimeout(() => this.load(), 10000); }
+      catch (e) { alert(e.message); }
+    },
+    groupsOf(sid) { return (this.d.sections || []).find(s => s.id === sid)?.groups || []; },
+    bestGroup() {
+      const keep = [this.by, this.group];
+      let best = { gain: -1 };
+      this.by = 'group';
+      for (const s of this.d.sections.filter(s => s.year <= 4)) {
+        for (const g of s.groups) {
+          this.group = g;
+          const gain = this.stats('college').wait - this.stats('optimised').wait;
+          if (gain > best.gain) best = { gain, section: s.id, group: g };
+        }
+      }
+      [this.by, this.group] = keep;
+      return best;
+    },
+    match(e) {
+      if (this.by === 'teacher') return e.teachers.includes(this.teacher);
+      if (this.by === 'section') return e.batches.some(b => b.startsWith(this.section + '-'));
+      return e.batches.includes(this.group);
+    },
+    cell(which, d, p) { return (this.d[which] || []).filter(e => e.day === d && p >= e.start && p < e.start + e.duration && this.match(e)); },
+    busy(which, d) {
+      const s = new Set();
+      (this.d[which] || []).filter(e => e.day === d && this.match(e)).forEach(e => { for (let p = e.start; p < e.start + e.duration; p++) s.add(p); });
+      return s;
+    },
+    // free periods between the first and last class of the day; one free hour around midday doesn't count
+    waits(which, d) {
+      const s = this.busy(which, d);
+      if (!s.size) return new Set();
+      const lo = Math.min(...s), hi = Math.max(...s), inside = [];
+      for (let p = lo; p <= hi; p++) if (!s.has(p)) inside.push(p);
+      const lunch = inside.find(p => this.lunch.includes(p));
+      return new Set(inside.filter(p => p !== lunch));
+    },
+    isWait(which, d, p) { return this.by !== 'section' && this.waits(which, d).has(p); },
+    stats(which) {
+      let wait = 0;
+      for (let d = 0; d < this.days.length; d++) wait += this.waits(which, d).size;
+      const classes = (this.d[which] || []).filter(e => this.match(e)).length;
+      return { wait: this.by === 'section' ? '–' : wait, classes };
+    },
+    moved(e) { return !this.collegeKeys.has(`${e.lesson}|${e.day}|${e.start}`); },
+    sub(e) {
+      const short = n => (n || '').replace(/^(Dr\.|Pf\.|Prof\.|Er\.) /, '');
+      return this.by === 'teacher' ? `${e.section} · ${e.room}` : `${e.room} · ${short(e.teacher_names[0])}`;
+    },
+    hue(code) { let h = 0; for (const c of code) h = (h * 31 + c.charCodeAt(0)) % 360; return h; },
+    fmt(v) { return v === undefined ? '–' : v; },
+    delta(m) {
+      const a = this.d.metrics.college[m.key], b = this.d.metrics.optimised[m.key];
+      if (a === b) return 'same';
+      if (!a) return b > a ? `+${b - a}` : '';
+      const pct = Math.round((b - a) / a * 100);
+      return `${pct > 0 ? '+' : ''}${pct}%`;
+    },
+    cls(m) {
+      const a = this.d.metrics.college[m.key], b = this.d.metrics.optimised[m.key];
+      return b < a ? 'text-emerald-700' : b > a ? 'text-rose-700' : 'text-slate-700';
+    },
+  };
+}
+</script>
+</body>
+</html>

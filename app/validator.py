@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 
-from app.models import DAYS, LUNCH_WINDOW, MAX_BATCH_PER_DAY, PERIODS, College, Entry, run_of
+from app.models import DAYS, LUNCH_WINDOW, MAX_BATCH_PER_DAY, PERIODS, SOLVER_PERIODS, College, Entry, run_of
 
 
 def _slot(d: int, p: int) -> str:
@@ -101,6 +101,8 @@ def metrics(college: College, entries: list[Entry], fixed: bool | None = None) -
     occ: dict[tuple, set[int]] = defaultdict(set)
     load: dict[str, int] = defaultdict(int)
     room_used: dict[str, int] = defaultdict(int)
+    t_occ: dict[tuple, set[int]] = defaultdict(set)
+    late = 0
     for e in entries:
         l = college.lesson_by_id[e.lesson]
         if fixed is not None and l.fixed != fixed:
@@ -109,6 +111,8 @@ def metrics(college: College, entries: list[Entry], fixed: bool | None = None) -
             occ[(b, e.day)].update(e.slots)
         for tid in [l.teacher, *l.co_teachers]:
             load[tid] += e.duration
+            t_occ[(tid, e.day)].update(e.slots)
+        late += e.start + e.duration > SOLVER_PERIODS
         room_used[e.room] += e.duration
 
     idle = lonely = active_days = no_lunch = 0
@@ -134,7 +138,21 @@ def metrics(college: College, entries: list[Entry], fixed: bool | None = None) -
         total = len(rs) * len(DAYS) * n_periods
         return round(100 * sum(room_used.get(r.id, 0) for r in rs) / total, 1) if total else 0.0
 
+    def longest_run(slots: set[int]) -> int:
+        best = run = 0
+        for p in range(n_periods):
+            run = run + 1 if p in slots else 0
+            best = max(best, run)
+        return best
+
+    t_idle = sum((max(v) - min(v) + 1) - len(v) - (1 if (set(range(min(v), max(v) + 1)) - v) & set(LUNCH_WINDOW) else 0)
+                 for v in t_occ.values() if v)
     return {
+        "teacher_streak_days": sum(longest_run(v) >= 4 for v in t_occ.values()),  # 4+ lectures in a row
+        "teacher_no_lunch_days": sum(all(p in v for p in LUNCH_WINDOW) for v in t_occ.values()),
+        "teacher_idle_total": t_idle,
+        "teacher_days": sum(bool(v) for v in t_occ.values()),
+        "late_sessions": late,  # classes running into the 16:30-17:30 slot
         "idle_per_day": round(idle / active_days, 2) if active_days else 0.0,
         "idle_total": idle,
         "worst_gap": worst,

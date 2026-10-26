@@ -30,3 +30,8 @@ def index() -> FileResponse:
 @app.get("/venues.html")
 def venues_page() -> FileResponse:
     return FileResponse(STATIC / "venues.html")  # Lane C's page (venues + events)
+
+
+@app.get("/compare.html")
+def compare_page() -> FileResponse:
+    return FileResponse(STATIC / "compare.html")  # Lane A: published vs optimised CSE timetable

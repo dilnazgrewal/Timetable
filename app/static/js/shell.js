@@ -31,7 +31,7 @@
     const mount = document.getElementById('tw-shell');
     if (!mount) return;
     const here = location.pathname + location.hash;
-    const links = [['/', 'Timetable'], ['/#rooms', 'Free rooms'], ['/venues.html', 'Venues & events'], ['/#ask', 'Ask ✨']];
+    const links = [['/', 'Timetable'], ['/compare.html', 'Optimised CSE'], ['/#rooms', 'Free rooms'], ['/venues.html', 'Venues & events'], ['/#ask', 'Ask ✨']];
     const nav = links.map(([href, label]) => {
       const active = href === '/' ? here === '/' || here === '/#' : here.startsWith(href);
       return `<a href="${href}" class="px-3 py-1.5 rounded-lg text-sm whitespace-nowrap ${active ? 'bg-indigo-50 text-indigo-700 font-semibold' : 'text-slate-600 hover:bg-slate-100'}">${label}</a>`;

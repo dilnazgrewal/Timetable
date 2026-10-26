@@ -62,6 +62,15 @@ Every lane codes against this file. **Lane A owns the "Core" and "Shared buildin
 | `GET /api/leave?on=YYYY-MM-DD&dept=` | `{date, leaves:[{leave, teacher_name, dept, classes}]}`. HODs see their department, teachers see themselves, admin sees all |
 | `POST /api/substitutions` | `{date, entry_key, teacher}` or `{date, entry_key, cancel:true}` (needs `override.create` for the class's department). Re-checks that the substitute is free (409 if not), replaces any earlier decision, and notifies the substitute, the absent teacher and the students. Returns `{override, message}` |
 
+| `GET /api/compare/cse` | GNDEC's published CSE timetable vs TimeWeave's optimised version of the same lessons: `{available, running, status, moved, pinned, metrics:{college, optimised}, clashes:{college, optimised}, sections, teachers, college:[entry], optimised:[entry]}` (each entry has `code, name, section, batches, teachers, teacher_names, room, day, start, duration`) |
+| `POST /api/compare/cse/run?seconds=300` | re-run the optimiser in the background (CSE HOD or admin); poll `GET /api/compare/cse` |
+
+**CSE optimiser** (`app/optimise.py`, page `/compare.html`):
+- **Same lessons:** keeps every lesson (teachers incl. co-teachers, groups, electives, weekly hours, 2-hour labs) and uses only the rooms the college uses for them. M.Tech, PhD and mentoring stay pinned.
+- **Never worse:** the college's own numbers are hard ceilings (waiting periods, days with no midday break for students and teachers, 4+ in a row, days over 6 periods, classes after 4:30).
+- **Search:** large-neighbourhood search starting from the college's own timetable; improves waiting gaps and the rest within those ceilings.
+- **Result:** saved in `data/gndec/cse_optimised.json` and re-validated by tests.
+
 **Substitute ranking** (`app/substitutions.py`):
 - **Hard filters:** free for the whole class on that date, including labs they co-teach; on campus; not on leave; under their daily limit.
 - **Score:** +40 teaches the same subject, +20 same department, +15 already teaches these students, +5 has a class right next to it, −8 for each substitution this month, −4 for each period already taught that day.

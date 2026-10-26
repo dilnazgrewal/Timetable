@@ -1,6 +1,7 @@
 """Lane A (Core and data): timetable, generation, free rooms, accounts, notifications, chat."""
 from __future__ import annotations
 
+import json
 import os
 import threading
 from dataclasses import asdict
@@ -14,6 +15,7 @@ from app.auth import current_user, require
 from app.chat import Assistant
 from app.models import DAYS, FEATURES, LUNCH_WINDOW, PERIODS, Entry, User
 from app.solver import solve
+from app import optimise
 from app import substitutions as subs
 from app.store import STORE, Occupancy
 from app.validator import metrics
@@ -291,3 +293,65 @@ def _date_or_400(value: str) -> date:
         return date.fromisoformat(value)
     except ValueError:
         raise HTTPException(400, "Use a date like 2026-10-30")
+
+
+# --- the real CSE timetable vs TimeWeave's optimised version of the same lessons -------------------
+_opt = {"mtime": None, "data": None, "running": False, "error": ""}
+
+
+def _optimised() -> dict | None:
+    path = optimise.OUT
+    if not path.exists():
+        return None
+    mtime = path.stat().st_mtime
+    if _opt["mtime"] != mtime:
+        _opt["data"], _opt["mtime"] = json.loads(path.read_text(encoding="utf-8")), mtime
+    return _opt["data"]
+
+
+def _compare_entry(e: Entry) -> dict:
+    c = STORE.college
+    l = c.lesson_by_id[e.lesson]
+    names = [c.teacher_by_id[t].name for t in (l.teacher, *l.co_teachers) if t in c.teacher_by_id]
+    return {**asdict(e), "code": l.code, "name": l.name, "kind": l.kind, "section": l.section, "batches": l.batches,
+            "teacher": l.teacher, "teachers": [l.teacher, *l.co_teachers], "teacher_names": names}
+
+
+@router.get("/compare/cse")
+def compare_cse() -> dict:
+    """GNDEC's published CSE timetable next to TimeWeave's optimised version of exactly the same lessons."""
+    data = _optimised()
+    if not data:
+        return {"available": False, "running": _opt["running"], "error": _opt["error"]}
+    c = STORE.college
+    before = [e for e in c.fixed_entries if c.lesson_by_id[e.lesson].dept == "CSE"]
+    after = [Entry(**e) for e in data["entries"]]
+    return {"available": True, "running": _opt["running"], "status": data["status"], "seconds": data["seconds"],
+            "moved": data["moved"], "pinned": data["pinned"], "metrics": data["metrics"], "clashes": data["clashes"],
+            "sections": [asdict(s) for s in c.sections if s.dept == "CSE"],
+            "teachers": sorted({t for l in c.lessons if l.fixed and l.dept == "CSE" for t in (l.teacher, *l.co_teachers)}),
+            "college": [_compare_entry(e) for e in before], "optimised": [_compare_entry(e) for e in after]}
+
+
+@router.post("/compare/cse/run")
+def compare_cse_run(seconds: float = 300, user: User = Depends(current_user)) -> dict:
+    """Re-run the optimiser in the background (takes minutes); the page polls /api/compare/cse."""
+    require(user, "override.create", "CSE")
+    if _opt["running"]:
+        raise HTTPException(409, "The optimiser is already running.")
+
+    def work() -> None:
+        _opt["running"], _opt["error"] = True, ""
+        try:
+            res = optimise.optimise_department(STORE.college, "CSE", time_limit=max(60.0, min(seconds, 1800.0)))
+            if res.status == "IMPROVED":
+                optimise.save(STORE.college, res)
+            else:
+                _opt["error"] = "; ".join(res.problems) or res.status
+        except Exception as exc:  # report, never crash the server
+            _opt["error"] = str(exc)
+        finally:
+            _opt["running"] = False
+
+    threading.Thread(target=work, daemon=True).start()
+    return {"started": True}
