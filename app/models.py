@@ -131,6 +131,7 @@ class College:
     buildings: list[Building] = field(default_factory=list)
     fixed_entries: list[Entry] = field(default_factory=list)  # placements of fixed (imported) lessons
     student_types: list["StudentType"] = field(default_factory=list)  # real combinations of students
+    rules: list["Rule"] = field(default_factory=list)  # the college's own timetable rules (app/rules.py)
 
     def __post_init__(self) -> None:
         self.building_by_id = {b.id: b for b in self.buildings}

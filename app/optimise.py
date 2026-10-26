@@ -3,8 +3,12 @@
 Kept exactly as the college decided: every lesson's teacher(s), student groups (incl. cross-section
 electives and A1/A2 lab groups), weekly hours, durations (2-hour labs) and the kind of room it needs.
 Only *when* each session happens, and which room of the right kind it uses, may change. Sessions we
-can't safely move (M.Tech/PhD, mentoring, classes in other departments' rooms) stay pinned where the
-college put them, and everything else must fit around them.
+the college's rules keep in place (mentoring, M.Tech/PhD, classes run with other departments) or that sit in
+other departments' rooms stay pinned where the college put them, and everything else must fit around them.
+
+College rules (data/<college>/rules.json, see app/rules.py) are constraints too: a "must" rule is never broken
+wherever the college's own timetable keeps it, a "prefer" rule is penalised and never broken more often than
+the college does.
 
 Rooms: the same rooms the college already uses for these classes (no borrowing of empty rooms), so the
 comparison is fair.
@@ -30,12 +34,14 @@ from pathlib import Path
 
 from ortools.sat.python import cp_model
 
+from app import rules
 from app.models import DAYS, LUNCH_WINDOW, PERIODS, College, Entry, Lesson
 
 DAY_CAP = 8  # periods per group per day
 SOFT_DAY = 6  # periods beyond this in a day are penalised
 W_GAP, W_LONELY, W_T_GAP, W_STREAK, W_LATE, W_LONG, W_SPARE = 10, 6, 2, 5, 4, 3, 8
 W_NO_LUNCH, W_T_NO_LUNCH = 100, 20  # a group / teacher day with no free hour between 11:30 and 14:30
+W_PREFER = 30  # each break of a "prefer" college rule
 
 
 @dataclass
@@ -50,10 +56,10 @@ class OptResult:
 
 
 def movable(college: College, l: Lesson, dept: str) -> bool:
-    if not l.fixed or l.dept != dept or l.teacher.startswith("TBA-") or l.code.startswith("MC"):
+    if not l.fixed or l.dept != dept:
         return False
-    if not all(b.split("-", 1)[0] in ("D1", "D2", "D3", "D4") for b in l.batches):
-        return False  # M.Tech / PhD stay as published
+    if any(r.type == "keep_as_published" and r.applies(l) for r in college.rules):
+        return False  # the college's rules keep it where it is
     return all((r := college.room_by_id.get(rid)) is not None and r.dept == dept for rid in l.rooms)
 
 
@@ -191,8 +197,10 @@ def optimise_department(college: College, dept: str = "CSE", time_limit: float =
             for k in range(l.sessions - 1):
                 m.Add(day_of[k] < day_of[k + 1])
 
-    # a teacher's lab for two groups of one class (SC Lab A1 / A2) goes on two different days, wherever the
-    # college's own timetable already does that (pairs it holds on one day may stay so)
+    # the college's own rules (app/rules.py): "must" = never broken wherever the college's timetable keeps
+    # it; "prefer" = penalised, and never broken more often than the college does
+    L = college.lesson_by_id
+    before = [e for e in college.fixed_entries if L[e.lesson].dept == dept]
     days_before: dict[str, set[int]] = defaultdict(set)
     for e in college.fixed_entries:
         days_before[e.lesson].add(e.day)
@@ -210,12 +218,52 @@ def optimise_department(college: College, dept: str = "CSE", time_limit: float =
         m.AddMaxEquality(b, vs)
         return b
 
-    for a, b in college.lab_pairs():
-        if (a in move_ids or b in move_ids) and not days_before[a] & days_before[b]:
-            for d in range(n_days):
-                pa, pb = present(a, d), present(b, d)
-                if not (isinstance(pa, int) and isinstance(pb, int)):
-                    m.Add(pa + pb <= 1)
+    count_before: dict[tuple, int] = defaultdict(int)
+    count_pin: dict[tuple, int] = defaultdict(int)
+    for e in before:
+        count_before[e.lesson, e.day] += 1
+    for e in pinned:
+        count_pin[e.lesson, e.day] += 1
+    rule_obj: list = []
+    for rule in college.rules:
+        if rule.type == "labs_apart":  # e.g. SC Lab A1 / A2: two different days
+            for a, b in college.lab_pairs():
+                if (rule.applies(L[a]) and rule.applies(L[b]) and (a in move_ids or b in move_ids)
+                        and not days_before[a] & days_before[b]):
+                    for d in range(n_days):
+                        pa, pb = present(a, d), present(b, d)
+                        if not (isinstance(pa, int) and isinstance(pb, int)):
+                            m.Add(pa + pb <= 1)
+        elif rule.type == "nothing_after":  # e.g. JPAL: nothing for its sections after it that day
+            terms, fixed_after = [], 0
+            for j in pinned:  # the class itself stays where the college has it
+                if not rule.applies(L[j.lesson]):
+                    continue
+                secs, end = rules.sections(L[j.lesson]), j.start + j.duration
+                fixed_after += sum(e.day == j.day and e.start >= end and e.lesson != j.lesson
+                                   and bool(rules.sections(L[e.lesson]) & secs) for e in pinned)
+                terms += [v for (si, d, p, _), v in x.items()
+                          if d == j.day and p >= end and rules.sections(sessions[si][0]) & secs]
+            if terms:
+                m.Add(sum(terms) + fixed_after <= len(rules.breaks(college, rule, before)))
+                if rule.strength == "prefer":
+                    rule_obj.append(W_PREFER * sum(terms))
+        elif rule.type == "real_class_daily":  # every weekday a real lecture or lab, where the college has one
+            skip, need = tuple(rule.params.get("not_counting", [])), rule.params.get("min", 1)
+            years = rule.match.get("years")
+            for _, sec, ls in rules.student_units(college):
+                if (years and rules.year_of(sec) not in years) or not any(lid in L and rule.applies(L[lid]) for lid in ls):
+                    continue
+                real = [lid for lid in ls if lid in L and L[lid].dept == dept and not L[lid].code.startswith(skip)]
+                for d in range(n_days):
+                    if sum(count_before[lid, d] for lid in real) >= need:
+                        m.Add(sum(v for lid in real if lid in move_ids for v in l_day.get((lid, d), []))
+                              + sum(count_pin[lid, d] for lid in real) >= need)
+        elif rule.type == "allowed_times":  # these lessons only start in the given periods
+            ok = set(rule.params.get("periods", []))
+            bad = [v for (si, d, p, _), v in x.items() if p not in ok and rule.applies(sessions[si][0])]
+            if bad:
+                m.Add(sum(bad) <= len(rules.breaks(college, rule, before)))
 
     groups = sorted(n for n, ls in units if ls & move_ids)  # student types with something to move
     teachers = sorted({t for l in move for t in (l.teacher, *l.co_teachers)})
@@ -243,7 +291,7 @@ def optimise_department(college: College, dept: str = "CSE", time_limit: float =
         m.Add(lunch <= sum(gaps[q] for q in LUNCH_WINDOW if q in gaps))
         return list(gaps.values()), lunch
 
-    obj = [W_LATE * v for v in late] + [W_SPARE * v for v in spare_use]
+    obj = [W_LATE * v for v in late] + [W_SPARE * v for v in spare_use] + rule_obj
     # the college's own count of days with no free midday hour is a ceiling we may never exceed
     occ_before: dict[tuple, set[int]] = defaultdict(set)
     for e in college.fixed_entries:
@@ -434,6 +482,7 @@ def department_college(college: College, dept: str = "CSE") -> College:
                   [x for x in college.sections if x.dept == dept],
                   [l for l in college.lessons if l.fixed and l.dept == dept], college.buildings)
     sub.set_student_types([t for t in college.student_types if t.section in sub.section_by_id])
+    sub.rules = college.rules
     return sub
 
 
@@ -468,6 +517,8 @@ def save(college: College, res: OptResult, dept: str = "CSE", path: Path = OUT) 
         mt.pop("teacher_load", None)
         out["metrics"][label] = mt
         out["clashes"][label] = len(split_issues(validate(sub, entries))[0])
+    out["rules"] = {r["id"]: {"college": r["college"], "optimised": r["optimised"]}
+                    for r in rules.report(college, before, res.entries)}
     path.write_text(json.dumps(out), encoding="utf-8")
     return out
 

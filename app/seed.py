@@ -3,7 +3,9 @@ an Applied Sciences department teaching Maths to every 2nd-year section, teacher
 departments, and a visiting teacher available only Tue/Thu."""
 from __future__ import annotations
 
+from app import rules
 from app.importers import fet, gndec_students
+from app.importers.fet import ROOT
 from app.models import PERIODS, Building, College, Department, Lesson, Room, Section, Teacher
 
 DEPTS = [
@@ -124,6 +126,7 @@ def build_college() -> College:
     gndec_students.split_lab_groups(college)
     types, _ = gndec_students.student_types(college, gndec_students.load())
     college.set_student_types(types)
+    college.rules = rules.load(ROOT / "data" / "gndec" / "rules.json")
     return college
 
 

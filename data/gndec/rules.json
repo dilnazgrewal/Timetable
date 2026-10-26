@@ -1,0 +1,97 @@
+{
+ "college": "GNDEC Ludhiana",
+ "note": "College-specific timetable rules. The optimiser obeys them and the independent checker counts every break. strength: must = never broken (where the college's own timetable already keeps it), prefer = avoided, and never more often than the college does. Rule types: see app/rules.py.",
+ "rules": [
+  {
+   "id": "keep-mentoring",
+   "type": "keep_as_published",
+   "strength": "must",
+   "match": {
+    "dept": "CSE",
+    "code_prefix": [
+     "MC"
+    ]
+   },
+   "text": "Mentoring stays exactly where the college has it.",
+   "why": "Mentors and their groups plan around these fixed hours."
+  },
+  {
+   "id": "keep-postgraduate",
+   "type": "keep_as_published",
+   "strength": "must",
+   "match": {
+    "dept": "CSE",
+    "years": [
+     "M1",
+     "M3",
+     "PHD"
+    ]
+   },
+   "text": "M.Tech and PhD classes stay exactly where the college has them.",
+   "why": "Postgraduate timetables are arranged separately."
+  },
+  {
+   "id": "keep-other-departments",
+   "type": "keep_as_published",
+   "strength": "must",
+   "match": {
+    "dept": "CSE",
+    "teacher_prefix": [
+     "TBA-"
+    ]
+   },
+   "text": "Classes run with other departments (open electives, JPAL) stay where they are.",
+   "why": "Their teachers and rooms belong to other departments, so CSE can't move them."
+  },
+  {
+   "id": "labs-on-different-days",
+   "type": "labs_apart",
+   "strength": "must",
+   "match": {
+    "dept": "CSE"
+   },
+   "text": "A teacher's lab for two groups of one class is on two different days (e.g. SC Lab A1 Thursday, A2 Friday).",
+   "why": "Teachers don't take the same lab twice in one day. Pairs the college itself holds on one day may stay."
+  },
+  {
+   "id": "nothing-after-jpal",
+   "type": "nothing_after",
+   "strength": "prefer",
+   "match": {
+    "dept": "CSE",
+    "code_prefix": [
+     "JPAL"
+    ]
+   },
+   "params": {
+    "attending": "about 20 of the 150 D4 students"
+   },
+   "text": "No class for the whole section after JPAL on that day.",
+   "why": "Only about 20 of 150 D4 students take JPAL. A class after it would make everyone else wait through JPAL for it."
+  },
+  {
+   "id": "real-class-every-day",
+   "type": "real_class_daily",
+   "strength": "must",
+   "match": {
+    "dept": "CSE",
+    "years": [
+     "D2",
+     "D3",
+     "D4"
+    ]
+   },
+   "params": {
+    "not_counting": [
+     "OE-",
+     "MJP",
+     "MC",
+     "JPAL"
+    ],
+    "min": 1
+   },
+   "text": "Every weekday has at least one real lecture or lab, not just the open elective, major project, mentoring or JPAL.",
+   "why": "College rule: students must have proper classes on every working day. (1st-year subjects are taught by Applied Sciences and are not in CSE's timetable.)"
+  }
+ ]
+}

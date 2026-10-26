@@ -54,7 +54,7 @@ Each lane **only edits the files it owns**. Shared files are owned by Lane A.
 
 | Lane | Owns |
 |---|---|
-| **A. Core and data** | `app/models.py`, `app/store.py`, `app/auth.py`, `app/substitutions.py`, `app/optimise.py`, `app/static/compare.html`, `app/static/login.html`, `app/static/audit.html`, `app/main.py`, `app/seed.py`, `app/solver.py`, `app/validator.py`, `app/chat.py`, `app/importers/*`, `data/gndec/*`, `app/api/core.py`, `app/static/js/shell.js`, `.claude/launch.json`, `docs/API.md` (Core and Shared sections), `PLAN.md`, `CLAUDE.md`, `README.md`, `tests/test_core_*`, `tests/test_validator.py` |
+| **A. Core and data** | `app/models.py`, `app/rules.py`, `app/store.py`, `app/auth.py`, `app/substitutions.py`, `app/optimise.py`, `app/static/compare.html`, `app/static/login.html`, `app/static/audit.html`, `app/main.py`, `app/seed.py`, `app/solver.py`, `app/validator.py`, `app/chat.py`, `app/importers/*`, `data/gndec/*`, `app/api/core.py`, `app/static/js/shell.js`, `.claude/launch.json`, `docs/API.md` (Core and Shared sections), `PLAN.md`, `CLAUDE.md`, `README.md`, `tests/test_core_*`, `tests/test_validator.py` |
 | **B. Dashboards UI** | `app/static/index.html`, `app/static/js/dashboards.js`, `app/static/css/*`, `app/api/dashboards.py`, `docs/API.md` (Lane B section), `tests/test_dashboards_*` |
 | **C. Venues and events** | `app/static/venues.html`, `app/static/js/venues.js`, `app/venues/*`, `app/api/venues.py`, `docs/API.md` (Lane C section), `tests/test_venues_*` |
 
@@ -85,6 +85,18 @@ Rules for every lane:
 - **Home room:** each section has a fixed classroom; only labs and halls get rooms assigned by the solver.
 - Labs are 2-period contiguous blocks. A teacher's lab for two groups of one class (e.g. `SC Lab A1` / `SC Lab A2`, or D2 CS B's OOP Lab for B1 and B2) goes on **different days** (`College.lab_pairs()`; validator metric `lab_same_day`). The optimiser enforces this wherever the college's own timetable already does.
 - **Classes outside CSE rooms:** open electives (D4 `OE-II`: ERP, EVS or E-Waste, Mon/Wed/Fri 8:30) are taught in another department, so only FET's *groups* page shows them. `app/importers/fet.py` reads the rooms page and then `add_groups_html()` adds these as fixed lessons in the room `APPLIED SCIENCES` (never a free room). The optimiser never moves them. "Self Study · Library" slots are free periods, not classes, and are not imported.
+
+## College rules (each college's own timetable habits)
+- Written per college in `data/<college>/rules.json`, read by `app/rules.py` (no solver code, so the validator and API use it too) into `College.rules`.
+- Rule types:
+  - `keep_as_published`: never moves (mentoring, M.Tech/PhD, classes run with other departments)
+  - `labs_apart`: a teacher's lab for two groups of one class on different days
+  - `nothing_after`: no class for the section after it that day (JPAL: only ~20 of 150 D4 students attend)
+  - `real_class_daily`: every weekday has a real lecture or lab, not only OE / project / mentoring / JPAL
+  - `allowed_times`: only in these periods
+- `must` rules are never broken wherever the college's own timetable keeps them. `prefer` rules are penalised and never broken more often than the college does.
+- `rules.report()` counts breaks (college vs optimised): shown on the compare page, saved in `cse_optimised.json`, and publishing is refused if any rule is broken more often than the college does.
+- **To add a college habit:** add a rule to the JSON. A new rule type needs a check in `rules.breaks()` and a constraint in `optimise.py`.
 
 ## Solver model (summary)
 - A boolean `x[s,d,p]` for each valid start; labs with several candidate rooms get `y[s,d,p,r]`.

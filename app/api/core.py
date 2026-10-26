@@ -16,6 +16,7 @@ from app.chat import Assistant
 from app.models import DAYS, FEATURES, LUNCH_WINDOW, PERIODS, Entry, User
 from app.solver import solve
 from app import optimise
+from app import rules as college_rules
 from app.importers import fet
 from app import substitutions as subs
 from app.store import STORE, Occupancy, now_iso
@@ -383,6 +384,7 @@ def compare_cse(user: User = Depends(current_user)) -> dict:
                       and c.section_by_id[t.section].dept == "CSE"],
             "teachers": sorted({t for l in c.lessons if l.fixed and l.dept == "CSE" for t in (l.teacher, *l.co_teachers)}),
             "college": [_compare_entry(e) for e in before], "optimised": [_compare_entry(e) for e in after],
+            "rules": college_rules.report(c, before, after),
             "publication": STORE.published.get("CSE", {"status": "draft"})}
 
 
@@ -469,6 +471,12 @@ def compare_cse_publish(user: User = Depends(current_user)) -> dict:
     data = _optimised()
     if not data or data.get("clashes", {}).get("optimised", 1) != 0:
         raise HTTPException(409, "Only a clash-free optimised timetable can be published.")
+    c = STORE.college
+    before = [e for e in c.fixed_entries if c.lesson_by_id[e.lesson].dept == "CSE"]
+    broken = [r["text"] for r in college_rules.report(c, before, [Entry(**e) for e in data["entries"]])
+              if r["optimised"] > r["college"]]
+    if broken:
+        raise HTTPException(409, "It breaks the college's rules more often than the current timetable: " + " ".join(broken))
     info = {**STORE.published.get("CSE", {}), "status": "published", "published_by": user.name, "published_at": now_iso()}
     STORE.set_published("CSE", info)
     if STORE.result and STORE.result["issues"]:  # the independent validator must still agree
