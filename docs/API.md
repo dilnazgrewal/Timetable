@@ -32,7 +32,9 @@ Every lane codes against this file. **Lane A owns the "Core" and "Shared buildin
 **Domain types** are in `app/models.py`: `Room` (with `building`, `floor`, `features`, `sittable`, `bookable`), `Building`, `Override`, `User`, `Club`, `BookingRequest`, `ApprovalStep`, `MeetingRequest`, `Notification` and `FEATURES`.
 
 **Permission actions that already exist:**
-`timetable.view`, `timetable.generate`, `override.create`, `booking.request`, `booking.cancel`, `booking.endorse`, `booking.approve`, `slotfinder.use`, `meeting.request`, `meeting.reply`, `demo.reset`, `rooms.view`, `chat.ask`
+`timetable.view`, `timetable.generate`, `override.create`, `booking.request`, `booking.cancel`, `booking.endorse`, `booking.approve`, `slotfinder.use`, `meeting.request`, `meeting.reply`, `leave.mark` (the teacher themself, or their HOD), `leave.view`, `demo.reset`, `rooms.view`, `chat.ask`
+
+`slotfinder.use` also allows clubs. `BookingRequest.audience` (group ids) exists for events booked for a batch.
 
 **Demo accounts** (ids):
 - `admin`
@@ -56,6 +58,22 @@ Every lane codes against this file. **Lane A owns the "Core" and "Shared buildin
 | `POST /api/notifications/read` | marks all of the caller's notifications read |
 | `POST /api/chat` | `{answer, tools_used}` |
 | `POST /api/demo/reset` | clears overrides, requests and notifications (admin only) |
+| `POST /api/leave` | `{teacher, date, periods?, reason?}` (needs `leave.mark`): creates `Override(kind="leave")`, notifies the teacher's HOD, and returns `{leave, classes}`. Each class has `{key, time, code, subject, section, room, batches, state: open/covered/substituted/cancelled, by_name?, candidates?}` |
+| `GET /api/leave?on=YYYY-MM-DD&dept=` | `{date, leaves:[{leave, teacher_name, dept, classes}]}`. HODs see their department, teachers see themselves, admin sees all |
+| `POST /api/substitutions` | `{date, entry_key, teacher}` or `{date, entry_key, cancel:true}` (needs `override.create` for the class's department). Re-checks that the substitute is free (409 if not), replaces any earlier decision, and notifies the substitute, the absent teacher and the students. Returns `{override, message}` |
+
+**Substitute ranking** (`app/substitutions.py`):
+- **Hard filters:** free for the whole class on that date, including labs they co-teach; on campus; not on leave; under their daily limit.
+- **Score:** +40 teaches the same subject, +20 same department, +15 already teaches these students, +5 has a class right next to it, −8 for each substitution this month, −4 for each period already taught that day.
+- Every candidate comes with `reasons` (plain-English strings).
+- A class someone else co-teaches is `covered` and needs no substitute.
+
+**Chatbot tools** (`app/chat.py`, read-only, all through `STORE`):
+- `search`
+- `get_schedule(kind: section|group|teacher|room, id, date?|day?)`
+- `free_rooms(date?|day?, time?, building?, floor?, sittable_only=true, min_seats?)`, grouped by building and floor
+- `room_status(room, date?|day?, time?)`: answers "will G17 be empty at 12:30 on Friday?"
+- `teacher_free_slots(teacher_id, date?|day?)`: counts co-taught labs and leave
 
 **`/api/free-rooms` parameters:**
 - `period` (required)
