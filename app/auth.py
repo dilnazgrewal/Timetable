@@ -30,14 +30,15 @@ DEPT_STAFF = ("hod", "coordinator")  # manage their own department's timetable
 def demo_people(college: College) -> tuple[dict[str, User], dict[str, Club]]:
     users: list[User] = [User("admin", "Timetable Office (Admin)", "admin"),
                          User("dean", "Dean Academics (read-only)", "dean")]
+    people = [t for t in college.teachers if not t.id.startswith("TBA-")]  # not "Major Project (staff)" stand-ins
     for d in [d.code for d in college.departments]:
-        teachers = [t for t in college.teachers if t.dept == d]
+        teachers = [t for t in people if t.dept == d]
         if teachers:
             users.append(User(f"hod-{d}", f"HOD {d} ({teachers[0].name})", "hod", d, teacher_id=teachers[0].id))
         if len(teachers) > 1 and any(s.dept == d for s in college.sections):
             users.append(User(f"coord-{d}", f"Timetable coordinator {d} ({teachers[1].name})", "coordinator", d,
                               teacher_id=teachers[1].id))
-    for t in college.teachers:
+    for t in people:
         users.append(User(f"t-{t.id}", t.name, "teacher", t.dept, teacher_id=t.id))
     # one demo student per real combination of choices (student type); see app/importers/gndec_students.py
     for st in college.student_types:

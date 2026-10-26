@@ -8,8 +8,7 @@
   const KEY = 'tw-user';  // demo mode: remembers the last demo account
   const remembered = () => { try { return localStorage.getItem(KEY); } catch { return null; } };
   const remember = id => { try { id ? localStorage.setItem(KEY, id) : localStorage.removeItem(KEY); } catch {} };
-  // four kinds of people; the other roles are extra duties shown next to the name
-  const GROUPS = [['Students', ['student', 'club']], ['Teachers', ['teacher', 'coordinator']], ['HODs', ['hod']], ['Timetable office', ['admin', 'dean', 'org']]];
+
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const toLogin = () => { location.href = '/login.html?next=' + encodeURIComponent(location.pathname + location.search + location.hash); };
 
@@ -61,9 +60,8 @@
       const active = href === '/' ? here === '/' || here === '/#' : here.startsWith(href);
       return `<a href="${href}" class="px-3 py-1.5 rounded-lg text-sm whitespace-nowrap ${active ? 'bg-indigo-50 text-indigo-700 font-semibold' : 'text-slate-600 hover:bg-slate-100'}">${label}</a>`;
     }).join('');
-    const switcher = TW.user.demo && TW.users ? `<select id="tw-user" class="border rounded-lg px-2 py-1.5 bg-white text-sm max-w-[13rem]" title="Demo: switch account">${
-      GROUPS.map(([label, roles]) => `<optgroup label="${esc(label)}">${roles.flatMap(r => (TW.users.roles[r] || []).map(u =>
-        `<option value="${esc(u.id)}" ${u.id === TW.user.id ? 'selected' : ''}>${esc(u.name)}${r === roles[0] ? '' : ' · ' + esc(TW.users.role_names[r] || r)}</option>`)).join('')}</optgroup>`).join('')}</select>` : '';
+    // demo: switch account on the sign-in page (four roles; students pick year, section and subjects)
+    const switcher = TW.user.demo ? `<button id="tw-switch" class="h-9 px-3 rounded-lg border bg-white text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2 max-w-[18rem]" title="Demo: sign in as someone else"><span class="truncate">${esc(TW.user.name)}</span><span class="shrink-0 font-semibold text-indigo-700">Switch</span></button>` : `<span class="text-sm text-slate-700 max-w-[16rem] truncate">${esc(TW.user.name)}</span>`;
     mount.innerHTML = `
       <header class="no-print flex flex-wrap items-center gap-3 py-3">
         <a href="/" class="flex items-center gap-2 mr-2">
@@ -82,7 +80,7 @@
         </div>
         <div id="tw-notes" class="hidden fixed right-4 top-16 z-50 w-80 max-w-[calc(100vw-2rem)] rounded-xl border bg-white shadow-lg p-2 text-sm"></div>
       </header>`;
-    document.getElementById('tw-user')?.addEventListener('change', e => TW.setUser(e.target.value));
+    document.getElementById('tw-switch')?.addEventListener('click', () => TW.signOut());
     document.getElementById('tw-out').addEventListener('click', () => TW.signOut());
     document.getElementById('tw-bell').addEventListener('click', async () => {
       const box = document.getElementById('tw-notes');
