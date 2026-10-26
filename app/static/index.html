@@ -6,7 +6,7 @@
 <title>TimeWeave</title>
 <script src="https://cdn.tailwindcss.com/3.4.16"></script>
 <script src="/static/js/shell.js"></script>
-<script src="/static/js/dashboards.js?v=2026-10-26"></script>
+<script src="/static/js/dashboards.js?v=2026-10-26b"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
 <style>
   [x-cloak] { display: none !important; }
@@ -375,8 +375,7 @@
             <div class="w-14 shrink-0 text-xs text-slate-500 pt-2"><div class="font-semibold" x-text="p.label"></div><div x-text="p.start"></div></div>
             <div class="flex-1 space-y-1 min-w-0">
               <template x-for="e in cell(mobileDay, pi)" :key="e.key"><div x-html="chip(e, pi)"></div></template>
-              <div x-show="isLunch(mobileDay, pi)" class="rounded-lg border border-amber-200 bg-amber-50 text-xs text-amber-700 px-2 py-2">🍽 Lunch break</div>
-              <div x-show="!cell(mobileDay, pi).length && !isLunch(mobileDay, pi)" class="rounded-lg border border-dashed text-xs text-slate-400 px-2 py-2">free</div>
+              <div x-show="!cell(mobileDay, pi).length" class="rounded-lg border border-dashed text-xs text-slate-400 px-2 py-2">free</div>
             </div>
           </div>
         </template>
@@ -399,23 +398,21 @@
         </thead>
         <tbody>
           <template x-for="(p, pi) in meta?.periods">
-            <tr class="border-t align-top" :class="meta.lunch.window.includes(pi) ? 'bg-amber-50/30' : ''">
+            <tr class="border-t align-top">
               <td class="p-2 text-xs text-slate-500">
                 <div class="font-semibold text-slate-700" x-text="p.label"></div>
                 <div x-text="p.start + '–' + p.end"></div>
-                <div x-show="meta.lunch.window.includes(pi)" class="text-amber-600 mt-1">lunch window</div>
               </td>
               <template x-for="(d, di) in meta?.days">
                 <td class="p-1.5" :class="isToday(di) ? 'bg-indigo-50/60' : ''"><div class="space-y-1">
                   <template x-for="e in cell(di, pi)" :key="e.key"><div x-html="chip(e, pi)"></div></template>
-                  <div x-show="isLunch(di, pi)" class="rounded-md px-2 py-2 text-xs bg-amber-50 text-amber-700 border border-amber-200">🍽 Lunch break</div>
                 </div></td>
               </template>
             </tr>
           </template>
         </tbody>
       </table>
-      <div class="text-xs text-slate-400 px-3 py-2 border-t">Lunch is flexible: every section and teacher gets a free hour somewhere between <span x-text="meta?.lunch.start"></span> and <span x-text="meta?.lunch.end"></span>, chosen by the solver. Labs are 2-period blocks taken by one lab group.</div>
+      <div class="text-xs text-slate-400 px-3 py-2 border-t">Labs are 2-period blocks taken by one lab group.</div>
     </div>
   </section>
 

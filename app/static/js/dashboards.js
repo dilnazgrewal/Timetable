@@ -192,13 +192,6 @@ function dash() {
     cell(d, p) {
       return this.view.items.filter(e => e.day === d && p >= e.start && p < e.start + e.duration);
     },
-    personal() { return ['group', 'section', 'teacher'].includes(this.f.by); },
-    isLunch(d, p) {
-      // the first free period in the lunch window is shown as that group's / teacher's lunch break
-      if (!this.personal() || !this.meta.lunch.window.includes(p)) return false;
-      if (!this.view.items.some(e => e.day === d)) return false;
-      return this.meta.lunch.window.find(q => !this.cell(d, q).length) === p;
-    },
     weeklyHours() {
       const set = new Set();
       this.view.items.filter(e => e.kind === 'class').forEach(e => { for (let p = e.start; p < e.start + e.duration; p++) set.add(e.day + ':' + p); });
@@ -423,7 +416,7 @@ function dash() {
       clearInterval(timer); this.generating = false;
     },
     printSubtitle() {
-      return `${this.weekLabel()} · ${this.weeklyHours()} periods / week · lunch: a free hour between ${this.meta?.lunch.start} and ${this.meta?.lunch.end}`;
+      return `${this.weekLabel()} · ${this.weeklyHours()} periods / week`;
     },
     // Ask-tab starters built from the live college, so they stay valid whatever data is loaded
     askSuggestions() {
