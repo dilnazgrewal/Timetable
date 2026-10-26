@@ -79,9 +79,14 @@ class Store:
 
     # --- base timetable ----------------------------------------------------------------------
     def publish(self, raw: dict) -> dict:
-        """Install a base timetable. Always re-validated by the independent checker."""
+        """Install a base timetable. Always re-validated by the independent checker.
+        Imported (real) placements always come from the import itself, never from the saved file, so a
+        re-import can't leave stale or missing classes behind."""
         with self.lock:
-            entries = [Entry(**e) for e in raw["entries"]]
+            generated = [Entry(**e) for e in raw["entries"]
+                         if (l := self.college.lesson_by_id.get(e["lesson"])) is not None and not l.fixed]
+            entries = generated + list(self.college.fixed_entries)
+            raw["entries"] = [asdict(e) for e in entries]
             raw["issues"], raw["notes"] = split_issues(validate(self.college, entries))
             raw["metrics"] = metrics(self.college, entries)
             if any(l.fixed for l in self.college.lessons):  # real (imported) vs generated departments
