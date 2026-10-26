@@ -8,6 +8,7 @@ from datetime import datetime
 import anthropic
 
 from app.importers.fet import OUTSIDE_ROOM
+from app.importers.fet_dept import room_key
 from app.models import DAYS, PERIODS
 from app.store import STORE, Occupancy, to_date
 
@@ -132,7 +133,10 @@ class Assistant:
                 return [], f"{d:%A %Y-%m-%d} (weekend: no classes)", None
             return STORE.effective(d), f"{d:%A %Y-%m-%d}", d.weekday()
         if day:
-            wd = DAYS.index(day)
+            wd = next((i for i, d in enumerate(DAYS) if day.strip().lower().startswith(d.lower())), None)  # "Mon", "Monday"
+            if wd is None:
+                raise ValueError(f"'{day}' is not a weekday; use one of {', '.join(DAYS)}")
+            day = DAYS[wd]
             return [o for o in STORE.week() if o.day == wd], f"every {day} (regular timetable)", wd
         return STORE.week(), "whole week (regular timetable)", None
 
@@ -160,7 +164,8 @@ class Assistant:
             "sections": [{"id": s.id, "name": s.name, "groups": s.groups} for s in c.sections
                          if q.replace(" ", "-") in s.id.lower() or q in s.name.lower()][:8],
             "rooms": [{"id": r.id, "kind": r.kind, "building": r.building, "floor": r.floor} for r in c.rooms
-                      if q in r.id.lower() or q in r.kind.lower()][:8],
+                      if r.kind != OUTSIDE_ROOM.kind and (q in r.id.lower() or q in r.kind.lower()
+                                                          or room_key(query) == room_key(r.id))][:8],  # "S-213" = S213
         }
 
     def get_schedule(self, kind: str, id: str, date: str | None = None, day: str | None = None) -> dict:
