@@ -49,7 +49,7 @@ def test_cell_parsers():
     assert _parse_groups("D3 CS A1, D3 CS B1") == [("D3-CS-A", "A1", "D3 CS A1"), ("D3-CS-B", "B1", "D3 CS B1")]
     assert _parse_groups("D2 CS D") == [("D2-CS-D", "", "D2 CS D")]
     t = _parse_teachers("Dr. Daljit Singh (DS), Pf. Pragya (App. Sci.), Pf. Jashandeep Singh (JDS-CE)")
-    assert [(i, d) for i, _, d in t] == [("DS", "CSE"), ("AS-Pragya", "AS"), ("JDS", "CE")]
+    assert [(i, d) for i, _, d in t] == [("DS", "CSE"), ("AS-Pragya", "AS"), ("CE-JDS", "CE")]
     assert _subject("DS Lab P") == ("DS Lab", "Data Structures Lab", "lab")
     assert _subject("TOC L")[:2] == ("TOC", "Theory of Computation")
     assert _subject("CV E(T)")[1] == "Computer Vision (elective)"

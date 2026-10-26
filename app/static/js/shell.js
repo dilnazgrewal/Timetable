@@ -8,7 +8,8 @@
   const KEY = 'tw-user';  // demo mode: remembers the last demo account
   const remembered = () => { try { return localStorage.getItem(KEY); } catch { return null; } };
   const remember = id => { try { id ? localStorage.setItem(KEY, id) : localStorage.removeItem(KEY); } catch {} };
-  const ROLE_ORDER = ['student', 'teacher', 'coordinator', 'hod', 'dean', 'club', 'org', 'admin'];
+  // four kinds of people; the other roles are extra duties shown next to the name
+  const GROUPS = [['Students', ['student', 'club']], ['Teachers', ['teacher', 'coordinator']], ['HODs', ['hod']], ['Admin', ['admin', 'dean', 'org']]];
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const toLogin = () => { location.href = '/login.html?next=' + encodeURIComponent(location.pathname + location.search + location.hash); };
 
@@ -50,7 +51,7 @@
     const c = TW.can, here = location.pathname + location.hash;
     const links = [
       ['/', c.my_timetable ? 'My timetable' : 'Timetable', c.view_timetables],
-      ['/compare.html', 'Optimised CSE', c.optimised_view],
+      ['/compare.html', 'Optimised timetables', c.optimised_view],
       ['/#rooms', 'Free rooms', c.free_rooms],
       ['/venues.html', 'Venues & events', c.request_venue || c.approve_venues || c.endorse_venues || c.slot_finder],
       ['/audit.html', 'Audit log', c.audit],
@@ -61,8 +62,8 @@
       return `<a href="${href}" class="px-3 py-1.5 rounded-lg text-sm whitespace-nowrap ${active ? 'bg-indigo-50 text-indigo-700 font-semibold' : 'text-slate-600 hover:bg-slate-100'}">${label}</a>`;
     }).join('');
     const switcher = TW.user.demo && TW.users ? `<select id="tw-user" class="border rounded-lg px-2 py-1.5 bg-white text-sm max-w-[13rem]" title="Demo: switch account">${
-      ROLE_ORDER.filter(r => TW.users.roles[r]).map(r => `<optgroup label="${esc(TW.users.role_names[r] || r)}">${TW.users.roles[r].map(u =>
-        `<option value="${esc(u.id)}" ${u.id === TW.user.id ? 'selected' : ''}>${esc(u.name)}</option>`).join('')}</optgroup>`).join('')}</select>` : '';
+      GROUPS.map(([label, roles]) => `<optgroup label="${esc(label)}">${roles.flatMap(r => (TW.users.roles[r] || []).map(u =>
+        `<option value="${esc(u.id)}" ${u.id === TW.user.id ? 'selected' : ''}>${esc(u.name)}${r === roles[0] ? '' : ' · ' + esc(TW.users.role_names[r] || r)}</option>`)).join('')}</optgroup>`).join('')}</select>` : '';
     mount.innerHTML = `
       <header class="no-print flex flex-wrap items-center gap-3 py-3">
         <a href="/" class="flex items-center gap-2 mr-2">

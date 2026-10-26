@@ -345,18 +345,31 @@ def _date_or_400(value: str) -> date:
         raise HTTPException(400, "Use a date like 2026-10-30")
 
 
-# --- the real CSE timetable vs TimeWeave's optimised version of the same lessons -------------------
-_opt = {"mtime": None, "data": None, "running": False, "error": ""}
+# --- each department's real timetable vs TimeWeave's optimised version of the same lessons -----------
+_opt: dict[str, dict] = {}  # dept -> {"mtime", "data"} (the saved optimised timetable, cached)
+_run = {"dept": "", "error": {}}  # one optimiser run at a time
 
 
-def _optimised() -> dict | None:
-    path = optimise.OUT
+def _dept(dept: str) -> str:
+    d = dept.upper()
+    if not any(l.fixed and l.dept == d for l in STORE.college.lessons):
+        raise HTTPException(404, f"There is no imported timetable for {dept}.")
+    return d
+
+
+def _dept_name(d: str) -> str:
+    return next((x.name for x in STORE.college.departments if x.code == d), d)
+
+
+def _optimised(dept: str = "CSE") -> dict | None:
+    path = optimise.out_path(dept)
     if not path.exists():
         return None
     mtime = path.stat().st_mtime
-    if _opt["mtime"] != mtime:
-        _opt["data"], _opt["mtime"] = json.loads(path.read_text(encoding="utf-8")), mtime
-    return _opt["data"]
+    cache = _opt.setdefault(dept, {"mtime": None, "data": None})
+    if cache["mtime"] != mtime:
+        cache["data"], cache["mtime"] = json.loads(path.read_text(encoding="utf-8")), mtime
+    return cache["data"]
 
 
 def _compare_entry(e: Entry) -> dict:
@@ -367,50 +380,69 @@ def _compare_entry(e: Entry) -> dict:
             "teacher": l.teacher, "teachers": [l.teacher, *l.co_teachers], "teacher_names": names}
 
 
-@router.get("/compare/cse")
-def compare_cse(user: User = Depends(current_user)) -> dict:
-    """GNDEC's published CSE timetable next to TimeWeave's optimised version of exactly the same lessons."""
-    require(user, "optimise.view", "CSE")
-    data = _optimised()
-    if not data:
-        return {"available": False, "running": _opt["running"], "error": _opt["error"]}
+def _before(dept: str) -> list[Entry]:
     c = STORE.college
-    before = [e for e in c.fixed_entries if c.lesson_by_id[e.lesson].dept == "CSE"]
+    return [e for e in c.fixed_entries if c.lesson_by_id[e.lesson].dept == dept]
+
+
+@router.get("/compare")
+def compare_departments(user: User = Depends(current_user)) -> dict:
+    """The departments with an imported (real) timetable this person may compare."""
+    depts = sorted({l.dept for l in STORE.college.lessons if l.fixed})
+    return {"departments": [{"code": d, "name": _dept_name(d), "available": _optimised(d) is not None,
+                             "status": STORE.published.get(d, {}).get("status", "draft")}
+                            for d in depts if authorize(user, "optimise.view", d)]}
+
+
+@router.get("/compare/{dept}")
+def compare_dept(dept: str, user: User = Depends(current_user)) -> dict:
+    """A department's published timetable next to TimeWeave's optimised version of exactly the same lessons."""
+    d = _dept(dept)
+    require(user, "optimise.view", d)
+    data = _optimised(d)
+    running = _run["dept"] == d
+    if not data:
+        return {"available": False, "dept": d, "dept_name": _dept_name(d), "running": running,
+                "error": _run["error"].get(d, "")}
+    c = STORE.college
+    before = _before(d)
     after = [Entry(**e) for e in data["entries"]]
-    return {"available": True, "running": _opt["running"], "status": data["status"], "seconds": data["seconds"],
-            "moved": data["moved"], "pinned": data["pinned"], "metrics": data["metrics"], "clashes": data["clashes"],
-            "sections": [asdict(s) for s in c.sections if s.dept == "CSE"],
+    return {"available": True, "dept": d, "dept_name": _dept_name(d), "running": running, "status": data["status"],
+            "seconds": data["seconds"], "moved": data["moved"], "pinned": data["pinned"], "metrics": data["metrics"],
+            "clashes": data["clashes"],
+            "sections": [asdict(s) for s in c.sections if s.dept == d and s.kind == "section"],
             "types": [{**_type_view(t), "lessons": t.lessons} for t in c.student_types if t.section.startswith("D")
-                      and c.section_by_id[t.section].dept == "CSE"],
-            "teachers": sorted({t for l in c.lessons if l.fixed and l.dept == "CSE" for t in (l.teacher, *l.co_teachers)}),
+                      and c.section_by_id[t.section].dept == d],
+            "teachers": sorted({t for l in c.lessons if l.fixed and l.dept == d for t in (l.teacher, *l.co_teachers)
+                                if not t.startswith("TBA-")}),
             "college": [_compare_entry(e) for e in before], "optimised": [_compare_entry(e) for e in after],
             "rules": college_rules.report(c, before, after),
-            "publication": STORE.published.get("CSE", {"status": "draft"})}
+            "publication": STORE.published.get(d, {"status": "draft"})}
 
 
-@router.post("/compare/cse/run")
-def compare_cse_run(seconds: float = 300, user: User = Depends(current_user)) -> dict:
-    """Re-run the optimiser in the background (takes minutes); the page polls /api/compare/cse."""
-    require(user, "optimise.run", "CSE")
-    if _opt["running"]:
-        raise HTTPException(409, "The optimiser is already running.")
+@router.post("/compare/{dept}/run")
+def compare_run(dept: str, seconds: float = 300, user: User = Depends(current_user)) -> dict:
+    """Re-run the optimiser in the background (takes minutes); the page polls /api/compare/{dept}."""
+    d = _dept(dept)
+    require(user, "optimise.run", d)
+    if _run["dept"]:
+        raise HTTPException(409, f"The optimiser is already running (for {_run['dept']}).")
 
     def work() -> None:
-        _opt["running"], _opt["error"] = True, ""
+        _run["dept"], _run["error"][d] = d, ""
         try:
-            res = optimise.optimise_department(STORE.college, "CSE", time_limit=max(60.0, min(seconds, 1800.0)))
+            res = optimise.optimise_department(STORE.college, d, time_limit=max(60.0, min(seconds, 1800.0)))
             if res.status == "IMPROVED":
-                optimise.save(STORE.college, res)
+                optimise.save(STORE.college, res, d)
             else:
-                _opt["error"] = "; ".join(res.problems) or res.status
+                _run["error"][d] = "; ".join(res.problems) or res.status
         except Exception as exc:  # report, never crash the server
-            _opt["error"] = str(exc)
+            _run["error"][d] = str(exc)
         finally:
-            _opt["running"] = False
+            _run["dept"] = ""
 
     threading.Thread(target=work, daemon=True).start()
     return {"started": True}
-
 
 
 # --- students: real combinations of choices ("student types") --------------------------------------
@@ -452,46 +484,49 @@ def _publication_users(dept: str) -> list[str]:
                                       for l in c.lessons))]
 
 
-@router.post("/compare/cse/propose")
-def compare_cse_propose(user: User = Depends(current_user)) -> dict:
+@router.post("/compare/{dept}/propose")
+def compare_propose(dept: str, user: User = Depends(current_user)) -> dict:
     """Department (HOD / timetable coordinator) proposes the optimised timetable to the timetable office."""
-    require(user, "optimise.propose", "CSE")
-    if not _optimised():
+    d = _dept(dept)
+    require(user, "optimise.propose", d)
+    if not _optimised(d):
         raise HTTPException(409, "There is no optimised timetable to propose yet.")
-    STORE.set_published("CSE", {"status": "proposed", "proposed_by": user.name, "proposed_at": now_iso()})
+    STORE.set_published(d, {"status": "proposed", "proposed_by": user.name, "proposed_at": now_iso()})
     for u in [u.id for u in STORE.users.values() if u.role == "admin"]:
-        STORE.notify(u, f"{user.name} proposed the optimised CSE timetable for publishing.", "/compare.html")
-    return {"publication": STORE.published["CSE"]}
+        STORE.notify(u, f"{user.name} proposed the optimised {d} timetable for publishing.", f"/compare.html?dept={d}")
+    return {"publication": STORE.published[d]}
 
 
-@router.post("/compare/cse/publish")
-def compare_cse_publish(user: User = Depends(current_user)) -> dict:
-    """Timetable office publishes it: it becomes everyone's real CSE timetable (rooms, teachers, students)."""
+@router.post("/compare/{dept}/publish")
+def compare_publish(dept: str, user: User = Depends(current_user)) -> dict:
+    """Timetable office publishes it: it becomes everyone's real timetable for that department."""
+    d = _dept(dept)
     require(user, "timetable.publish")
-    data = _optimised()
-    if not data or data.get("clashes", {}).get("optimised", 1) != 0:
-        raise HTTPException(409, "Only a clash-free optimised timetable can be published.")
+    data = _optimised(d)
+    if not data or data.get("clashes", {}).get("optimised", 1) > data.get("clashes", {}).get("college", 0):
+        raise HTTPException(409, "Only an optimised timetable with no new clashes can be published.")
     c = STORE.college
-    before = [e for e in c.fixed_entries if c.lesson_by_id[e.lesson].dept == "CSE"]
-    broken = [r["text"] for r in college_rules.report(c, before, [Entry(**e) for e in data["entries"]])
+    broken = [r["text"] for r in college_rules.report(c, _before(d), [Entry(**e) for e in data["entries"]])
               if r["optimised"] > r["college"]]
     if broken:
         raise HTTPException(409, "It breaks the college's rules more often than the current timetable: " + " ".join(broken))
-    info = {**STORE.published.get("CSE", {}), "status": "published", "published_by": user.name, "published_at": now_iso()}
-    STORE.set_published("CSE", info)
-    if STORE.result and STORE.result["issues"]:  # the independent validator must still agree
-        STORE.set_published("CSE", None)
-        raise HTTPException(409, "The validator found clashes; publishing was undone.")
-    for u in _publication_users("CSE"):
-        STORE.notify(u, "The CSE timetable has been updated: fewer waiting gaps between classes. Check your week.", "/")
+    before_issues = len(STORE.result["issues"]) if STORE.result else 0
+    info = {**STORE.published.get(d, {}), "status": "published", "published_by": user.name, "published_at": now_iso()}
+    STORE.set_published(d, info)
+    if STORE.result and len(STORE.result["issues"]) > before_issues:  # the independent validator must still agree
+        STORE.set_published(d, None)
+        raise HTTPException(409, "The validator found new clashes; publishing was undone.")
+    for u in _publication_users(d):
+        STORE.notify(u, f"The {d} timetable has been updated: fewer waiting gaps between classes. Check your week.", "/")
     return {"publication": info}
 
 
-@router.post("/compare/cse/unpublish")
-def compare_cse_unpublish(user: User = Depends(current_user)) -> dict:
+@router.post("/compare/{dept}/unpublish")
+def compare_unpublish(dept: str, user: User = Depends(current_user)) -> dict:
     """Timetable office goes back to the college's original timetable."""
+    d = _dept(dept)
     require(user, "timetable.publish")
-    STORE.set_published("CSE", None)
-    for u in _publication_users("CSE"):
-        STORE.notify(u, "The CSE timetable is back to the college's original version.", "/")
+    STORE.set_published(d, None)
+    for u in _publication_users(d):
+        STORE.notify(u, f"The {d} timetable is back to the college's original version.", "/")
     return {"publication": {"status": "draft"}}

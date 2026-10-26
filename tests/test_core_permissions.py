@@ -121,7 +121,8 @@ def test_capabilities_follow_the_table():
     assert all(v for k, v in admin.items() if k not in ("my_timetable", "reply_meetings", "mark_own_leave"))  # not a teacher
     hod = capabilities(u("hod-CSE"))
     assert hod["optimised_propose"] and hod["substitutions"] and not hod["publish"]
-    assert not capabilities(u("hod-ME"))["optimised_view"]
+    assert capabilities(u("hod-ME"))["optimised_view"]  # ME's own optimised timetable, never CSE's
+    assert authorize(u("hod-ME"), "optimise.view", "ME") and not authorize(u("hod-ME"), "optimise.view", "CSE")
 
 
 # --- endpoints enforce it ------------------------------------------------------------------------------
@@ -146,14 +147,25 @@ def test_refusals_are_audited():
     assert as_("dean").get("/api/audit").json()["items"][0] == last
 
 
-def test_propose_publish_unpublish_keeps_zero_clashes():
+def _clashes():
+    """The validator's clashes for the whole college, order-free (published data already has a few)."""
+    out = set()
+    for c in STORE.result["issues"]:
+        if c.startswith("CLASH"):
+            head, ids = c.split(": ", 1)
+            out.add((head, frozenset(ids.split(", "))))
+    return out
+
+
+def test_propose_publish_unpublish_adds_no_clash():
     data = as_("hod-CSE").get("/api/compare/cse").json()
     if not data.get("available"):
         pytest.skip("no optimised CSE timetable saved")
+    before = _clashes()
     assert as_("coord-CSE").post("/api/compare/cse/propose").json()["publication"]["status"] == "proposed"
     assert any("proposed" in n.text for n in STORE.notifications if n.user == "admin")
     r = as_("admin").post("/api/compare/cse/publish")
     assert r.status_code == 200 and r.json()["publication"]["status"] == "published"
-    assert STORE.result["issues"] == []  # the independent validator agrees
+    assert _clashes() <= before  # the independent validator agrees: nothing new anywhere in the college
     assert as_("admin").post("/api/compare/cse/unpublish").json()["publication"]["status"] == "draft"
-    assert STORE.result["issues"] == []
+    assert _clashes() == before

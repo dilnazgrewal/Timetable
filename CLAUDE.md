@@ -5,7 +5,7 @@ Guidance for Claude Code (and humans) working in this repository.
 ## What this is
 A web app for a whole college's time and space.
 - It generates and validates **clash-free timetables** (CP-SAT, with an independent validator).
-- It runs on **GNDEC Ludhiana's real CSE timetable**, imported from the FET pages the college publishes.
+- It runs on **GNDEC Ludhiana's real timetables of every department** (CSE, IT, ME, CE, ECE, EE), imported from the FET pages each department publishes, and optimises each one (per department, never worse than the college).
 - Around the timetable, it solves everyday campus problems:
   - **free rooms** to sit in, by building and floor
   - finding a **teacher's free slots** and requesting a meeting
@@ -35,6 +35,8 @@ It is built to be adaptable to any college: a college profile plus importers, wi
 ```bash
 python -m venv .venv && .venv/Scripts/python -m pip install -r requirements.txt   # setup (Windows)
 .venv/Scripts/python -m app.solver          # solve seeded college from CLI, print status + validator result
+.venv/Scripts/python -m app.importers.fet_dept ALL   # re-import IT/ME/CE/ECE/EE from data/gndec/raw/<dept>/ -> data/gndec/<dept>.json
+.venv/Scripts/python -m app.optimise 300 IT ME      # optimise departments (or ALL) -> data/gndec/<dept>_optimised.json
 .venv/Scripts/python -m uvicorn app.main:app --reload --port 8001   # run app → http://localhost:8001
 .venv/Scripts/python -m pytest -q           # tests
 ```
@@ -85,6 +87,24 @@ Rules for every lane:
 - **Home room:** each section has a fixed classroom; only labs and halls get rooms assigned by the solver.
 - Labs are 2-period contiguous blocks. A teacher's lab for two groups of one class (e.g. `SC Lab A1` / `SC Lab A2`, or D2 CS B's OOP Lab for B1 and B2) goes on **different days** (`College.lab_pairs()`; validator metric `lab_same_day`). The optimiser enforces this wherever the college's own timetable already does.
 - **Classes outside CSE rooms:** open electives (D4 `OE-II`: ERP, EVS or E-Waste, Mon/Wed/Fri 8:30) are taught in another department, so only FET's *groups* page shows them. `app/importers/fet.py` reads the rooms page and then `add_groups_html()` adds these as fixed lessons in the room `APPLIED SCIENCES` (never a free room). The optimiser never moves them. "Self Study · Library" slots are free periods, not classes, and are not imported.
+
+## Departments (real data)
+- CSE: `app/importers/fet.py` (rooms + groups pages) and the distribution lists (student types). IT, ME, CE, ECE, EE: `app/importers/fet_dept.py`, a tolerant reader for every FET export flavour (captions, 12-hour times, M/T/W/TH/F, labelled spans, combined cells, labs written twice). Raw pages are in `data/gndec/raw/<dept>/`.
+- `seed.build_college()` merges them:
+  - Numbered classrooms (`S-213` = `S213`) are one room across departments; labs and halls with the same name stay separate (`DBMSLAB (IT)`).
+  - A class taught by one department to another's students appears in both exports: it is kept once.
+  - Hours a group spends in another department's rooms become fixed placeholders in room `OTHER DEPARTMENT`, so nothing is moved onto them.
+  - Only central halls come from the synthetic seed. The generator (`app/solver.py`) is tested on the fully seeded college.
+- **Sections:** `Section.kind` is `section` or `elective`. Group names that don't follow the department's section pattern (electives, minor courses, other departments' first years) are `elective` audiences.
+- **Student types without lists:** one type per lab group, with `guards`: electives of the same year that may share its students. The validator and optimiser never put a group's class at the same time as a guard, but guards never conflict with each other.
+- **Optimising other departments safely** (rules in `rules.json`):
+  - first year stays as published (it is taught by several departments)
+  - classes by other departments' teachers stay
+  - electives and 3rd/4th-year group classes of departments without elective lists stay
+  - 2nd year and whole-section classes move
+  - other departments' classes count as fixed for shared teachers and rooms
+- **Teachers:** full names come from each department's teachers page (`fet_dept.teacher_names()`; CE publishes only initials). One person with two records (named in full by one department, by initials in their own) is merged.
+- **Published data that is already wrong is never made worse.** Put together, the published timetables list 32 teacher double-bookings, mostly one combined class written in two departments' timetables; CE's own export double-books one teacher. No optimised department may add a clash anywhere in the college (`test_core_departments.py`).
 
 ## College rules (each college's own timetable habits)
 - Written per college in `data/<college>/rules.json`, read by `app/rules.py` into `College.rules`. `app/rules.py` has no solver code: it is the independent rule check, used by the API, `optimise.save()` and the tests (the optimiser builds its own constraints from the same rules).

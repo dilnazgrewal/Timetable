@@ -224,13 +224,40 @@ def student_types(college: College, data: dict) -> tuple[list[StudentType], list
                                   "Elective section": c["elective_section"], "Elective lab group": c["elective_lab"]}))
         covered.add(c["section"])
         problems += [f"{tid}: class {u} not placed" for u in unknown]
+    by_batch: dict[str, list[str]] = {}
+    for l in college.lessons:
+        for b in l.batches:
+            by_batch.setdefault(b, []).append(l.id)
+    guards = _elective_guards(college)
     for s in college.sections:
-        if s.id in covered:
+        if s.id in covered or s.kind != "section":
             continue
         for g in s.groups:
-            lessons = [l.id for l in college.lessons if g in l.batches]
-            types.append(StudentType(g, s.id, f"{s.name} · {g.rsplit('-', 1)[-1]}", lessons, 0, {"Group": g.rsplit("-", 1)[-1]}))
+            lessons = by_batch.get(g, [])
+            types.append(StudentType(g, s.id, f"{s.name} · {g.rsplit('-', 1)[-1]}", lessons, 0,
+                                     {"Group": g.rsplit("-", 1)[-1]}, guards=guards(s, lessons)))
     return types, problems
+
+
+def _elective_guards(college: College):
+    """Electives / minor courses of the same department and year whose students we don't know: a group must
+    never get one of its classes at the same time, unless the college's own timetable already does that (then
+    they are clearly other students)."""
+    slots: dict[str, set[tuple[int, int]]] = {}
+    for e in college.fixed_entries:
+        slots.setdefault(e.lesson, set()).update((e.day, q) for q in e.slots)
+    electives: dict[tuple[str, int], list[str]] = {}
+    for s in college.sections:
+        if s.kind != "section":
+            for l in college.lessons:
+                if set(l.batches) & set(s.groups):
+                    electives.setdefault((s.dept, s.year), []).append(l.id)
+
+    def guards(section, lessons: list[str]) -> list[str]:
+        mine = set().union(*(slots.get(x, set()) for x in lessons)) if lessons else set()
+        return sorted({x for x in electives.get((section.dept, section.year), []) if x not in lessons
+                       and not slots.get(x, set()) & mine})
+    return guards
 
 
 def load(path: Path = OUT) -> dict:

@@ -80,6 +80,7 @@ class Section:
     size: int
     home_room: str
     groups: list[str] = field(default_factory=list)  # atomic student groups, e.g. "D3-CS-A-A1"
+    kind: str = "section"  # "section", or "elective": an audience mixing students of several sections
 
     @property
     def batches(self) -> list[str]:
@@ -152,6 +153,11 @@ class College:
             return [(t.name, set(t.lessons)) for t in self.student_types]
         groups = sorted({b for l in self.lessons for b in l.batches})
         return [(g, {l.id for l in self.lessons if g in l.batches}) for g in groups]
+
+    def guarded(self) -> list[tuple[str, set[str], set[str]]]:
+        """(student type, its classes, electives that may share its students): a class of the type must never
+        be at the same time as one of those electives (the electives themselves may run side by side)."""
+        return [(t.name, set(t.lessons), set(t.guards)) for t in self.student_types if t.guards]
 
     def lab_pairs(self) -> list[tuple[str, str]]:
         """Pairs of labs one teacher gives to two groups of the same class: 'SC Lab A1' and 'SC Lab A2', or
@@ -265,6 +271,9 @@ class StudentType:
     lessons: list[str]
     count: int = 0
     details: dict = field(default_factory=dict)
+    # classes that may share students with this type although we can't tell (an elective or minor course of the
+    # same year with no student lists): never put at the same time, but not shown as "my" classes
+    guards: list[str] = field(default_factory=list)
 
     @property
     def lesson_set(self) -> set[str]:

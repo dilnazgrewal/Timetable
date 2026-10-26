@@ -843,7 +843,7 @@
    "max_per_day": 9
   },
   {
-   "id": "PJS",
+   "id": "CE-PJS",
    "name": "Pf. Prabhjot Singh",
    "dept": "CE",
    "kind": "Regular",
@@ -891,7 +891,7 @@
    "max_per_day": 9
   },
   {
-   "id": "BHS",
+   "id": "CE-BHS",
    "name": "Pf. Balihar Singh",
    "dept": "CE",
    "kind": "Regular",
@@ -931,7 +931,15 @@
    "max_per_day": 9
   },
   {
-   "id": "SDK",
+   "id": "CE-SPS",
+   "name": "Pf. Sukhwinderpal Singh",
+   "dept": "CE",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "CE-SDK",
    "name": "Pf. Sandeep Kaur",
    "dept": "CE",
    "kind": "Regular",
@@ -971,7 +979,7 @@
    "max_per_day": 9
   },
   {
-   "id": "JDS",
+   "id": "CE-JDS",
    "name": "Pf. Jashandeep Singh",
    "dept": "CE",
    "kind": "Regular",
@@ -1070,7 +1078,8 @@
    "groups": [
     "D1-CS-A-A1",
     "D1-CS-A-A2"
-   ]
+   ],
+   "kind": "section"
   },
   {
    "id": "D1-CS-B",
@@ -1082,7 +1091,8 @@
    "groups": [
     "D1-CS-B-B1",
     "D1-CS-B-B2"
-   ]
+   ],
+   "kind": "section"
   },
   {
    "id": "D1-CS-C",
@@ -1094,7 +1104,8 @@
    "groups": [
     "D1-CS-C-C1",
     "D1-CS-C-C2"
-   ]
+   ],
+   "kind": "section"
   },
   {
    "id": "D1-CS-D",
@@ -1106,7 +1117,8 @@
    "groups": [
     "D1-CS-D-D1",
     "D1-CS-D-D2"
-   ]
+   ],
+   "kind": "section"
   },
   {
    "id": "D1-CS-E",
@@ -1118,7 +1130,8 @@
    "groups": [
     "D1-CS-E-E1",
     "D1-CS-E-E2"
-   ]
+   ],
+   "kind": "section"
   },
   {
    "id": "D1-CS-F",
@@ -1130,7 +1143,8 @@
    "groups": [
     "D1-CS-F-F1",
     "D1-CS-F-F2"
-   ]
+   ],
+   "kind": "section"
   },
   {
    "id": "D2-CS-A",
@@ -1142,7 +1156,8 @@
    "groups": [
     "D2-CS-A-A1",
     "D2-CS-A-A2"
-   ]
+   ],
+   "kind": "section"
   },
   {
    "id": "D2-CS-B",
@@ -1154,7 +1169,8 @@
    "groups": [
     "D2-CS-B-B1",
     "D2-CS-B-B2"
-   ]
+   ],
+   "kind": "section"
   },
   {
    "id": "D2-CS-C",
@@ -1166,7 +1182,8 @@
    "groups": [
     "D2-CS-C-C1",
     "D2-CS-C-C2"
-   ]
+   ],
+   "kind": "section"
   },
   {
    "id": "D2-CS-D",
@@ -1178,7 +1195,8 @@
    "groups": [
     "D2-CS-D-D1",
     "D2-CS-D-D2"
-   ]
+   ],
+   "kind": "section"
   },
   {
    "id": "D2-CS-E",
@@ -1190,7 +1208,8 @@
    "groups": [
     "D2-CS-E-E1",
     "D2-CS-E-E2"
-   ]
+   ],
+   "kind": "section"
   },
   {
    "id": "D2-CS-F",
@@ -1202,7 +1221,8 @@
    "groups": [
     "D2-CS-F-F1",
     "D2-CS-F-F2"
-   ]
+   ],
+   "kind": "section"
   },
   {
    "id": "D3-CS-A",
@@ -1218,7 +1238,8 @@
     "D3-CS-A-A4",
     "D3-CS-A-A5",
     "D3-CS-A-A6"
-   ]
+   ],
+   "kind": "section"
   },
   {
    "id": "D3-CS-B",
@@ -1234,7 +1255,8 @@
     "D3-CS-B-B4",
     "D3-CS-B-B5",
     "D3-CS-B-B6"
-   ]
+   ],
+   "kind": "section"
   },
   {
    "id": "D3-CS-C",
@@ -1250,7 +1272,8 @@
     "D3-CS-C-C4",
     "D3-CS-C-C5",
     "D3-CS-C-C6"
-   ]
+   ],
+   "kind": "section"
   },
   {
    "id": "D3-CS-D",
@@ -1266,7 +1289,8 @@
     "D3-CS-D-D4",
     "D3-CS-D-D5",
     "D3-CS-D-D6"
-   ]
+   ],
+   "kind": "section"
   },
   {
    "id": "D3-CS-E",
@@ -1282,7 +1306,8 @@
     "D3-CS-E-E4",
     "D3-CS-E-E5",
     "D3-CS-E-E6"
-   ]
+   ],
+   "kind": "section"
   },
   {
    "id": "D3-CS-F",
@@ -1298,7 +1323,8 @@
     "D3-CS-F-F4",
     "D3-CS-F-F5",
     "D3-CS-F-F6"
-   ]
+   ],
+   "kind": "section"
   },
   {
    "id": "D4-CS-A",
@@ -1313,7 +1339,8 @@
     "D4-CS-A-A3",
     "D4-CS-A-A4",
     "D4-CS-A-A5"
-   ]
+   ],
+   "kind": "section"
   },
   {
    "id": "D4-CS-B",
@@ -1328,7 +1355,8 @@
     "D4-CS-B-B3",
     "D4-CS-B-B4",
     "D4-CS-B-B5"
-   ]
+   ],
+   "kind": "section"
   },
   {
    "id": "D4-CS-C",
@@ -1343,7 +1371,8 @@
     "D4-CS-C-C3",
     "D4-CS-C-C4",
     "D4-CS-C-C5"
-   ]
+   ],
+   "kind": "section"
   },
   {
    "id": "D4-CS-D",
@@ -1358,7 +1387,8 @@
     "D4-CS-D-D3",
     "D4-CS-D-D4",
     "D4-CS-D-D5"
-   ]
+   ],
+   "kind": "section"
   },
   {
    "id": "D4-CS-E",
@@ -1373,7 +1403,8 @@
     "D4-CS-E-E3",
     "D4-CS-E-E4",
     "D4-CS-E-E5"
-   ]
+   ],
+   "kind": "section"
   },
   {
    "id": "M1-CS",
@@ -1384,7 +1415,8 @@
    "home_room": "",
    "groups": [
     "M1-CS-ALL"
-   ]
+   ],
+   "kind": "section"
   },
   {
    "id": "M3-CS",
@@ -1395,7 +1427,8 @@
    "home_room": "",
    "groups": [
     "M3-CS-ALL"
-   ]
+   ],
+   "kind": "section"
   },
   {
    "id": "PHD-CS",
@@ -1406,7 +1439,8 @@
    "home_room": "",
    "groups": [
     "PHD-CS-ALL"
-   ]
+   ],
+   "kind": "section"
   }
  ],
  "lessons": [
@@ -2406,7 +2440,7 @@
    "name": "Disaster Management",
    "kind": "theory",
    "dept": "CSE",
-   "teacher": "PJS",
+   "teacher": "CE-PJS",
    "section": "D3 CS F",
    "batches": [
     "D3-CS-F-F1",
@@ -3133,7 +3167,7 @@
    "name": "Disaster Management",
    "kind": "theory",
    "dept": "CSE",
-   "teacher": "BHS",
+   "teacher": "CE-BHS",
    "section": "D3 CS C",
    "batches": [
     "D3-CS-C-C1",
@@ -3528,7 +3562,7 @@
    "name": "Disaster Management",
    "kind": "theory",
    "dept": "CSE",
-   "teacher": "SPS",
+   "teacher": "CE-SPS",
    "section": "D3 CS A",
    "batches": [
     "D3-CS-A-A1",
@@ -3674,7 +3708,7 @@
    "name": "Disaster Management",
    "kind": "theory",
    "dept": "CSE",
-   "teacher": "SDK",
+   "teacher": "CE-SDK",
    "section": "D3 CS E",
    "batches": [
     "D3-CS-E-E1",
@@ -4178,7 +4212,7 @@
    "name": "Disaster Management",
    "kind": "theory",
    "dept": "CSE",
-   "teacher": "BHS",
+   "teacher": "CE-BHS",
    "section": "D3 CS B",
    "batches": [
     "D3-CS-B-B1",
@@ -4472,7 +4506,7 @@
    "name": "Disaster Management",
    "kind": "theory",
    "dept": "CSE",
-   "teacher": "JDS",
+   "teacher": "CE-JDS",
    "section": "D3 CS D",
    "batches": [
     "D3-CS-D-D1",

@@ -190,9 +190,9 @@ def capabilities(user: User) -> dict[str, bool]:
         "endorse_venues": user.role == "admin" or any(c.advisor == user.id for c in STORE.clubs.values()),
         "approve_venues": user.role in ("hod", "admin"),
         "slot_finder": a("slotfinder.use"),
-        "optimised_view": a("optimise.view", "CSE"),
-        "optimised_run": a("optimise.run", "CSE"),
-        "optimised_propose": a("optimise.propose", "CSE"),
+        "optimised_view": a("optimise.view", dept or "CSE") or user.role == "dean",  # their department; Dean: all
+        "optimised_run": a("optimise.run", dept or "CSE"),
+        "optimised_propose": a("optimise.propose", dept or "CSE"),
         "publish": a("timetable.publish"),
         "generate": a("timetable.generate"),
         "insights": user.role in ("dean", "admin") or a("insights.view", dept),

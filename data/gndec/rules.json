@@ -3,11 +3,22 @@
  "note": "College-specific timetable rules. The optimiser obeys them and the independent checker counts every break. strength: must = never broken (where the college's own timetable already keeps it), prefer = avoided, and never more often than the college does. Rule types: see app/rules.py.",
  "rules": [
   {
+   "id": "keep-first-year",
+   "type": "keep_as_published",
+   "strength": "must",
+   "match": {
+    "years": [
+     "D1"
+    ]
+   },
+   "text": "First-year classes stay exactly where the college has them.",
+   "why": "First year is taught by several departments at once (workshop and drawing by ME, Applied Sciences, the student's own department), so it can only move with all of them together."
+  },
+  {
    "id": "keep-mentoring",
    "type": "keep_as_published",
    "strength": "must",
    "match": {
-    "dept": "CSE",
     "code_prefix": [
      "MC"
     ]
@@ -20,14 +31,15 @@
    "type": "keep_as_published",
    "strength": "must",
    "match": {
-    "dept": "CSE",
     "years": [
      "M1",
      "M3",
-     "PHD"
+     "PHD",
+     "M",
+     "X"
     ]
    },
-   "text": "M.Tech and PhD classes stay exactly where the college has them.",
+   "text": "M.Tech, PhD and other programmes (Architecture, BCA, ...) stay exactly where the college has them.",
    "why": "Postgraduate timetables are arranged separately."
   },
   {
@@ -35,21 +47,66 @@
    "type": "keep_as_published",
    "strength": "must",
    "match": {
-    "dept": "CSE",
     "teacher_prefix": [
      "TBA-"
     ]
    },
-   "text": "Classes run with other departments (open electives, JPAL) stay where they are.",
+   "text": "Classes run with other departments (open electives, JPAL, classes in their rooms) stay where they are.",
    "why": "Their teachers and rooms belong to other departments, so CSE can't move them."
+  },
+  {
+   "id": "keep-other-teachers",
+   "type": "keep_as_published",
+   "strength": "must",
+   "match": {
+    "other_dept_teacher": true
+   },
+   "text": "Classes taught by another department's teacher stay where they are.",
+   "why": "That teacher's timetable is planned by their own department."
+  },
+  {
+   "id": "keep-electives-without-lists",
+   "type": "keep_as_published",
+   "strength": "must",
+   "match": {
+    "depts": [
+     "IT",
+     "ME",
+     "CE",
+     "ECE",
+     "EE"
+    ],
+    "audience": "mixed"
+   },
+   "text": "Electives and minor courses of IT, ME, CE, ECE and EE stay where they are.",
+   "why": "We don't have these departments' elective lists yet, so we can't tell which students share them (for CSE we do)."
+  },
+  {
+   "id": "keep-3rd-4th-year-groups-without-lists",
+   "type": "keep_as_published",
+   "strength": "must",
+   "match": {
+    "depts": [
+     "IT",
+     "ME",
+     "CE",
+     "ECE",
+     "EE"
+    ],
+    "years": [
+     "D3",
+     "D4"
+    ],
+    "audience": "subgroup"
+   },
+   "text": "3rd and 4th-year group classes of IT, ME, CE, ECE and EE stay where they are; whole-section classes may move.",
+   "why": "In 3rd and 4th year a group number can stand for an elective choice rather than fixed students (as it did in CSE). Without the lists only whole-section classes are safe to move."
   },
   {
    "id": "labs-on-different-days",
    "type": "labs_apart",
    "strength": "must",
-   "match": {
-    "dept": "CSE"
-   },
+   "match": {},
    "text": "A teacher's lab for two groups of one class is on two different days (e.g. SC Lab A1 Thursday, A2 Friday).",
    "why": "Teachers don't take the same lab twice in one day. Pairs the college itself holds on one day may stay."
   },
@@ -74,7 +131,6 @@
    "type": "real_class_daily",
    "strength": "must",
    "match": {
-    "dept": "CSE",
     "years": [
      "D2",
      "D3",
@@ -83,7 +139,7 @@
    },
    "params": {
     "not_counting": [
-     "OE-",
+     "OE",
      "MJP",
      "MC",
      "JPAL"

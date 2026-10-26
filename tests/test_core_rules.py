@@ -98,7 +98,8 @@ def test_publish_refuses_a_timetable_that_breaks_the_rules(college, before, tmp_
     jpal = next(e for e in before if code(college, e).startswith("JPAL") and e.day == 3)
     cv = next(e for e in before if code(college, e) == "CV")
     bad = [replace(e, day=3, start=jpal.start + jpal.duration) if e is cv else e for e in before]
-    monkeypatch.setattr(core, "_optimised", lambda: {"clashes": {"optimised": 0}, "entries": [e.__dict__ for e in bad]})
+    monkeypatch.setattr(core, "_optimised",
+                        lambda dept="CSE": {"clashes": {"optimised": 0}, "entries": [e.__dict__ for e in bad]})
     r = TestClient(core_app(), headers={"X-User": "admin"}).post("/api/compare/cse/publish")
     assert r.status_code == 409 and "JPAL" in r.json()["detail"]
     assert STORE.published.get("CSE", {}).get("status") != "published"

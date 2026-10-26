@@ -32,10 +32,15 @@ def test_saved_combinations_hold_no_personal_data():
 
 
 def test_every_class_has_its_students(college):
-    for year in ("D3", "D4"):
+    for year in ("D3", "D4"):  # CSE: from the distribution lists
         attended = {lid for t in college.student_types if t.section.startswith(year) for lid in t.lessons}
-        real = {l.id for l in college.lessons if l.fixed and any(b.startswith(year + "-") for b in l.batches)}
+        real = {l.id for l in college.lessons if l.fixed and l.dept == "CSE" and any(b.startswith(year + "-") for b in l.batches)}
         assert real <= attended
+    # other departments: every class of a regular section (not an elective audience) has a student type
+    attended = {lid for t in college.student_types for lid in t.lessons}
+    regular = {l.id for l in college.lessons if l.fixed and l.dept != "CSE"
+               and all(college.section_by_id[b.rsplit("-", 1)[0]].kind == "section" for b in l.batches)}
+    assert regular <= attended
 
 
 def test_a_real_student_sees_only_their_electives(college):

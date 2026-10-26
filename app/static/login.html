@@ -35,11 +35,11 @@
       <p class="text-sm text-slate-500 mb-3">Choose who you are. Each role sees only what it is allowed to use.</p>
 
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-        <template x-for="r in roleOrder.filter(r => accounts.roles[r])" :key="r">
-          <button @click="pick(r)" class="rounded-lg border px-2 py-2 text-left text-sm"
-                  :class="role === r ? 'border-indigo-500 bg-indigo-50' : 'bg-white hover:bg-slate-50'">
-            <div class="font-semibold" x-text="accounts.role_names[r]"></div>
-            <div class="text-[11px] text-slate-500 leading-tight" x-text="about[r]"></div>
+        <template x-for="g in Object.keys(groups)" :key="g">
+          <button @click="pick(g)" class="rounded-lg border px-2 py-2 text-left text-sm"
+                  :class="role === g ? 'border-indigo-500 bg-indigo-50' : 'bg-white hover:bg-slate-50'">
+            <div class="font-semibold" x-text="groups[g].name"></div>
+            <div class="text-[11px] text-slate-500 leading-tight" x-text="groups[g].about"></div>
           </button>
         </template>
       </div>
@@ -62,11 +62,13 @@
           <template x-for="u in list()" :key="u.id">
             <button @click="signIn(u.id)" class="w-full text-left px-3 py-2 text-sm hover:bg-indigo-50">
               <span x-text="label(u)"></span>
+              <span x-show="duty(u)" class="ml-1 text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-800" x-text="duty(u)"></span>
               <span x-show="u.dept && role !== 'student'" class="text-xs text-slate-400" x-text="' · ' + u.dept"></span>
             </button>
           </template>
           <div x-show="!list().length" class="px-3 py-3 text-sm text-slate-400"
                x-text="role === 'student' ? 'Pick your department and section.' : 'No match.'"></div>
+          <div x-show="role === 'student' && !section && list().length" class="px-3 py-2 text-xs text-slate-400">Pick your department and section to find your class.</div>
         </div>
       </div>
       <p x-show="error" class="mt-2 text-sm text-red-700" x-text="error"></p>
@@ -78,12 +80,12 @@
 function loginApp() {
   return {
     demo: false, loaded: false, accounts: { roles: {}, role_names: {} }, role: '', q: '', dept: '', section: '', error: '',
-    roleOrder: ['student', 'teacher', 'coordinator', 'hod', 'dean', 'club', 'org', 'admin'],
-    about: {
-      student: 'Your own timetable, free rooms, meet a teacher', teacher: 'Your schedule, leave, meetings, venues',
-      coordinator: 'Department timetable and substitutions', hod: 'Department, substitutions, venue approvals',
-      dean: 'Read-only: all departments, insights, audit', club: 'Book venues, find a time for a batch',
-      org: 'Find a time when a batch is free, request a venue', admin: 'Generate, publish, central halls, everything',
+    // four kinds of people; club lead, timetable coordinator, Dean and the offices are extra duties
+    groups: {
+      student: { name: 'Student', roles: ['club', 'student'], about: 'Your timetable, free rooms, meet a teacher (club leads too)' },
+      teacher: { name: 'Teacher', roles: ['teacher', 'coordinator'], about: 'Your schedule, leave, meetings, venues (timetable coordinators too)' },
+      hod: { name: 'HOD', roles: ['hod'], about: 'Your department: substitutions, venue approvals, optimised timetable' },
+      admin: { name: 'Admin', roles: ['admin', 'dean', 'org'], about: 'Timetable office, Dean, Training & Placement, visitors' },
     },
     next() { const n = new URLSearchParams(location.search).get('next'); return n && n.startsWith('/') && !n.startsWith('//') ? n : '/'; },
     async init() {
@@ -98,10 +100,13 @@ function loginApp() {
     depts() { return [...new Set(this.students().map(u => u.dept))].sort(); },
     sections() { return [...new Set(this.students().filter(u => u.dept === this.dept).map(u => this.sectionOf(u)))].sort(); },
     sectionOf(u) { return u.section || ''; },
-    label(u) { return this.role === 'student' ? u.name.replace(/^Student · /, '').replace(/^[^·]+· /, '') : u.name; },
+    label(u) { return u.role === 'student' ? u.name.replace(/^Student · /, '').replace(/^[^·]+· /, '') : u.name; },
+    duty(u) { return u.role === this.groups[this.role].roles.find(r => r === 'student' || r === 'teacher' || r === 'hod' || r === 'admin') ? '' : (this.accounts.role_names[u.role] || ''); },
     list() {
-      const all = this.accounts.roles[this.role] || [];
-      if (this.role === 'student') return this.section ? all.filter(u => this.sectionOf(u) === this.section) : [];
+      const all = (this.groups[this.role]?.roles || []).flatMap(r => (this.accounts.roles[r] || []).map(u => ({ ...u, role: r })));
+      if (this.role === 'student') {
+        return [...all.filter(u => u.role === 'club'), ...(this.section ? all.filter(u => u.role === 'student' && this.sectionOf(u) === this.section) : [])];
+      }
       const q = this.q.toLowerCase();
       return all.filter(u => !q || u.name.toLowerCase().includes(q) || (u.dept || '').toLowerCase().includes(q)).slice(0, 200);
     },

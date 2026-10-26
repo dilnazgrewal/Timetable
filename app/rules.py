@@ -33,12 +33,21 @@ class Rule:
     text: str  # the rule in plain words
     why: str = ""
     strength: str = "must"  # must | prefer
-    match: dict = field(default_factory=dict)  # dept, code_prefix [..], years [..], teacher_prefix [..]
+    # dept / depts [..], code_prefix [..], years [..], teacher_prefix [..], other_dept_teacher, audience
+    match: dict = field(default_factory=dict)
     params: dict = field(default_factory=dict)
 
-    def applies(self, l: Lesson) -> bool:
+    def applies(self, l: Lesson, college: College | None = None) -> bool:
         m = self.match
         if m.get("dept") and l.dept != m["dept"]:
+            return False
+        if m.get("depts") and l.dept not in m["depts"]:
+            return False
+        if college is not None and m.get("other_dept_teacher"):
+            t = college.teacher_by_id.get(l.teacher)
+            if t is None or t.dept == l.dept:
+                return False
+        if college is not None and m.get("audience") and audience(college, l) != m["audience"]:
             return False
         if m.get("code_prefix") and not l.code.startswith(tuple(m["code_prefix"])):
             return False
@@ -57,6 +66,16 @@ def load(path: Path) -> list[Rule]:
         assert r.type in TYPES, f"rule {r.id}: unknown type {r.type}"
         assert r.strength in ("must", "prefer"), f"rule {r.id}: strength must be 'must' or 'prefer'"
     return rules
+
+
+def audience(college: College, l: Lesson) -> str:
+    """'whole' (all of one section), 'subgroup' (some lab groups of one section) or 'mixed' (several sections,
+    or an elective / minor-course audience)."""
+    secs = {section_of(b) for b in l.batches}
+    s = college.section_by_id.get(next(iter(secs))) if len(secs) == 1 else None
+    if s is None or s.kind != "section":
+        return "mixed"
+    return "whole" if set(l.batches) >= set(s.groups) else "subgroup"
 
 
 def year_of(batch: str) -> str:
@@ -91,7 +110,7 @@ def breaks(college: College, rule: Rule, entries: list[Entry]) -> list[str]:
     if rule.type == "keep_as_published":
         published = {(e.lesson, e.day, e.start) for e in college.fixed_entries}
         out = [f"{L[e.lesson].code} ({L[e.lesson].section}) moved to {_where(e)}" for e in entries
-               if rule.applies(L[e.lesson]) and L[e.lesson].fixed and (e.lesson, e.day, e.start) not in published]
+               if rule.applies(L[e.lesson], college) and L[e.lesson].fixed and (e.lesson, e.day, e.start) not in published]
     elif rule.type == "labs_apart":
         days: dict[str, set[int]] = defaultdict(set)
         for e in entries:
@@ -116,8 +135,10 @@ def breaks(college: College, rule: Rule, entries: list[Entry]) -> list[str]:
             if not L[e.lesson].code.startswith(skip):
                 real[e.lesson, e.day] += 1
         years = rule.match.get("years")
+        depts = {L[e.lesson].dept for e in entries}  # only the departments whose timetable this is
         for name, sec, ls in student_units(college):
-            if (years and year_of(sec) not in years) or not any(x in L and rule.applies(L[x]) for x in ls):
+            if (years and year_of(sec) not in years) or not any(x in L and rule.applies(L[x]) and L[x].dept in depts
+                                                                 for x in ls):
                 continue
             for d in range(len(DAYS)):
                 if sum(real.get((x, d), 0) for x in ls) < need:

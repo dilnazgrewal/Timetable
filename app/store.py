@@ -194,15 +194,21 @@ class Store:
 
     # --- which version of an imported timetable is live -----------------------------------------
     def imported_entries(self) -> list[Entry]:
-        """The college's own (imported) placements, or the optimised version once it is published."""
-        if self.published.get("CSE", {}).get("status") == "published" and OPTIMISED.exists():
+        """The college's own (imported) placements, with each department whose optimised version is published
+        swapped in."""
+        L = self.college.lesson_by_id
+        entries = list(self.college.fixed_entries)
+        for dept, info in self.published.items():
+            if info.get("status") != "published":
+                continue
+            path = OPTIMISED.with_name(f"{dept.lower()}_optimised.json")
             try:
-                entries = [Entry(**e) for e in json.loads(OPTIMISED.read_text(encoding="utf-8"))["entries"]]
-                if all(e.lesson in self.college.lesson_by_id for e in entries):
-                    return entries
+                new = [Entry(**e) for e in json.loads(path.read_text(encoding="utf-8"))["entries"]]
             except Exception:
-                pass
-        return list(self.college.fixed_entries)
+                continue
+            if all(e.lesson in L and L[e.lesson].dept == dept for e in new):
+                entries = [e for e in entries if L[e.lesson].dept != dept] + new
+        return entries
 
     def set_published(self, dept: str, info: dict | None) -> None:
         """Propose / publish / withdraw a department's optimised timetable, then re-install the base timetable."""

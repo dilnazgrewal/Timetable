@@ -1,0 +1,10578 @@
+{
+ "source": "FET export of the ECE department (rooms + groups pages)",
+ "dept": "ECE",
+ "rooms": [
+  {
+   "id": "G6",
+   "kind": "Classroom",
+   "capacity": 60,
+   "dept": "ECE",
+   "building": "ECE",
+   "floor": "Ground",
+   "features": [
+    "projector"
+   ],
+   "sittable": true,
+   "bookable": true
+  },
+  {
+   "id": "G7",
+   "kind": "Classroom",
+   "capacity": 60,
+   "dept": "ECE",
+   "building": "ECE",
+   "floor": "Ground",
+   "features": [
+    "projector"
+   ],
+   "sittable": true,
+   "bookable": true
+  },
+  {
+   "id": "G8",
+   "kind": "Classroom",
+   "capacity": 60,
+   "dept": "ECE",
+   "building": "ECE",
+   "floor": "Ground",
+   "features": [
+    "projector"
+   ],
+   "sittable": true,
+   "bookable": true
+  },
+  {
+   "id": "F104",
+   "kind": "Classroom",
+   "capacity": 60,
+   "dept": "ECE",
+   "building": "ECE",
+   "floor": "First",
+   "features": [
+    "projector"
+   ],
+   "sittable": true,
+   "bookable": true
+  },
+  {
+   "id": "F105",
+   "kind": "Classroom",
+   "capacity": 60,
+   "dept": "ECE",
+   "building": "ECE",
+   "floor": "First",
+   "features": [
+    "projector"
+   ],
+   "sittable": true,
+   "bookable": true
+  },
+  {
+   "id": "MWR/L",
+   "kind": "Lab",
+   "capacity": 30,
+   "dept": "ECE",
+   "building": "ECE",
+   "floor": "First",
+   "features": [
+    "projector"
+   ],
+   "sittable": false,
+   "bookable": false
+  },
+  {
+   "id": "MP/L",
+   "kind": "Lab",
+   "capacity": 30,
+   "dept": "ECE",
+   "building": "ECE",
+   "floor": "First",
+   "features": [
+    "projector"
+   ],
+   "sittable": false,
+   "bookable": false
+  },
+  {
+   "id": "COMM/L",
+   "kind": "Lab",
+   "capacity": 30,
+   "dept": "ECE",
+   "building": "ECE",
+   "floor": "First",
+   "features": [
+    "projector"
+   ],
+   "sittable": false,
+   "bookable": false
+  },
+  {
+   "id": "COMP/L(EC)",
+   "kind": "Lab",
+   "capacity": 30,
+   "dept": "ECE",
+   "building": "ECE",
+   "floor": "First",
+   "features": [
+    "projector"
+   ],
+   "sittable": false,
+   "bookable": false
+  },
+  {
+   "id": "FO&R/L",
+   "kind": "Lab",
+   "capacity": 30,
+   "dept": "ECE",
+   "building": "ECE",
+   "floor": "First",
+   "features": [
+    "projector"
+   ],
+   "sittable": false,
+   "bookable": false
+  },
+  {
+   "id": "EDA/L",
+   "kind": "Lab",
+   "capacity": 30,
+   "dept": "ECE",
+   "building": "ECE",
+   "floor": "First",
+   "features": [
+    "projector"
+   ],
+   "sittable": false,
+   "bookable": false
+  },
+  {
+   "id": "EDC/L",
+   "kind": "Lab",
+   "capacity": 30,
+   "dept": "ECE",
+   "building": "ECE",
+   "floor": "First",
+   "features": [
+    "projector"
+   ],
+   "sittable": false,
+   "bookable": false
+  },
+  {
+   "id": "TI/L",
+   "kind": "Lab",
+   "capacity": 30,
+   "dept": "ECE",
+   "building": "ECE",
+   "floor": "First",
+   "features": [
+    "projector"
+   ],
+   "sittable": false,
+   "bookable": false
+  },
+  {
+   "id": "BEEE/L",
+   "kind": "Lab",
+   "capacity": 30,
+   "dept": "ECE",
+   "building": "ECE",
+   "floor": "First",
+   "features": [
+    "projector"
+   ],
+   "sittable": false,
+   "bookable": false
+  },
+  {
+   "id": "F106",
+   "kind": "Classroom",
+   "capacity": 60,
+   "dept": "ECE",
+   "building": "ECE",
+   "floor": "First",
+   "features": [
+    "projector"
+   ],
+   "sittable": true,
+   "bookable": true
+  },
+  {
+   "id": "F107",
+   "kind": "Classroom",
+   "capacity": 60,
+   "dept": "ECE",
+   "building": "ECE",
+   "floor": "First",
+   "features": [
+    "projector"
+   ],
+   "sittable": true,
+   "bookable": true
+  },
+  {
+   "id": "F109",
+   "kind": "Classroom",
+   "capacity": 60,
+   "dept": "ECE",
+   "building": "ECE",
+   "floor": "First",
+   "features": [
+    "projector"
+   ],
+   "sittable": true,
+   "bookable": true
+  },
+  {
+   "id": "F112",
+   "kind": "Classroom",
+   "capacity": 60,
+   "dept": "ECE",
+   "building": "ECE",
+   "floor": "First",
+   "features": [
+    "projector"
+   ],
+   "sittable": true,
+   "bookable": true
+  },
+  {
+   "id": "F114",
+   "kind": "Classroom",
+   "capacity": 60,
+   "dept": "ECE",
+   "building": "ECE",
+   "floor": "First",
+   "features": [
+    "projector"
+   ],
+   "sittable": true,
+   "bookable": true
+  },
+  {
+   "id": "G10",
+   "kind": "Classroom",
+   "capacity": 60,
+   "dept": "ECE",
+   "building": "ECE",
+   "floor": "Ground",
+   "features": [
+    "projector"
+   ],
+   "sittable": true,
+   "bookable": true
+  },
+  {
+   "id": "G11",
+   "kind": "Classroom",
+   "capacity": 60,
+   "dept": "ECE",
+   "building": "ECE",
+   "floor": "Ground",
+   "features": [
+    "projector"
+   ],
+   "sittable": true,
+   "bookable": true
+  },
+  {
+   "id": "F108",
+   "kind": "Classroom",
+   "capacity": 60,
+   "dept": "ECE",
+   "building": "ECE",
+   "floor": "First",
+   "features": [
+    "projector"
+   ],
+   "sittable": true,
+   "bookable": true
+  },
+  {
+   "id": "PROJ/L",
+   "kind": "Lab",
+   "capacity": 30,
+   "dept": "ECE",
+   "building": "ECE",
+   "floor": "First",
+   "features": [
+    "projector"
+   ],
+   "sittable": false,
+   "bookable": false
+  },
+  {
+   "id": "R&D/L",
+   "kind": "Lab",
+   "capacity": 30,
+   "dept": "ECE",
+   "building": "ECE",
+   "floor": "First",
+   "features": [
+    "projector"
+   ],
+   "sittable": false,
+   "bookable": false
+  },
+  {
+   "id": "COMP/L(EE)",
+   "kind": "Lab",
+   "capacity": 30,
+   "dept": "ECE",
+   "building": "ECE",
+   "floor": "First",
+   "features": [
+    "projector"
+   ],
+   "sittable": false,
+   "bookable": false
+  },
+  {
+   "id": "F113",
+   "kind": "Classroom",
+   "capacity": 60,
+   "dept": "ECE",
+   "building": "ECE",
+   "floor": "First",
+   "features": [
+    "projector"
+   ],
+   "sittable": true,
+   "bookable": true
+  },
+  {
+   "id": "F102(AUTOMOBILEBLOCK)",
+   "kind": "Classroom",
+   "capacity": 60,
+   "dept": "ECE",
+   "building": "ECE",
+   "floor": "First",
+   "features": [
+    "projector"
+   ],
+   "sittable": true,
+   "bookable": true
+  },
+  {
+   "id": "S204",
+   "kind": "Classroom",
+   "capacity": 60,
+   "dept": "ECE",
+   "building": "ECE",
+   "floor": "Second",
+   "features": [
+    "projector"
+   ],
+   "sittable": true,
+   "bookable": true
+  },
+  {
+   "id": "S205",
+   "kind": "Classroom",
+   "capacity": 60,
+   "dept": "ECE",
+   "building": "ECE",
+   "floor": "Second",
+   "features": [
+    "projector"
+   ],
+   "sittable": true,
+   "bookable": true
+  },
+  {
+   "id": "F110",
+   "kind": "Classroom",
+   "capacity": 60,
+   "dept": "ECE",
+   "building": "ECE",
+   "floor": "First",
+   "features": [
+    "projector"
+   ],
+   "sittable": true,
+   "bookable": true
+  },
+  {
+   "id": "F112A",
+   "kind": "Classroom",
+   "capacity": 60,
+   "dept": "ECE",
+   "building": "ECE",
+   "floor": "First",
+   "features": [
+    "projector"
+   ],
+   "sittable": true,
+   "bookable": true
+  },
+  {
+   "id": "G11A",
+   "kind": "Classroom",
+   "capacity": 60,
+   "dept": "ECE",
+   "building": "ECE",
+   "floor": "Ground",
+   "features": [
+    "projector"
+   ],
+   "sittable": true,
+   "bookable": true
+  },
+  {
+   "id": "BEELAB1",
+   "kind": "Lab",
+   "capacity": 30,
+   "dept": "ECE",
+   "building": "ECE",
+   "floor": "First",
+   "features": [
+    "projector"
+   ],
+   "sittable": false,
+   "bookable": false
+  },
+  {
+   "id": "BEELAB2",
+   "kind": "Lab",
+   "capacity": 30,
+   "dept": "ECE",
+   "building": "ECE",
+   "floor": "First",
+   "features": [
+    "projector"
+   ],
+   "sittable": false,
+   "bookable": false
+  },
+  {
+   "id": "A9(AUTOMOBILEBLOCK)",
+   "kind": "Classroom",
+   "capacity": 60,
+   "dept": "ECE",
+   "building": "ECE",
+   "floor": "First",
+   "features": [
+    "projector"
+   ],
+   "sittable": true,
+   "bookable": true
+  },
+  {
+   "id": "F102",
+   "kind": "Classroom",
+   "capacity": 60,
+   "dept": "ECE",
+   "building": "ECE",
+   "floor": "First",
+   "features": [
+    "projector"
+   ],
+   "sittable": true,
+   "bookable": true
+  },
+  {
+   "id": "OTHER DEPARTMENT",
+   "kind": "Other department",
+   "capacity": 999,
+   "dept": null,
+   "building": "",
+   "floor": "",
+   "features": [],
+   "sittable": false,
+   "bookable": false
+  }
+ ],
+ "teachers": [
+  {
+   "id": "ECE-KPK",
+   "name": "KPK",
+   "dept": "ECE",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "ECE-RSWORKSH",
+   "name": "RS_Workshop",
+   "dept": "ECE",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "ECE-GK",
+   "name": "GK",
+   "dept": "ECE",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "ECE-GPK",
+   "name": "GPK",
+   "dept": "ECE",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "ECE-HLK",
+   "name": "HLK",
+   "dept": "ECE",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "ECE-BK",
+   "name": "BK",
+   "dept": "ECE",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "TBA-ECE-BCA-12",
+   "name": "BCA (staff)",
+   "dept": "ECE",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "ECE-GJK",
+   "name": "GJK",
+   "dept": "ECE",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "ECE-NS",
+   "name": "NS",
+   "dept": "ECE",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "ECE-SK",
+   "name": "SK",
+   "dept": "ECE",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "ECE-CJ",
+   "name": "CJ",
+   "dept": "ECE",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "ECE-PP",
+   "name": "PP",
+   "dept": "ECE",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "ECE-NK",
+   "name": "NK",
+   "dept": "ECE",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "ECE-DS",
+   "name": "DS",
+   "dept": "ECE",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "ECE-HKA",
+   "name": "HKA",
+   "dept": "ECE",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "ECE-NSG",
+   "name": "NSG",
+   "dept": "ECE",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "ECE-KDS",
+   "name": "KDS",
+   "dept": "ECE",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "ECE-SJK",
+   "name": "AP",
+   "dept": "ECE",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "ECE-AK",
+   "name": "AK",
+   "dept": "ECE",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "ME-JJK",
+   "name": "JJK",
+   "dept": "ME",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "ECE-MR",
+   "name": "MR",
+   "dept": "ECE",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "ECE-SMM",
+   "name": "SMM",
+   "dept": "ECE",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "ECE-SPS",
+   "name": "SPS",
+   "dept": "ECE",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "ECE-RKSAC",
+   "name": "RKS_AC",
+   "dept": "ECE",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "TBA-ECE-PRETHESIS-78",
+   "name": "Prethesis (staff)",
+   "dept": "ECE",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "TBA-ECE-PRETHESIS-82",
+   "name": "Prethesis (staff)",
+   "dept": "ECE",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "TBA-ECE-PRETHESIS-84",
+   "name": "Prethesis (staff)",
+   "dept": "ECE",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "ECE-HK",
+   "name": "HK",
+   "dept": "ECE",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "TBA-ECE-PRETHESIS-86",
+   "name": "Prethesis (staff)",
+   "dept": "ECE",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "ECE-HPSOE",
+   "name": "HPS_OE",
+   "dept": "ECE",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "AS-NK",
+   "name": "NK",
+   "dept": "AS",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "AS-MK",
+   "name": "MK",
+   "dept": "AS",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "AS-SK",
+   "name": "SK",
+   "dept": "AS",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "TBA-ECE-BCA-134",
+   "name": "BCA (staff)",
+   "dept": "ECE",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "TBA-ECE-BCA-143",
+   "name": "BCA (staff)",
+   "dept": "ECE",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "TBA-ECE-OUT1",
+   "name": "Taught in another department",
+   "dept": "AS",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "TBA-ECE-OUT2",
+   "name": "Taught in another department",
+   "dept": "AS",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "TBA-ECE-OUT3",
+   "name": "Taught in another department",
+   "dept": "AS",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "TBA-ECE-OUT4",
+   "name": "Taught in another department",
+   "dept": "AS",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "TBA-ECE-OUT5",
+   "name": "Taught in another department",
+   "dept": "AS",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "TBA-ECE-OUT6",
+   "name": "Taught in another department",
+   "dept": "AS",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  },
+  {
+   "id": "TBA-ECE-OUT7",
+   "name": "Taught in another department",
+   "dept": "AS",
+   "kind": "Regular",
+   "unavailable": [],
+   "max_per_day": 9
+  }
+ ],
+ "sections": [
+  {
+   "id": "D1-ECE-A",
+   "dept": "ECE",
+   "year": 1,
+   "name": "D1ECA",
+   "size": 60,
+   "home_room": "",
+   "groups": [
+    "D1-ECE-A-A1",
+    "D1-ECE-A-A2"
+   ],
+   "kind": "section"
+  },
+  {
+   "id": "D1-ECE-B",
+   "dept": "ECE",
+   "year": 1,
+   "name": "D1ECB",
+   "size": 60,
+   "home_room": "",
+   "groups": [
+    "D1-ECE-B-B1",
+    "D1-ECE-B-B2"
+   ],
+   "kind": "section"
+  },
+  {
+   "id": "D1-ECE-XD1CSA",
+   "dept": "ECE",
+   "year": 1,
+   "name": "D1CSA",
+   "size": 30,
+   "home_room": "",
+   "groups": [
+    "D1-ECE-XD1CSA-ALL"
+   ],
+   "kind": "elective"
+  },
+  {
+   "id": "D1-ECE-XD1CSA1",
+   "dept": "ECE",
+   "year": 1,
+   "name": "D1CSA1",
+   "size": 30,
+   "home_room": "",
+   "groups": [
+    "D1-ECE-XD1CSA1-ALL"
+   ],
+   "kind": "elective"
+  },
+  {
+   "id": "D1-ECE-XD1CSA2",
+   "dept": "ECE",
+   "year": 1,
+   "name": "D1CSA2",
+   "size": 30,
+   "home_room": "",
+   "groups": [
+    "D1-ECE-XD1CSA2-ALL"
+   ],
+   "kind": "elective"
+  },
+  {
+   "id": "D1-ECE-XD1CSE",
+   "dept": "ECE",
+   "year": 1,
+   "name": "D1CSE",
+   "size": 30,
+   "home_room": "",
+   "groups": [
+    "D1-ECE-XD1CSE-ALL"
+   ],
+   "kind": "elective"
+  },
+  {
+   "id": "D1-ECE-XD1CSE1",
+   "dept": "ECE",
+   "year": 1,
+   "name": "D1CSE1",
+   "size": 30,
+   "home_room": "",
+   "groups": [
+    "D1-ECE-XD1CSE1-ALL"
+   ],
+   "kind": "elective"
+  },
+  {
+   "id": "D1-ECE-XD1CSE2",
+   "dept": "ECE",
+   "year": 1,
+   "name": "D1CSE2",
+   "size": 30,
+   "home_room": "",
+   "groups": [
+    "D1-ECE-XD1CSE2-ALL"
+   ],
+   "kind": "elective"
+  },
+  {
+   "id": "D1-ECE-XD1ECAM1",
+   "dept": "ECE",
+   "year": 1,
+   "name": "D1ECAM1",
+   "size": 30,
+   "home_room": "",
+   "groups": [
+    "D1-ECE-XD1ECAM1-ALL"
+   ],
+   "kind": "elective"
+  },
+  {
+   "id": "D1-ECE-XD1ECAM1AUTOMATIC",
+   "dept": "ECE",
+   "year": 1,
+   "name": "D1ECAM1 Automatic Group",
+   "size": 30,
+   "home_room": "",
+   "groups": [
+    "D1-ECE-XD1ECAM1AUTOMATIC-ALL"
+   ],
+   "kind": "elective"
+  },
+  {
+   "id": "D1-ECE-XD1ECAM2",
+   "dept": "ECE",
+   "year": 1,
+   "name": "D1ECAM2",
+   "size": 30,
+   "home_room": "",
+   "groups": [
+    "D1-ECE-XD1ECAM2-ALL"
+   ],
+   "kind": "elective"
+  },
+  {
+   "id": "D1-ECE-XD1ECAM2AUTOMATIC",
+   "dept": "ECE",
+   "year": 1,
+   "name": "D1ECAM2 Automatic Group",
+   "size": 30,
+   "home_room": "",
+   "groups": [
+    "D1-ECE-XD1ECAM2AUTOMATIC-ALL"
+   ],
+   "kind": "elective"
+  },
+  {
+   "id": "D1-ECE-XD1ECAM3",
+   "dept": "ECE",
+   "year": 1,
+   "name": "D1ECAM3",
+   "size": 30,
+   "home_room": "",
+   "groups": [
+    "D1-ECE-XD1ECAM3-ALL"
+   ],
+   "kind": "elective"
+  },
+  {
+   "id": "D1-ECE-XD1ECAM3AUTOMATIC",
+   "dept": "ECE",
+   "year": 1,
+   "name": "D1ECAM3 Automatic Group",
+   "size": 30,
+   "home_room": "",
+   "groups": [
+    "D1-ECE-XD1ECAM3AUTOMATIC-ALL"
+   ],
+   "kind": "elective"
+  },
+  {
+   "id": "D1-ECE-XD1ECBM1",
+   "dept": "ECE",
+   "year": 1,
+   "name": "D1ECBM1",
+   "size": 30,
+   "home_room": "",
+   "groups": [
+    "D1-ECE-XD1ECBM1-ALL"
+   ],
+   "kind": "elective"
+  },
+  {
+   "id": "D1-ECE-XD1ECBM1AUTOMATIC",
+   "dept": "ECE",
+   "year": 1,
+   "name": "D1ECBM1 Automatic Group",
+   "size": 30,
+   "home_room": "",
+   "groups": [
+    "D1-ECE-XD1ECBM1AUTOMATIC-ALL"
+   ],
+   "kind": "elective"
+  },
+  {
+   "id": "D1-ECE-XD1ECBM2",
+   "dept": "ECE",
+   "year": 1,
+   "name": "D1ECBM2",
+   "size": 30,
+   "home_room": "",
+   "groups": [
+    "D1-ECE-XD1ECBM2-ALL"
+   ],
+   "kind": "elective"
+  },
+  {
+   "id": "D1-ECE-XD1ECBM2AUTOMATIC",
+   "dept": "ECE",
+   "year": 1,
+   "name": "D1ECBM2 Automatic Group",
+   "size": 30,
+   "home_room": "",
+   "groups": [
+    "D1-ECE-XD1ECBM2AUTOMATIC-ALL"
+   ],
+   "kind": "elective"
+  },
+  {
+   "id": "D1-ECE-XD1ECBM3",
+   "dept": "ECE",
+   "year": 1,
+   "name": "D1ECBM3",
+   "size": 30,
+   "home_room": "",
+   "groups": [
+    "D1-ECE-XD1ECBM3-ALL"
+   ],
+   "kind": "elective"
+  },
+  {
+   "id": "D1-ECE-XD1ECBM3AUTOMATIC",
+   "dept": "ECE",
+   "year": 1,
+   "name": "D1ECBM3 Automatic Group",
+   "size": 30,
+   "home_room": "",
+   "groups": [
+    "D1-ECE-XD1ECBM3AUTOMATIC-ALL"
+   ],
+   "kind": "elective"
+  },
+  {
+   "id": "D1-ECE-XD1EEA1",
+   "dept": "ECE",
+   "year": 1,
+   "name": "D1EEA1",
+   "size": 30,
+   "home_room": "",
+   "groups": [
+    "D1-ECE-XD1EEA1-ALL"
+   ],
+   "kind": "elective"
+  },
+  {
+   "id": "D1-ECE-XD1EEA2",
+   "dept": "ECE",
+   "year": 1,
+   "name": "D1EEA2",
+   "size": 30,
+   "home_room": "",
+   "groups": [
+    "D1-ECE-XD1EEA2-ALL"
+   ],
+   "kind": "elective"
+  },
+  {
+   "id": "D1-ECE-XD1EEB1",
+   "dept": "ECE",
+   "year": 1,
+   "name": "D1EEB1",
+   "size": 30,
+   "home_room": "",
+   "groups": [
+    "D1-ECE-XD1EEB1-ALL"
+   ],
+   "kind": "elective"
+  },
+  {
+   "id": "D1-ECE-XD1EEB2",
+   "dept": "ECE",
+   "year": 1,
+   "name": "D1EEB2",
+   "size": 30,
+   "home_room": "",
+   "groups": [
+    "D1-ECE-XD1EEB2-ALL"
+   ],
+   "kind": "elective"
+  },
+  {
+   "id": "D2-ECE-A",
+   "dept": "ECE",
+   "year": 2,
+   "name": "D2ECA",
+   "size": 60,
+   "home_room": "",
+   "groups": [
+    "D2-ECE-A-A1",
+    "D2-ECE-A-A2",
+    "D2-ECE-A-A3"
+   ],
+   "kind": "section"
+  },
+  {
+   "id": "D2-ECE-B",
+   "dept": "ECE",
+   "year": 2,
+   "name": "D2ECB",
+   "size": 60,
+   "home_room": "",
+   "groups": [
+    "D2-ECE-B-B1",
+    "D2-ECE-B-B2",
+    "D2-ECE-B-B3"
+   ],
+   "kind": "section"
+  },
+  {
+   "id": "D3-ECE-A",
+   "dept": "ECE",
+   "year": 3,
+   "name": "D3ECA",
+   "size": 60,
+   "home_room": "",
+   "groups": [
+    "D3-ECE-A-A1",
+    "D3-ECE-A-A2",
+    "D3-ECE-A-A3"
+   ],
+   "kind": "section"
+  },
+  {
+   "id": "D3-ECE-B",
+   "dept": "ECE",
+   "year": 3,
+   "name": "D3ECB",
+   "size": 60,
+   "home_room": "",
+   "groups": [
+    "D3-ECE-B-B1",
+    "D3-ECE-B-B2",
+    "D3-ECE-B-B3"
+   ],
+   "kind": "section"
+  },
+  {
+   "id": "D4-ECE-A",
+   "dept": "ECE",
+   "year": 4,
+   "name": "D4ECA",
+   "size": 60,
+   "home_room": "",
+   "groups": [
+    "D4-ECE-A-A1",
+    "D4-ECE-A-A2",
+    "D4-ECE-A-A3"
+   ],
+   "kind": "section"
+  },
+  {
+   "id": "D4-ECE-B",
+   "dept": "ECE",
+   "year": 4,
+   "name": "D4ECB",
+   "size": 60,
+   "home_room": "",
+   "groups": [
+    "D4-ECE-B-B1",
+    "D4-ECE-B-B2",
+    "D4-ECE-B-B3"
+   ],
+   "kind": "section"
+  },
+  {
+   "id": "D4-ECE-XD4OEII",
+   "dept": "ECE",
+   "year": 4,
+   "name": "D4OE-II",
+   "size": 30,
+   "home_room": "",
+   "groups": [
+    "D4-ECE-XD4OEII-ALL"
+   ],
+   "kind": "elective"
+  },
+  {
+   "id": "D4-ECE-XD4OEIIAUTOMATICG",
+   "dept": "ECE",
+   "year": 4,
+   "name": "D4OE-II Automatic Group",
+   "size": 30,
+   "home_room": "",
+   "groups": [
+    "D4-ECE-XD4OEIIAUTOMATICG-ALL"
+   ],
+   "kind": "elective"
+  },
+  {
+   "id": "M-ECE-XM1EC",
+   "dept": "ECE",
+   "year": 5,
+   "name": "M1EC",
+   "size": 30,
+   "home_room": "",
+   "groups": [
+    "M-ECE-XM1EC-ALL"
+   ],
+   "kind": "elective"
+  },
+  {
+   "id": "M-ECE-XM1ECAUTOMATICGRO",
+   "dept": "ECE",
+   "year": 5,
+   "name": "M1EC Automatic Group",
+   "size": 30,
+   "home_room": "",
+   "groups": [
+    "M-ECE-XM1ECAUTOMATICGRO-ALL"
+   ],
+   "kind": "elective"
+  },
+  {
+   "id": "M-ECE-XM2EC",
+   "dept": "ECE",
+   "year": 5,
+   "name": "M2EC",
+   "size": 30,
+   "home_room": "",
+   "groups": [
+    "M-ECE-XM2EC-ALL"
+   ],
+   "kind": "elective"
+  },
+  {
+   "id": "M-ECE-XM2ECAUTOMATICGRO",
+   "dept": "ECE",
+   "year": 5,
+   "name": "M2EC Automatic Group",
+   "size": 30,
+   "home_room": "",
+   "groups": [
+    "M-ECE-XM2ECAUTOMATICGRO-ALL"
+   ],
+   "kind": "elective"
+  },
+  {
+   "id": "X-ECE-XX",
+   "dept": "ECE",
+   "year": 5,
+   "name": "X",
+   "size": 30,
+   "home_room": "",
+   "groups": [
+    "X-ECE-XX-ALL"
+   ],
+   "kind": "elective"
+  }
+ ],
+ "lessons": [
+  {
+   "id": "ECE:0001",
+   "code": "BEEE lab",
+   "name": "BEEE lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-KPK",
+   "section": "D1CSA2",
+   "batches": [
+    "D1-ECE-XD1CSA2-ALL"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "BEELAB1"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0002",
+   "code": "BEEE lab",
+   "name": "BEEE lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-KPK",
+   "section": "D1CSE2",
+   "batches": [
+    "D1-ECE-XD1CSE2-ALL"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "BEELAB1"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0003",
+   "code": "BEEE lab",
+   "name": "BEEE lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-KPK",
+   "section": "D1CSA1",
+   "batches": [
+    "D1-ECE-XD1CSA1-ALL"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "BEELAB2"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0004",
+   "code": "BEEE lab",
+   "name": "BEEE lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-KPK",
+   "section": "D1CSE1",
+   "batches": [
+    "D1-ECE-XD1CSE1-ALL"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "BEELAB2"
+   ],
+   "size": 30,
+   "co_teachers": [
+    "ECE-RSWORKSH"
+   ],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0005",
+   "code": "MPD",
+   "name": "MPD",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-KPK",
+   "section": "D1ECAM3",
+   "batches": [
+    "D1-ECE-XD1ECAM3-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "COMM/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0006",
+   "code": "MPD",
+   "name": "MPD",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-GK",
+   "section": "D2ECA3",
+   "batches": [
+    "D2-ECE-A-A3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "COMM/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0007",
+   "code": "MPD",
+   "name": "MPD",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-GPK",
+   "section": "D3ECA2",
+   "batches": [
+    "D3-ECE-A-A2"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "COMM/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0008",
+   "code": "MPD",
+   "name": "MPD",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-HLK",
+   "section": "D1ECBM2",
+   "batches": [
+    "D1-ECE-XD1ECBM2-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "COMM/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0009",
+   "code": "ADCS",
+   "name": "ADCS",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-GPK",
+   "section": "D3ECB1",
+   "batches": [
+    "D3-ECE-B-B1"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "COMM/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0010",
+   "code": "ADCS lab",
+   "name": "ADCS lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-BK",
+   "section": "D3ECA1",
+   "batches": [
+    "D3-ECE-A-A1"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "COMM/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0011",
+   "code": "ADCS",
+   "name": "ADCS",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-GPK",
+   "section": "D3ECB2",
+   "batches": [
+    "D3-ECE-B-B2"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "COMM/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0012",
+   "code": "BCA",
+   "name": "BCA",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-BCA-12",
+   "section": "X",
+   "batches": [
+    "X-ECE-XX-ALL"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "COMM/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0013",
+   "code": "ES ARM E1",
+   "name": "ES ARM E1",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-HLK",
+   "section": "D3ECA2",
+   "batches": [
+    "D3-ECE-A-A2"
+   ],
+   "sessions": 4,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "COMM/L",
+    "MP/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0014",
+   "code": "ADCS",
+   "name": "ADCS",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-BK",
+   "section": "D3ECA2",
+   "batches": [
+    "D3-ECE-A-A2"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "COMM/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0015",
+   "code": "ADCS",
+   "name": "ADCS",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-GPK",
+   "section": "D3ECB1",
+   "batches": [
+    "D3-ECE-B-B1"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "COMM/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0016",
+   "code": "MPD",
+   "name": "MPD",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-BK",
+   "section": "D4ECB1",
+   "batches": [
+    "D4-ECE-B-B1"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "COMM/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0017",
+   "code": "ADCS lab",
+   "name": "ADCS lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-BK",
+   "section": "D3ECA2",
+   "batches": [
+    "D3-ECE-A-A2"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "COMM/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0018",
+   "code": "PPS",
+   "name": "PPS",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-GK",
+   "section": "D1EEB2",
+   "batches": [
+    "D1-ECE-XD1EEB2-ALL"
+   ],
+   "sessions": 2,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "COMP/L(EC)",
+    "COMP/L(EE)"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0019",
+   "code": "VPDA lab",
+   "name": "VPDA lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-GJK",
+   "section": "M1EC",
+   "batches": [
+    "M-ECE-XM1EC-ALL"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "COMP/L(EC)"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0020",
+   "code": "PPS",
+   "name": "PPS",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-NS",
+   "section": "D1ECB1",
+   "batches": [
+    "D1-ECE-B-B1"
+   ],
+   "sessions": 2,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "COMP/L(EC)"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0021",
+   "code": "Seminar",
+   "name": "Seminar",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-SK",
+   "section": "D4ECA1",
+   "batches": [
+    "D4-ECE-A-A1"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "COMP/L(EC)"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0022",
+   "code": "PPS",
+   "name": "PPS",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-NS",
+   "section": "D1ECB2",
+   "batches": [
+    "D1-ECE-B-B2"
+   ],
+   "sessions": 2,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "COMP/L(EC)"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0023",
+   "code": "Pyth E3",
+   "name": "Pyth E3",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-NS",
+   "section": "D4ECA1",
+   "batches": [
+    "D4-ECE-A-A1"
+   ],
+   "sessions": 2,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "COMP/L(EC)",
+    "EDA/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0024",
+   "code": "IPCV E1",
+   "name": "IPCV E1",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-CJ",
+   "section": "D3ECB2",
+   "batches": [
+    "D3-ECE-B-B2"
+   ],
+   "sessions": 2,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "COMP/L(EC)",
+    "TI/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0025",
+   "code": "PPS",
+   "name": "PPS",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-HLK",
+   "section": "D1ECA1",
+   "batches": [
+    "D1-ECE-A-A1"
+   ],
+   "sessions": 2,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "COMP/L(EC)"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0026",
+   "code": "VPDA lab",
+   "name": "VPDA lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-GPK",
+   "section": "M1EC",
+   "batches": [
+    "M-ECE-XM1EC-ALL"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "COMP/L(EC)"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0027",
+   "code": "PPS",
+   "name": "PPS",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-GK",
+   "section": "D1ECA2",
+   "batches": [
+    "D1-ECE-A-A2"
+   ],
+   "sessions": 2,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "COMP/L(EC)",
+    "COMP/L(EE)"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0028",
+   "code": "PPS",
+   "name": "PPS",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-HLK",
+   "section": "D1EEA1",
+   "batches": [
+    "D1-ECE-XD1EEA1-ALL"
+   ],
+   "sessions": 2,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "COMP/L(EE)"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0029",
+   "code": "PPS",
+   "name": "PPS",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-GK",
+   "section": "D1EEA2",
+   "batches": [
+    "D1-ECE-XD1EEA2-ALL"
+   ],
+   "sessions": 2,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "COMP/L(EE)"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0030",
+   "code": "PPS",
+   "name": "PPS",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-GK",
+   "section": "D1EEB1",
+   "batches": [
+    "D1-ECE-XD1EEB1-ALL"
+   ],
+   "sessions": 2,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "COMP/L(EE)"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0031",
+   "code": "DSP lab",
+   "name": "DSP lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-HLK",
+   "section": "D3ECB2",
+   "batches": [
+    "D3-ECE-B-B2"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "EDA/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0032",
+   "code": "S&S lab",
+   "name": "S&S lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-PP",
+   "section": "D2ECA1",
+   "batches": [
+    "D2-ECE-A-A1"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "EDA/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0033",
+   "code": "Seminar",
+   "name": "Seminar",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-PP",
+   "section": "D4ECA2",
+   "batches": [
+    "D4-ECE-A-A2"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "EDA/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0034",
+   "code": "LPVLSI E4",
+   "name": "LPVLSI E4",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-NK",
+   "section": "D4ECA2",
+   "batches": [
+    "D4-ECE-A-A2"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "EDA/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0035",
+   "code": "DSP lab",
+   "name": "DSP lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-DS",
+   "section": "D3ECB1",
+   "batches": [
+    "D3-ECE-B-B1"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "EDA/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0036",
+   "code": "DSP lab",
+   "name": "DSP lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-DS",
+   "section": "D3ECA2",
+   "batches": [
+    "D3-ECE-A-A2"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "EDA/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0037",
+   "code": "S&S lab",
+   "name": "S&S lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-PP",
+   "section": "D2ECA2",
+   "batches": [
+    "D2-ECE-A-A2"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "EDA/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0038",
+   "code": "S&S lab",
+   "name": "S&S lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-SK",
+   "section": "D2ECB1",
+   "batches": [
+    "D2-ECE-B-B1"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "EDA/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0039",
+   "code": "S&S lab",
+   "name": "S&S lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-SK",
+   "section": "D2ECB2",
+   "batches": [
+    "D2-ECE-B-B2"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "EDA/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0040",
+   "code": "DSP lab",
+   "name": "DSP lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-DS",
+   "section": "D3ECA1",
+   "batches": [
+    "D3-ECE-A-A1"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "EDA/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0041",
+   "code": "Pyth lab",
+   "name": "Pyth lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-NS",
+   "section": "D4ECA1",
+   "batches": [
+    "D4-ECE-A-A1"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "EDA/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0042",
+   "code": "MC E4",
+   "name": "MC E4",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-PP",
+   "section": "D4ECA1",
+   "batches": [
+    "D4-ECE-A-A1"
+   ],
+   "sessions": 4,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "EDC/L",
+    "MWR/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0043",
+   "code": "MPD",
+   "name": "MPD",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-PP",
+   "section": "D2ECA2",
+   "batches": [
+    "D2-ECE-A-A2"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "EDC/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0044",
+   "code": "MPD",
+   "name": "MPD",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-HKA",
+   "section": "D3ECA1",
+   "batches": [
+    "D3-ECE-A-A1"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "EDC/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0045",
+   "code": "DSD",
+   "name": "DSD",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-NSG",
+   "section": "D2ECB1",
+   "batches": [
+    "D2-ECE-B-B1"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "EDC/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0046",
+   "code": "EDC lab",
+   "name": "EDC lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-KDS",
+   "section": "D2ECA1",
+   "batches": [
+    "D2-ECE-A-A1"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "EDC/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0047",
+   "code": "EDC lab",
+   "name": "EDC lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-NS",
+   "section": "D2ECB2",
+   "batches": [
+    "D2-ECE-B-B2"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "EDC/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0048",
+   "code": "EDC lab",
+   "name": "EDC lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-HKA",
+   "section": "D2ECB1",
+   "batches": [
+    "D2-ECE-B-B1"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "EDC/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0049",
+   "code": "MPD",
+   "name": "MPD",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-NSG",
+   "section": "D4ECB3",
+   "batches": [
+    "D4-ECE-B-B3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "EDC/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0050",
+   "code": "EDC lab",
+   "name": "EDC lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-KDS",
+   "section": "D2ECA2",
+   "batches": [
+    "D2-ECE-A-A2"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "EDC/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0051",
+   "code": "Bus Ess",
+   "name": "Bus Ess",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-SJK",
+   "section": "D2ECB",
+   "batches": [
+    "D2-ECE-B-B1",
+    "D2-ECE-B-B2",
+    "D2-ECE-B-B3"
+   ],
+   "sessions": 2,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "F102",
+    "F104"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0052",
+   "code": "MPMC",
+   "name": "MPMC",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-GJK",
+   "section": "D3ECA",
+   "batches": [
+    "D3-ECE-A-A1",
+    "D3-ECE-A-A2",
+    "D3-ECE-A-A3"
+   ],
+   "sessions": 3,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "F104"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0053",
+   "code": "ADCS",
+   "name": "ADCS",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-BK",
+   "section": "D3ECA",
+   "batches": [
+    "D3-ECE-A-A1",
+    "D3-ECE-A-A2",
+    "D3-ECE-A-A3"
+   ],
+   "sessions": 3,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "F104"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0054",
+   "code": "DSP",
+   "name": "DSP",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-DS",
+   "section": "D3ECA",
+   "batches": [
+    "D3-ECE-A-A1",
+    "D3-ECE-A-A2",
+    "D3-ECE-A-A3"
+   ],
+   "sessions": 3,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "F104"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0055",
+   "code": "DMP",
+   "name": "DMP",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-AK",
+   "section": "D3ECA",
+   "batches": [
+    "D3-ECE-A-A1",
+    "D3-ECE-A-A2",
+    "D3-ECE-A-A3"
+   ],
+   "sessions": 2,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "F104"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0056",
+   "code": "EP&S",
+   "name": "EP&S",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ME-JJK",
+   "section": "D3ECA",
+   "batches": [
+    "D3-ECE-A-A1",
+    "D3-ECE-A-A2",
+    "D3-ECE-A-A3"
+   ],
+   "sessions": 3,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "F104"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0057",
+   "code": "EMW",
+   "name": "EMW",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-MR",
+   "section": "D3ECA",
+   "batches": [
+    "D3-ECE-A-A1",
+    "D3-ECE-A-A2",
+    "D3-ECE-A-A3"
+   ],
+   "sessions": 3,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "F104"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0058",
+   "code": "Bus Ess",
+   "name": "Bus Ess",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-SJK",
+   "section": "D2ECA",
+   "batches": [
+    "D2-ECE-A-A1",
+    "D2-ECE-A-A2",
+    "D2-ECE-A-A3"
+   ],
+   "sessions": 2,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "F104",
+    "F105"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0059",
+   "code": "E Waste OE-II",
+   "name": "E Waste OE-II",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-KPK",
+   "section": "D4OE-II",
+   "batches": [
+    "D4-ECE-XD4OEII-ALL"
+   ],
+   "sessions": 3,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "F104",
+    "G6",
+    "G7"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0060",
+   "code": "LPVLSI E4",
+   "name": "LPVLSI E4",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-NK",
+   "section": "D4ECA2",
+   "batches": [
+    "D4-ECE-A-A2"
+   ],
+   "sessions": 3,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "F104",
+    "F105"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0061",
+   "code": "VLSI design E1",
+   "name": "VLSI design E1",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-KPK",
+   "section": "D3ECB1",
+   "batches": [
+    "D3-ECE-B-B1"
+   ],
+   "sessions": 4,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "F104",
+    "F105"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0062",
+   "code": "Pyth E3",
+   "name": "Pyth E3",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-NS",
+   "section": "D4ECA1",
+   "batches": [
+    "D4-ECE-A-A1"
+   ],
+   "sessions": 2,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "F104",
+    "F105"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0063",
+   "code": "EMW",
+   "name": "EMW",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-CJ",
+   "section": "D3ECB1",
+   "batches": [
+    "D3-ECE-B-B1"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "F104"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0064",
+   "code": "EMW",
+   "name": "EMW",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-CJ",
+   "section": "D3ECB",
+   "batches": [
+    "D3-ECE-B-B1",
+    "D3-ECE-B-B2",
+    "D3-ECE-B-B3"
+   ],
+   "sessions": 3,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "F105"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0065",
+   "code": "EP&S",
+   "name": "EP&S",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ME-JJK",
+   "section": "D3ECB",
+   "batches": [
+    "D3-ECE-B-B1",
+    "D3-ECE-B-B2",
+    "D3-ECE-B-B3"
+   ],
+   "sessions": 3,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "F105"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0066",
+   "code": "DSP",
+   "name": "DSP",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-DS",
+   "section": "D3ECB",
+   "batches": [
+    "D3-ECE-B-B1",
+    "D3-ECE-B-B2",
+    "D3-ECE-B-B3"
+   ],
+   "sessions": 3,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "F105"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0067",
+   "code": "ADCS",
+   "name": "ADCS",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-GPK",
+   "section": "D3ECB",
+   "batches": [
+    "D3-ECE-B-B1",
+    "D3-ECE-B-B2",
+    "D3-ECE-B-B3"
+   ],
+   "sessions": 3,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "F105"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0068",
+   "code": "MPMC",
+   "name": "MPMC",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-SMM",
+   "section": "D3ECB",
+   "batches": [
+    "D3-ECE-B-B1",
+    "D3-ECE-B-B2",
+    "D3-ECE-B-B3"
+   ],
+   "sessions": 3,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "F105"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0069",
+   "code": "ADCS",
+   "name": "ADCS",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-GPK",
+   "section": "D3ECB2",
+   "batches": [
+    "D3-ECE-B-B2"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "F105"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0070",
+   "code": "DMP",
+   "name": "DMP",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-SPS",
+   "section": "D3ECB",
+   "batches": [
+    "D3-ECE-B-B1",
+    "D3-ECE-B-B2",
+    "D3-ECE-B-B3"
+   ],
+   "sessions": 2,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "F105"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0071",
+   "code": "BEEE",
+   "name": "BEEE",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-HKA",
+   "section": "D1CSA1",
+   "batches": [
+    "D1-ECE-XD1CSA1-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "F106"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0072",
+   "code": "BEEE",
+   "name": "BEEE",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-HKA",
+   "section": "D1CSA",
+   "batches": [
+    "D1-ECE-XD1CSA-ALL"
+   ],
+   "sessions": 3,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "F107",
+    "F113",
+    "G6"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0073",
+   "code": "BEEE",
+   "name": "BEEE",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-HKA",
+   "section": "D1CSE",
+   "batches": [
+    "D1-ECE-XD1CSE-ALL"
+   ],
+   "sessions": 3,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "F107",
+    "F113",
+    "F114"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0074",
+   "code": "BEEE",
+   "name": "BEEE",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-HKA",
+   "section": "D1CSA2",
+   "batches": [
+    "D1-ECE-XD1CSA2-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "F108"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0075",
+   "code": "AC-I(E&RPW)",
+   "name": "AC-I(E&RPW)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-RKSAC",
+   "section": "M1EC",
+   "batches": [
+    "M-ECE-XM1EC-ALL"
+   ],
+   "sessions": 2,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "F110",
+    "G10"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0076",
+   "code": "BEEE",
+   "name": "BEEE",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-HKA",
+   "section": "D1CSE2",
+   "batches": [
+    "D1-ECE-XD1CSE2-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "F112"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0077",
+   "code": "BEEE",
+   "name": "BEEE",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-HKA",
+   "section": "D1CSE1",
+   "batches": [
+    "D1-ECE-XD1CSE1-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "F113"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0078",
+   "code": "Prethesis",
+   "name": "Prethesis",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-PRETHESIS-78",
+   "section": "M2EC",
+   "batches": [
+    "M-ECE-XM2EC-ALL"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "FO&R/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0079",
+   "code": "MPD",
+   "name": "MPD",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-KDS",
+   "section": "D2ECB2",
+   "batches": [
+    "D2-ECE-B-B2"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "FO&R/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0080",
+   "code": "MMC",
+   "name": "MMC",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-SK",
+   "section": "M2EC",
+   "batches": [
+    "M-ECE-XM2EC-ALL"
+   ],
+   "sessions": 3,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "FO&R/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0081",
+   "code": "CCNS",
+   "name": "CCNS",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-BK",
+   "section": "M1EC",
+   "batches": [
+    "M-ECE-XM1EC-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "FO&R/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0082",
+   "code": "Prethesis",
+   "name": "Prethesis",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-PRETHESIS-82",
+   "section": "M2EC",
+   "batches": [
+    "M-ECE-XM2EC-ALL"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "FO&R/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0083",
+   "code": "VPDA",
+   "name": "VPDA",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-GPK",
+   "section": "M1EC",
+   "batches": [
+    "M-ECE-XM1EC-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "FO&R/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0084",
+   "code": "Prethesis",
+   "name": "Prethesis",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-PRETHESIS-84",
+   "section": "M2EC",
+   "batches": [
+    "M-ECE-XM2EC-ALL"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "FO&R/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0085",
+   "code": "RM",
+   "name": "RM",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-HK",
+   "section": "M1EC",
+   "batches": [
+    "M-ECE-XM1EC-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "FO&R/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0086",
+   "code": "Prethesis",
+   "name": "Prethesis",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-PRETHESIS-86",
+   "section": "M2EC",
+   "batches": [
+    "M-ECE-XM2EC-ALL"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "FO&R/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0087",
+   "code": "MPD",
+   "name": "MPD",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-HK",
+   "section": "D4ECA1",
+   "batches": [
+    "D4-ECE-A-A1"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "FO&R/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0088",
+   "code": "Prethesis",
+   "name": "Prethesis",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-BK",
+   "section": "M2EC",
+   "batches": [
+    "M-ECE-XM2EC-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "FO&R/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0089",
+   "code": "MCS lab",
+   "name": "MCS lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-MR",
+   "section": "M1EC",
+   "batches": [
+    "M-ECE-XM1EC-ALL"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "FO&R/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0090",
+   "code": "MCS lab",
+   "name": "MCS lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-HLK",
+   "section": "M1EC",
+   "batches": [
+    "M-ECE-XM1EC-ALL"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "FO&R/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0091",
+   "code": "OE(Waste to Energy)",
+   "name": "OE(Waste to Energy)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-HPSOE",
+   "section": "M2EC",
+   "batches": [
+    "M-ECE-XM2EC-ALL"
+   ],
+   "sessions": 3,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G11A"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0092",
+   "code": "PRP",
+   "name": "PRP",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "AS-NK",
+   "section": "D2ECA",
+   "batches": [
+    "D2-ECE-A-A1",
+    "D2-ECE-A-A2",
+    "D2-ECE-A-A3"
+   ],
+   "sessions": 3,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G6"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0093",
+   "code": "EDC",
+   "name": "EDC",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-KDS",
+   "section": "D2ECA",
+   "batches": [
+    "D2-ECE-A-A1",
+    "D2-ECE-A-A2",
+    "D2-ECE-A-A3"
+   ],
+   "sessions": 3,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G6"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0094",
+   "code": "DSD",
+   "name": "DSD",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-NSG",
+   "section": "D2ECA",
+   "batches": [
+    "D2-ECE-A-A1",
+    "D2-ECE-A-A2",
+    "D2-ECE-A-A3"
+   ],
+   "sessions": 3,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G6"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0095",
+   "code": "MPD",
+   "name": "MPD",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-MR",
+   "section": "D3ECB1",
+   "batches": [
+    "D3-ECE-B-B1"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G6"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0096",
+   "code": "MPD",
+   "name": "MPD",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-CJ",
+   "section": "D1ECBM1",
+   "batches": [
+    "D1-ECE-XD1ECBM1-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G6"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0097",
+   "code": "MPMC",
+   "name": "MPMC",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-SMM",
+   "section": "D3ECB2",
+   "batches": [
+    "D3-ECE-B-B2"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G6"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0098",
+   "code": "IPCV E1",
+   "name": "IPCV E1",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-CJ",
+   "section": "D3ECB2",
+   "batches": [
+    "D3-ECE-B-B2"
+   ],
+   "sessions": 2,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G6",
+    "G7"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0099",
+   "code": "S&S",
+   "name": "S&S",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-PP",
+   "section": "D2ECA",
+   "batches": [
+    "D2-ECE-A-A1",
+    "D2-ECE-A-A2",
+    "D2-ECE-A-A3"
+   ],
+   "sessions": 3,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G6"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0100",
+   "code": "IC",
+   "name": "IC",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "AS-MK",
+   "section": "D2ECA",
+   "batches": [
+    "D2-ECE-A-A1",
+    "D2-ECE-A-A2",
+    "D2-ECE-A-A3"
+   ],
+   "sessions": 2,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G6"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0101",
+   "code": "EMW",
+   "name": "EMW",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-CJ",
+   "section": "D3ECB2",
+   "batches": [
+    "D3-ECE-B-B2"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G6"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0102",
+   "code": "MPMC",
+   "name": "MPMC",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-GJK",
+   "section": "D3ECA1",
+   "batches": [
+    "D3-ECE-A-A1"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G6"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0103",
+   "code": "DSD",
+   "name": "DSD",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-NSG",
+   "section": "D2ECA1",
+   "batches": [
+    "D2-ECE-A-A1"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G6"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0104",
+   "code": "EDC",
+   "name": "EDC",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-KDS",
+   "section": "D2ECA1",
+   "batches": [
+    "D2-ECE-A-A1"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G6"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0105",
+   "code": "EMW",
+   "name": "EMW",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-MR",
+   "section": "D3ECA2",
+   "batches": [
+    "D3-ECE-A-A2"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G6"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0106",
+   "code": "PRP",
+   "name": "PRP",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "AS-SK",
+   "section": "D2ECB",
+   "batches": [
+    "D2-ECE-B-B1",
+    "D2-ECE-B-B2",
+    "D2-ECE-B-B3"
+   ],
+   "sessions": 3,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G7"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0107",
+   "code": "MPD",
+   "name": "MPD",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-KPK",
+   "section": "D2ECB3",
+   "batches": [
+    "D2-ECE-B-B3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G7"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0108",
+   "code": "MPD",
+   "name": "MPD",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-NS",
+   "section": "D3ECB2",
+   "batches": [
+    "D3-ECE-B-B2"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G7"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0109",
+   "code": "EDC",
+   "name": "EDC",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-KDS",
+   "section": "D2ECB2",
+   "batches": [
+    "D2-ECE-B-B2"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G7"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0110",
+   "code": "IC",
+   "name": "IC",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "AS-MK",
+   "section": "D2ECB",
+   "batches": [
+    "D2-ECE-B-B1",
+    "D2-ECE-B-B2",
+    "D2-ECE-B-B3"
+   ],
+   "sessions": 2,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G7"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0111",
+   "code": "S&S",
+   "name": "S&S",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-SK",
+   "section": "D2ECB",
+   "batches": [
+    "D2-ECE-B-B1",
+    "D2-ECE-B-B2",
+    "D2-ECE-B-B3"
+   ],
+   "sessions": 3,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G7"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0112",
+   "code": "DSD",
+   "name": "DSD",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-NSG",
+   "section": "D2ECB",
+   "batches": [
+    "D2-ECE-B-B1",
+    "D2-ECE-B-B2",
+    "D2-ECE-B-B3"
+   ],
+   "sessions": 3,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G7"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0113",
+   "code": "EDC",
+   "name": "EDC",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-KDS",
+   "section": "D2ECB",
+   "batches": [
+    "D2-ECE-B-B1",
+    "D2-ECE-B-B2",
+    "D2-ECE-B-B3"
+   ],
+   "sessions": 3,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G7"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0114",
+   "code": "DSD",
+   "name": "DSD",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-NSG",
+   "section": "D2ECB2",
+   "batches": [
+    "D2-ECE-B-B2"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G7"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0115",
+   "code": "EDC",
+   "name": "EDC",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-KDS",
+   "section": "D2ECA2",
+   "batches": [
+    "D2-ECE-A-A2"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G7"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0116",
+   "code": "PRP",
+   "name": "PRP",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "AS-NK",
+   "section": "D2ECA2",
+   "batches": [
+    "D2-ECE-A-A2"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G7"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0117",
+   "code": "MPMC",
+   "name": "MPMC",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-SMM",
+   "section": "D3ECB1",
+   "batches": [
+    "D3-ECE-B-B1"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G7"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0118",
+   "code": "EDC",
+   "name": "EDC",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-KDS",
+   "section": "D2ECB1",
+   "batches": [
+    "D2-ECE-B-B1"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G7"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0119",
+   "code": "DSD",
+   "name": "DSD",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-NSG",
+   "section": "D2ECA2",
+   "batches": [
+    "D2-ECE-A-A2"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G7"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0120",
+   "code": "S&S",
+   "name": "S&S",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-SK",
+   "section": "D2ECB1",
+   "batches": [
+    "D2-ECE-B-B1"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G7"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0121",
+   "code": "RM",
+   "name": "RM",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-HK",
+   "section": "M1EC",
+   "batches": [
+    "M-ECE-XM1EC-ALL"
+   ],
+   "sessions": 2,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G8"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0122",
+   "code": "MCS",
+   "name": "MCS",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-MR",
+   "section": "M1EC",
+   "batches": [
+    "M-ECE-XM1EC-ALL"
+   ],
+   "sessions": 3,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G8"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0123",
+   "code": "WAN E1",
+   "name": "WAN E1",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-HK",
+   "section": "D3ECA1",
+   "batches": [
+    "D3-ECE-A-A1"
+   ],
+   "sessions": 3,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G8"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0124",
+   "code": "CCNS",
+   "name": "CCNS",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-BK",
+   "section": "M1EC",
+   "batches": [
+    "M-ECE-XM1EC-ALL"
+   ],
+   "sessions": 2,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G8"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0125",
+   "code": "Soft C",
+   "name": "Soft C",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-GJK",
+   "section": "M1EC",
+   "batches": [
+    "M-ECE-XM1EC-ALL"
+   ],
+   "sessions": 3,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G8"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0126",
+   "code": "VPDA",
+   "name": "VPDA",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-GPK",
+   "section": "M1EC",
+   "batches": [
+    "M-ECE-XM1EC-ALL"
+   ],
+   "sessions": 2,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G8"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0127",
+   "code": "MPD",
+   "name": "MPD",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-KDS",
+   "section": "D4ECA3",
+   "batches": [
+    "D4-ECE-A-A3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G8"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0128",
+   "code": "S&S",
+   "name": "S&S",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-SK",
+   "section": "D2ECB2",
+   "batches": [
+    "D2-ECE-B-B2"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G8"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0129",
+   "code": "PRP",
+   "name": "PRP",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "AS-NK",
+   "section": "D2ECA1",
+   "batches": [
+    "D2-ECE-A-A1"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Classroom",
+   "rooms": [
+    "G8"
+   ],
+   "size": 60,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0130",
+   "code": "DT lab",
+   "name": "DT lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-CJ",
+   "section": "D3ECB1",
+   "batches": [
+    "D3-ECE-B-B1"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "MP/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0131",
+   "code": "MPD",
+   "name": "MPD",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-SK",
+   "section": "D2ECB1",
+   "batches": [
+    "D2-ECE-B-B1"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "MP/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0132",
+   "code": "MPD",
+   "name": "MPD",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-HLK",
+   "section": "D3ECA3",
+   "batches": [
+    "D3-ECE-A-A3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "MP/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0133",
+   "code": "STRW lab",
+   "name": "STRW lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-NK",
+   "section": "D2ECA2",
+   "batches": [
+    "D2-ECE-A-A2"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "MP/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0134",
+   "code": "BCA",
+   "name": "BCA",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-BCA-134",
+   "section": "X",
+   "batches": [
+    "X-ECE-XX-ALL"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "MP/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0135",
+   "code": "STRW lab",
+   "name": "STRW lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-NK",
+   "section": "D2ECA1",
+   "batches": [
+    "D2-ECE-A-A1"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "MP/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0136",
+   "code": "MPMC lab",
+   "name": "MPMC lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-GJK",
+   "section": "D3ECA2",
+   "batches": [
+    "D3-ECE-A-A2"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "MP/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0137",
+   "code": "DT lab",
+   "name": "DT lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-CJ",
+   "section": "D3ECA2",
+   "batches": [
+    "D3-ECE-A-A2"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "MP/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0138",
+   "code": "DT lab",
+   "name": "DT lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-CJ",
+   "section": "D3ECA1",
+   "batches": [
+    "D3-ECE-A-A1"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "MP/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0139",
+   "code": "STRW lab",
+   "name": "STRW lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-NK",
+   "section": "D2ECB2",
+   "batches": [
+    "D2-ECE-B-B2"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "MP/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0140",
+   "code": "MPMC lab",
+   "name": "MPMC lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-SMM",
+   "section": "D3ECB1",
+   "batches": [
+    "D3-ECE-B-B1"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "MP/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0141",
+   "code": "MPMC lab",
+   "name": "MPMC lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-SMM",
+   "section": "D3ECB2",
+   "batches": [
+    "D3-ECE-B-B2"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "MP/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0142",
+   "code": "DT lab",
+   "name": "DT lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-KPK",
+   "section": "D3ECB2",
+   "batches": [
+    "D3-ECE-B-B2"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "MP/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0143",
+   "code": "BCA",
+   "name": "BCA",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-BCA-143",
+   "section": "X",
+   "batches": [
+    "X-ECE-XX-ALL"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "MP/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0144",
+   "code": "STRW lab",
+   "name": "STRW lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-NK",
+   "section": "D2ECB1",
+   "batches": [
+    "D2-ECE-B-B1"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "MP/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0145",
+   "code": "MPMC lab",
+   "name": "MPMC lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-GJK",
+   "section": "D3ECA1",
+   "batches": [
+    "D3-ECE-A-A1"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "MP/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0146",
+   "code": "ADCS",
+   "name": "ADCS",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-BK",
+   "section": "D3ECA1",
+   "batches": [
+    "D3-ECE-A-A1"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "MP/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0147",
+   "code": "MPD",
+   "name": "MPD",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-NS",
+   "section": "D1ECAM2",
+   "batches": [
+    "D1-ECE-XD1ECAM2-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "MWR/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0148",
+   "code": "MPD",
+   "name": "MPD",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-DS",
+   "section": "D2ECA1",
+   "batches": [
+    "D2-ECE-A-A1"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "MWR/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0149",
+   "code": "MPD",
+   "name": "MPD",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-DS",
+   "section": "D3ECB3",
+   "batches": [
+    "D3-ECE-B-B3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "MWR/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0150",
+   "code": "DSD lab",
+   "name": "DSD lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-HK",
+   "section": "D2ECA2",
+   "batches": [
+    "D2-ECE-A-A2"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "MWR/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0151",
+   "code": "EMW",
+   "name": "EMW",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-MR",
+   "section": "D3ECA1",
+   "batches": [
+    "D3-ECE-A-A1"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "MWR/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0152",
+   "code": "DSD lab",
+   "name": "DSD lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-HK",
+   "section": "D2ECB1",
+   "batches": [
+    "D2-ECE-B-B1"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "MWR/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0153",
+   "code": "DSD lab",
+   "name": "DSD lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-NSG",
+   "section": "D2ECA1",
+   "batches": [
+    "D2-ECE-A-A1"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "MWR/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0154",
+   "code": "MPD",
+   "name": "MPD",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-NK",
+   "section": "D4ECB2",
+   "batches": [
+    "D4-ECE-B-B2"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "MWR/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0155",
+   "code": "S&S",
+   "name": "S&S",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-PP",
+   "section": "D2ECA2",
+   "batches": [
+    "D2-ECE-A-A2"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "MWR/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0156",
+   "code": "DSD lab",
+   "name": "DSD lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-HK",
+   "section": "D2ECB2",
+   "batches": [
+    "D2-ECE-B-B2"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "MWR/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0157",
+   "code": "S&S",
+   "name": "S&S",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-PP",
+   "section": "D2ECA1",
+   "batches": [
+    "D2-ECE-A-A1"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "MWR/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0158",
+   "code": "MPD",
+   "name": "MPD",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-GK",
+   "section": "D1ECBM3",
+   "batches": [
+    "D1-ECE-XD1ECBM3-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "MWR/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0159",
+   "code": "MAJ",
+   "name": "MAJ",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-NSG",
+   "section": "D4ECA1, D4ECA2",
+   "batches": [
+    "D4-ECE-A-A1",
+    "D4-ECE-A-A2"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "PROJ/L"
+   ],
+   "size": 30,
+   "co_teachers": [
+    "ECE-HKA"
+   ],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0160",
+   "code": "MAJ",
+   "name": "MAJ",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-GJK",
+   "section": "D4ECA1, D4ECA2",
+   "batches": [
+    "D4-ECE-A-A1",
+    "D4-ECE-A-A2"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "PROJ/L"
+   ],
+   "size": 30,
+   "co_teachers": [
+    "ECE-SMM"
+   ],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0161",
+   "code": "MAJ",
+   "name": "MAJ",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-MR",
+   "section": "D4ECA1, D4ECA2",
+   "batches": [
+    "D4-ECE-A-A1",
+    "D4-ECE-A-A2"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "PROJ/L"
+   ],
+   "size": 30,
+   "co_teachers": [
+    "ECE-HKA"
+   ],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0162",
+   "code": "MAJ",
+   "name": "MAJ",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-NK",
+   "section": "D4ECA1, D4ECA2",
+   "batches": [
+    "D4-ECE-A-A1",
+    "D4-ECE-A-A2"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "PROJ/L"
+   ],
+   "size": 30,
+   "co_teachers": [
+    "ECE-PP"
+   ],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0163",
+   "code": "MAJ",
+   "name": "MAJ",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-SK",
+   "section": "D4ECA1, D4ECA2",
+   "batches": [
+    "D4-ECE-A-A1",
+    "D4-ECE-A-A2"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "PROJ/L"
+   ],
+   "size": 30,
+   "co_teachers": [
+    "ECE-GK"
+   ],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0164",
+   "code": "MPD",
+   "name": "MPD",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-SMM",
+   "section": "D4ECA2",
+   "batches": [
+    "D4-ECE-A-A2"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "PROJ/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0165",
+   "code": "MAJ",
+   "name": "MAJ",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-GPK",
+   "section": "D4ECA1, D4ECA2",
+   "batches": [
+    "D4-ECE-A-A1",
+    "D4-ECE-A-A2"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "PROJ/L"
+   ],
+   "size": 30,
+   "co_teachers": [
+    "ECE-HKA"
+   ],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0166",
+   "code": "PLC E3",
+   "name": "PLC E3",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-SMM",
+   "section": "D4ECA2",
+   "batches": [
+    "D4-ECE-A-A2"
+   ],
+   "sessions": 4,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "TI/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0167",
+   "code": "MPD",
+   "name": "MPD",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-GJK",
+   "section": "D1ECAM1",
+   "batches": [
+    "D1-ECE-XD1ECAM1-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "TI/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0168",
+   "code": "PRP",
+   "name": "PRP",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "AS-SK",
+   "section": "D2ECB1",
+   "batches": [
+    "D2-ECE-B-B1"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "TI/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0169",
+   "code": "WAN E1",
+   "name": "WAN E1",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-HK",
+   "section": "D3ECA1",
+   "batches": [
+    "D3-ECE-A-A1"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "TI/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0170",
+   "code": "MPMC",
+   "name": "MPMC",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "ECE-GJK",
+   "section": "D3ECA2",
+   "batches": [
+    "D3-ECE-A-A2"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "TI/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0171",
+   "code": "PLC lab",
+   "name": "PLC lab",
+   "kind": "lab",
+   "dept": "ECE",
+   "teacher": "ECE-SMM",
+   "section": "D4ECA2",
+   "batches": [
+    "D4-ECE-A-A2"
+   ],
+   "sessions": 1,
+   "duration": 2,
+   "room_kind": "Lab",
+   "rooms": [
+    "TI/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:0172",
+   "code": "PRP",
+   "name": "PRP",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "AS-SK",
+   "section": "D2ECB2",
+   "batches": [
+    "D2-ECE-B-B2"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Lab",
+   "rooms": [
+    "TI/L"
+   ],
+   "size": 30,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0001",
+   "code": "Outside: OE-II",
+   "name": "OE-II (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT1",
+   "section": "D4ECA1",
+   "batches": [
+    "D4-ECE-A-A1"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0002",
+   "code": "Outside: OE-II",
+   "name": "OE-II (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT1",
+   "section": "D4ECA1",
+   "batches": [
+    "D4-ECE-A-A1"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0003",
+   "code": "Outside: OE-II",
+   "name": "OE-II (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT1",
+   "section": "D4ECA1",
+   "batches": [
+    "D4-ECE-A-A1"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0004",
+   "code": "Outside: OE-II",
+   "name": "OE-II (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT2",
+   "section": "D4ECA2",
+   "batches": [
+    "D4-ECE-A-A2"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0005",
+   "code": "Outside: OE-II",
+   "name": "OE-II (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT2",
+   "section": "D4ECA2",
+   "batches": [
+    "D4-ECE-A-A2"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0006",
+   "code": "Outside: OE-II",
+   "name": "OE-II (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT2",
+   "section": "D4ECA2",
+   "batches": [
+    "D4-ECE-A-A2"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0007",
+   "code": "Outside: CJ",
+   "name": "CJ (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT3",
+   "section": "D3ECA",
+   "batches": [
+    "D3-ECE-A-A3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0008",
+   "code": "Outside: CJ",
+   "name": "CJ (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT1",
+   "section": "D3ECA",
+   "batches": [
+    "D3-ECE-A-A3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0009",
+   "code": "Outside: HK",
+   "name": "HK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT1",
+   "section": "D3ECA",
+   "batches": [
+    "D3-ECE-A-A3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0010",
+   "code": "Outside: BK",
+   "name": "BK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT1",
+   "section": "D3ECA",
+   "batches": [
+    "D3-ECE-A-A3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0011",
+   "code": "Outside: HK",
+   "name": "HK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT1",
+   "section": "D3ECA",
+   "batches": [
+    "D3-ECE-A-A3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0012",
+   "code": "Outside: HK",
+   "name": "HK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT1",
+   "section": "D3ECA",
+   "batches": [
+    "D3-ECE-A-A3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0013",
+   "code": "Outside: BK",
+   "name": "BK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT1",
+   "section": "D3ECA",
+   "batches": [
+    "D3-ECE-A-A3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0014",
+   "code": "Outside: DS",
+   "name": "DS (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT1",
+   "section": "D3ECA",
+   "batches": [
+    "D3-ECE-A-A3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0015",
+   "code": "Outside: GJK",
+   "name": "GJK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT1",
+   "section": "D3ECA",
+   "batches": [
+    "D3-ECE-A-A3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0016",
+   "code": "Outside: MR",
+   "name": "MR (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT1",
+   "section": "D3ECA",
+   "batches": [
+    "D3-ECE-A-A3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0017",
+   "code": "Outside: GJK",
+   "name": "GJK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT1",
+   "section": "D3ECA",
+   "batches": [
+    "D3-ECE-A-A3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0018",
+   "code": "Outside: DS",
+   "name": "DS (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT1",
+   "section": "D3ECA",
+   "batches": [
+    "D3-ECE-A-A2",
+    "D3-ECE-A-A3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0019",
+   "code": "Outside: GJK",
+   "name": "GJK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT1",
+   "section": "D3ECA",
+   "batches": [
+    "D3-ECE-A-A3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0020",
+   "code": "Outside: HK",
+   "name": "HK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT1",
+   "section": "D3ECA",
+   "batches": [
+    "D3-ECE-A-A3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0021",
+   "code": "Outside: CJ",
+   "name": "CJ (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT1",
+   "section": "D3ECA",
+   "batches": [
+    "D3-ECE-A-A1",
+    "D3-ECE-A-A3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0022",
+   "code": "Outside: BK",
+   "name": "BK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT1",
+   "section": "D3ECA",
+   "batches": [
+    "D3-ECE-A-A3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0023",
+   "code": "Outside: GPK",
+   "name": "GPK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT1",
+   "section": "D3ECB",
+   "batches": [
+    "D3-ECE-B-B3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0024",
+   "code": "Outside: CJ",
+   "name": "CJ (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT1",
+   "section": "D3ECB",
+   "batches": [
+    "D3-ECE-B-B3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0025",
+   "code": "Outside: GPK",
+   "name": "GPK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT1",
+   "section": "D3ECB",
+   "batches": [
+    "D3-ECE-B-B3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0026",
+   "code": "Outside: CJ",
+   "name": "CJ (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT1",
+   "section": "D3ECB",
+   "batches": [
+    "D3-ECE-B-B3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0027",
+   "code": "Outside: KPK",
+   "name": "KPK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT2",
+   "section": "D3ECB",
+   "batches": [
+    "D3-ECE-B-B3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0028",
+   "code": "Outside: KPK",
+   "name": "KPK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT2",
+   "section": "D3ECB",
+   "batches": [
+    "D3-ECE-B-B3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0029",
+   "code": "Outside: SMM",
+   "name": "SMM (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT1",
+   "section": "D3ECB",
+   "batches": [
+    "D3-ECE-B-B3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0030",
+   "code": "Outside: KPK",
+   "name": "KPK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT2",
+   "section": "D3ECB",
+   "batches": [
+    "D3-ECE-B-B3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0031",
+   "code": "Outside: SMM",
+   "name": "SMM (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT1",
+   "section": "D3ECB",
+   "batches": [
+    "D3-ECE-B-B3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0032",
+   "code": "Outside: CJ",
+   "name": "CJ (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT2",
+   "section": "D3ECB",
+   "batches": [
+    "D3-ECE-B-B3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0033",
+   "code": "Outside: GPK",
+   "name": "GPK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT1",
+   "section": "D3ECB",
+   "batches": [
+    "D3-ECE-B-B3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0034",
+   "code": "Outside: DS",
+   "name": "DS (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT2",
+   "section": "D3ECB",
+   "batches": [
+    "D3-ECE-B-B3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0035",
+   "code": "Outside: SMM",
+   "name": "SMM (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT2",
+   "section": "D3ECB",
+   "batches": [
+    "D3-ECE-B-B3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0036",
+   "code": "Outside: KPK",
+   "name": "KPK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT2",
+   "section": "D3ECB",
+   "batches": [
+    "D3-ECE-B-B3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0037",
+   "code": "Outside: DS",
+   "name": "DS (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT2",
+   "section": "D3ECB",
+   "batches": [
+    "D3-ECE-B-B3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0038",
+   "code": "Outside: NK",
+   "name": "NK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT1",
+   "section": "D2ECA",
+   "batches": [
+    "D2-ECE-A-A3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0039",
+   "code": "Outside: KDS",
+   "name": "KDS (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT1",
+   "section": "D2ECA",
+   "batches": [
+    "D2-ECE-A-A3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0040",
+   "code": "Outside: NK",
+   "name": "NK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT1",
+   "section": "D2ECA",
+   "batches": [
+    "D2-ECE-A-A3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0041",
+   "code": "Outside: KDS",
+   "name": "KDS (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT1",
+   "section": "D2ECA",
+   "batches": [
+    "D2-ECE-A-A3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0042",
+   "code": "Outside: KDS",
+   "name": "KDS (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT1",
+   "section": "D2ECA",
+   "batches": [
+    "D2-ECE-A-A3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0043",
+   "code": "Outside: PP",
+   "name": "PP (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT1",
+   "section": "D2ECA",
+   "batches": [
+    "D2-ECE-A-A3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0044",
+   "code": "Outside: NSG",
+   "name": "NSG (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT2",
+   "section": "D2ECA",
+   "batches": [
+    "D2-ECE-A-A3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0045",
+   "code": "Outside: PP",
+   "name": "PP (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT2",
+   "section": "D2ECA",
+   "batches": [
+    "D2-ECE-A-A3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0046",
+   "code": "Outside: PP",
+   "name": "PP (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT2",
+   "section": "D2ECA",
+   "batches": [
+    "D2-ECE-A-A3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0047",
+   "code": "Outside: NSG",
+   "name": "NSG (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT3",
+   "section": "D2ECA",
+   "batches": [
+    "D2-ECE-A-A3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0048",
+   "code": "Outside: NSG",
+   "name": "NSG (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT2",
+   "section": "D2ECA",
+   "batches": [
+    "D2-ECE-A-A3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0049",
+   "code": "Outside: NK(APS)",
+   "name": "NK(APS) (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT2",
+   "section": "D2ECA",
+   "batches": [
+    "D2-ECE-A-A3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0050",
+   "code": "Outside: HK",
+   "name": "HK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT2",
+   "section": "D2ECB",
+   "batches": [
+    "D2-ECE-B-B3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0051",
+   "code": "Outside: HKA",
+   "name": "HKA (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT3",
+   "section": "D2ECB",
+   "batches": [
+    "D2-ECE-B-B3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0052",
+   "code": "Outside: NK",
+   "name": "NK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT1",
+   "section": "D2ECB",
+   "batches": [
+    "D2-ECE-B-B3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0053",
+   "code": "Outside: HK",
+   "name": "HK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT2",
+   "section": "D2ECB",
+   "batches": [
+    "D2-ECE-B-B3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0054",
+   "code": "Outside: HKA",
+   "name": "HKA (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT1",
+   "section": "D2ECB",
+   "batches": [
+    "D2-ECE-B-B3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0055",
+   "code": "Outside: NK",
+   "name": "NK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT2",
+   "section": "D2ECB",
+   "batches": [
+    "D2-ECE-B-B3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0056",
+   "code": "Outside: NSG",
+   "name": "NSG (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT2",
+   "section": "D2ECB",
+   "batches": [
+    "D2-ECE-B-B3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0057",
+   "code": "Outside: SK",
+   "name": "SK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT3",
+   "section": "D2ECB",
+   "batches": [
+    "D2-ECE-B-B3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0058",
+   "code": "Outside: SK(APS)",
+   "name": "SK(APS) (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT3",
+   "section": "D2ECB",
+   "batches": [
+    "D2-ECE-B-B3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0059",
+   "code": "Outside: SK",
+   "name": "SK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT4",
+   "section": "D2ECB",
+   "batches": [
+    "D2-ECE-B-B3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0060",
+   "code": "Outside: KDS",
+   "name": "KDS (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT3",
+   "section": "D2ECB",
+   "batches": [
+    "D2-ECE-B-B3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0061",
+   "code": "Outside: SK",
+   "name": "SK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT3",
+   "section": "D2ECB",
+   "batches": [
+    "D2-ECE-B-B3"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0062",
+   "code": "Outside: HK",
+   "name": "HK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT2",
+   "section": "M1EC Automatic Group",
+   "batches": [
+    "M-ECE-XM1ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0063",
+   "code": "Outside: GJK",
+   "name": "GJK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT1",
+   "section": "M1EC Automatic Group",
+   "batches": [
+    "M-ECE-XM1ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0064",
+   "code": "Outside: MR",
+   "name": "MR (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT2",
+   "section": "M1EC Automatic Group",
+   "batches": [
+    "M-ECE-XM1ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0065",
+   "code": "Outside: BK",
+   "name": "BK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT2",
+   "section": "M1EC Automatic Group",
+   "batches": [
+    "M-ECE-XM1ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0066",
+   "code": "Outside: GPK",
+   "name": "GPK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT2",
+   "section": "M1EC Automatic Group",
+   "batches": [
+    "M-ECE-XM1ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0067",
+   "code": "Outside: GJK",
+   "name": "GJK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT1",
+   "section": "M1EC Automatic Group",
+   "batches": [
+    "M-ECE-XM1ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0068",
+   "code": "Outside: GJK",
+   "name": "GJK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT1",
+   "section": "M1EC Automatic Group",
+   "batches": [
+    "M-ECE-XM1ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0069",
+   "code": "Outside: GJK",
+   "name": "GJK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT2",
+   "section": "M1EC Automatic Group",
+   "batches": [
+    "M-ECE-XM1ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0070",
+   "code": "Outside: BK",
+   "name": "BK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT3",
+   "section": "M1EC Automatic Group",
+   "batches": [
+    "M-ECE-XM1ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0071",
+   "code": "Outside: GJK",
+   "name": "GJK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT2",
+   "section": "M1EC Automatic Group",
+   "batches": [
+    "M-ECE-XM1ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0072",
+   "code": "Outside: MR",
+   "name": "MR (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT3",
+   "section": "M1EC Automatic Group",
+   "batches": [
+    "M-ECE-XM1ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0073",
+   "code": "Outside: MR",
+   "name": "MR (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT3",
+   "section": "M1EC Automatic Group",
+   "batches": [
+    "M-ECE-XM1ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0074",
+   "code": "Outside: MR",
+   "name": "MR (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT2",
+   "section": "M1EC Automatic Group",
+   "batches": [
+    "M-ECE-XM1ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0075",
+   "code": "Outside: GPK",
+   "name": "GPK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT3",
+   "section": "M1EC Automatic Group",
+   "batches": [
+    "M-ECE-XM1ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0076",
+   "code": "Outside: MR",
+   "name": "MR (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT2",
+   "section": "M1EC Automatic Group",
+   "batches": [
+    "M-ECE-XM1ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0077",
+   "code": "Outside: BK",
+   "name": "BK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT3",
+   "section": "M1EC Automatic Group",
+   "batches": [
+    "M-ECE-XM1ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0078",
+   "code": "Outside: GPK",
+   "name": "GPK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT2",
+   "section": "M1EC Automatic Group",
+   "batches": [
+    "M-ECE-XM1ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0079",
+   "code": "Outside: RKS AC(M&PE)",
+   "name": "RKS AC(M&PE) (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT4",
+   "section": "M1EC Automatic Group",
+   "batches": [
+    "M-ECE-XM1ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0080",
+   "code": "Outside: RKS AC(M&PE)",
+   "name": "RKS AC(M&PE) (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT3",
+   "section": "M1EC Automatic Group",
+   "batches": [
+    "M-ECE-XM1ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0081",
+   "code": "Outside: HLK",
+   "name": "HLK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT3",
+   "section": "M1EC Automatic Group",
+   "batches": [
+    "M-ECE-XM1ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0082",
+   "code": "Outside: HLK",
+   "name": "HLK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT4",
+   "section": "M1EC Automatic Group",
+   "batches": [
+    "M-ECE-XM1ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0083",
+   "code": "Outside: HK",
+   "name": "HK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT4",
+   "section": "M1EC Automatic Group",
+   "batches": [
+    "M-ECE-XM1ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0084",
+   "code": "Outside: HK",
+   "name": "HK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT5",
+   "section": "M1EC Automatic Group",
+   "batches": [
+    "M-ECE-XM1ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0085",
+   "code": "Outside: GPK",
+   "name": "GPK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT4",
+   "section": "M1EC Automatic Group",
+   "batches": [
+    "M-ECE-XM1ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0086",
+   "code": "Outside: GPK",
+   "name": "GPK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT1",
+   "section": "M1EC Automatic Group",
+   "batches": [
+    "M-ECE-XM1ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0087",
+   "code": "Outside: FO&R/L",
+   "name": "FO&R/L (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT3",
+   "section": "M2EC Automatic Group",
+   "batches": [
+    "M-ECE-XM2ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0088",
+   "code": "Outside: FO&R/L",
+   "name": "FO&R/L (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT3",
+   "section": "M2EC Automatic Group",
+   "batches": [
+    "M-ECE-XM2ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0089",
+   "code": "Outside: FO&R/L",
+   "name": "FO&R/L (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT2",
+   "section": "M2EC Automatic Group",
+   "batches": [
+    "M-ECE-XM2ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0090",
+   "code": "Outside: FO&R/L",
+   "name": "FO&R/L (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT3",
+   "section": "M2EC Automatic Group",
+   "batches": [
+    "M-ECE-XM2ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0091",
+   "code": "Outside: BK",
+   "name": "BK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT2",
+   "section": "M2EC Automatic Group",
+   "batches": [
+    "M-ECE-XM2ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0092",
+   "code": "Outside: FO&R/L",
+   "name": "FO&R/L (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT3",
+   "section": "M2EC Automatic Group",
+   "batches": [
+    "M-ECE-XM2ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0093",
+   "code": "Outside: FO&R/L",
+   "name": "FO&R/L (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT3",
+   "section": "M2EC Automatic Group",
+   "batches": [
+    "M-ECE-XM2ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0094",
+   "code": "Outside: FO&R/L",
+   "name": "FO&R/L (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT3",
+   "section": "M2EC Automatic Group",
+   "batches": [
+    "M-ECE-XM2ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0095",
+   "code": "Outside: FO&R/L",
+   "name": "FO&R/L (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT3",
+   "section": "M2EC Automatic Group",
+   "batches": [
+    "M-ECE-XM2ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0096",
+   "code": "Outside: SK",
+   "name": "SK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT2",
+   "section": "M2EC Automatic Group",
+   "batches": [
+    "M-ECE-XM2ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0097",
+   "code": "Outside: SK",
+   "name": "SK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT4",
+   "section": "M2EC Automatic Group",
+   "batches": [
+    "M-ECE-XM2ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0098",
+   "code": "Outside: HPS OE(M&PE)",
+   "name": "HPS OE(M&PE) (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT4",
+   "section": "M2EC Automatic Group",
+   "batches": [
+    "M-ECE-XM2ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0099",
+   "code": "Outside: HPS OE(M&PE)",
+   "name": "HPS OE(M&PE) (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT3",
+   "section": "M2EC Automatic Group",
+   "batches": [
+    "M-ECE-XM2ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0100",
+   "code": "Outside: HPS OE(M&PE)",
+   "name": "HPS OE(M&PE) (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT5",
+   "section": "M2EC Automatic Group",
+   "batches": [
+    "M-ECE-XM2ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0101",
+   "code": "Outside: SK",
+   "name": "SK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT5",
+   "section": "M2EC Automatic Group",
+   "batches": [
+    "M-ECE-XM2ECAUTOMATICGRO-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0102",
+   "code": "Outside: KPK",
+   "name": "KPK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT3",
+   "section": "D4OE-II Automatic Group",
+   "batches": [
+    "D4-ECE-XD4OEIIAUTOMATICG-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0103",
+   "code": "Outside: KPK",
+   "name": "KPK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT4",
+   "section": "D4OE-II Automatic Group",
+   "batches": [
+    "D4-ECE-XD4OEIIAUTOMATICG-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0104",
+   "code": "Outside: KPK",
+   "name": "KPK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT3",
+   "section": "D4OE-II Automatic Group",
+   "batches": [
+    "D4-ECE-XD4OEIIAUTOMATICG-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0105",
+   "code": "Outside: KPK",
+   "name": "KPK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT3",
+   "section": "D1CSA",
+   "batches": [
+    "D1-ECE-XD1CSA-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0106",
+   "code": "Outside: KPK",
+   "name": "KPK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT4",
+   "section": "D1CSA",
+   "batches": [
+    "D1-ECE-XD1CSA-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0107",
+   "code": "Outside: HKA",
+   "name": "HKA (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT3",
+   "section": "D1CSA",
+   "batches": [
+    "D1-ECE-XD1CSA-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0108",
+   "code": "Outside: KPK",
+   "name": "KPK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT4",
+   "section": "D1CSA",
+   "batches": [
+    "D1-ECE-XD1CSA-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0109",
+   "code": "Outside: KPK",
+   "name": "KPK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT6",
+   "section": "D1CSA",
+   "batches": [
+    "D1-ECE-XD1CSA-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0110",
+   "code": "Outside: HKA",
+   "name": "HKA (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT3",
+   "section": "D1CSE",
+   "batches": [
+    "D1-ECE-XD1CSE-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0111",
+   "code": "Outside: KPK, RS Workshop",
+   "name": "KPK, RS Workshop (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT4",
+   "section": "D1CSE",
+   "batches": [
+    "D1-ECE-XD1CSE-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0112",
+   "code": "Outside: KPK, RS Workshop",
+   "name": "KPK, RS Workshop (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT4",
+   "section": "D1CSE",
+   "batches": [
+    "D1-ECE-XD1CSE-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0113",
+   "code": "Outside: HKA",
+   "name": "HKA (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT5",
+   "section": "D1CSE",
+   "batches": [
+    "D1-ECE-XD1CSE-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0114",
+   "code": "Outside: KPK",
+   "name": "KPK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT5",
+   "section": "D1CSE",
+   "batches": [
+    "D1-ECE-XD1CSE-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0115",
+   "code": "Outside: KPK",
+   "name": "KPK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT2",
+   "section": "D1CSE",
+   "batches": [
+    "D1-ECE-XD1CSE-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0116",
+   "code": "Outside: GJK",
+   "name": "GJK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT4",
+   "section": "D1ECAM1 Automatic Group",
+   "batches": [
+    "D1-ECE-XD1ECAM1AUTOMATIC-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0117",
+   "code": "Outside: CJ",
+   "name": "CJ (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT6",
+   "section": "D1ECBM1 Automatic Group",
+   "batches": [
+    "D1-ECE-XD1ECBM1AUTOMATIC-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0118",
+   "code": "Outside: HLK",
+   "name": "HLK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT7",
+   "section": "D1ECBM2 Automatic Group",
+   "batches": [
+    "D1-ECE-XD1ECBM2AUTOMATIC-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0119",
+   "code": "Outside: NS",
+   "name": "NS (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT5",
+   "section": "D1ECAM2 Automatic Group",
+   "batches": [
+    "D1-ECE-XD1ECAM2AUTOMATIC-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0120",
+   "code": "Outside: GK",
+   "name": "GK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT6",
+   "section": "D1ECBM3 Automatic Group",
+   "batches": [
+    "D1-ECE-XD1ECBM3AUTOMATIC-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  },
+  {
+   "id": "ECE:O0121",
+   "code": "Outside: KPK",
+   "name": "KPK (in another department's room)",
+   "kind": "theory",
+   "dept": "ECE",
+   "teacher": "TBA-ECE-OUT6",
+   "section": "D1ECAM3 Automatic Group",
+   "batches": [
+    "D1-ECE-XD1ECAM3AUTOMATIC-ALL"
+   ],
+   "sessions": 1,
+   "duration": 1,
+   "room_kind": "Other department",
+   "rooms": [
+    "OTHER DEPARTMENT"
+   ],
+   "size": 999,
+   "co_teachers": [],
+   "fixed": true
+  }
+ ],
+ "entries": [
+  {
+   "lesson": "ECE:0001",
+   "session": 0,
+   "day": 4,
+   "start": 2,
+   "duration": 2,
+   "room": "BEELAB1"
+  },
+  {
+   "lesson": "ECE:0002",
+   "session": 0,
+   "day": 4,
+   "start": 6,
+   "duration": 2,
+   "room": "BEELAB1"
+  },
+  {
+   "lesson": "ECE:0003",
+   "session": 0,
+   "day": 1,
+   "start": 5,
+   "duration": 2,
+   "room": "BEELAB2"
+  },
+  {
+   "lesson": "ECE:0004",
+   "session": 0,
+   "day": 2,
+   "start": 2,
+   "duration": 2,
+   "room": "BEELAB2"
+  },
+  {
+   "lesson": "ECE:0005",
+   "session": 0,
+   "day": 0,
+   "start": 2,
+   "duration": 1,
+   "room": "COMM/L"
+  },
+  {
+   "lesson": "ECE:0006",
+   "session": 0,
+   "day": 0,
+   "start": 3,
+   "duration": 1,
+   "room": "COMM/L"
+  },
+  {
+   "lesson": "ECE:0007",
+   "session": 0,
+   "day": 0,
+   "start": 4,
+   "duration": 1,
+   "room": "COMM/L"
+  },
+  {
+   "lesson": "ECE:0008",
+   "session": 0,
+   "day": 0,
+   "start": 5,
+   "duration": 1,
+   "room": "COMM/L"
+  },
+  {
+   "lesson": "ECE:0009",
+   "session": 0,
+   "day": 0,
+   "start": 6,
+   "duration": 1,
+   "room": "COMM/L"
+  },
+  {
+   "lesson": "ECE:0010",
+   "session": 0,
+   "day": 1,
+   "start": 4,
+   "duration": 2,
+   "room": "COMM/L"
+  },
+  {
+   "lesson": "ECE:0011",
+   "session": 0,
+   "day": 1,
+   "start": 6,
+   "duration": 2,
+   "room": "COMM/L"
+  },
+  {
+   "lesson": "ECE:0012",
+   "session": 0,
+   "day": 2,
+   "start": 2,
+   "duration": 2,
+   "room": "COMM/L"
+  },
+  {
+   "lesson": "ECE:0013",
+   "session": 0,
+   "day": 2,
+   "start": 4,
+   "duration": 1,
+   "room": "COMM/L"
+  },
+  {
+   "lesson": "ECE:0014",
+   "session": 0,
+   "day": 2,
+   "start": 6,
+   "duration": 1,
+   "room": "COMM/L"
+  },
+  {
+   "lesson": "ECE:0015",
+   "session": 0,
+   "day": 3,
+   "start": 0,
+   "duration": 2,
+   "room": "COMM/L"
+  },
+  {
+   "lesson": "ECE:0016",
+   "session": 0,
+   "day": 3,
+   "start": 5,
+   "duration": 1,
+   "room": "COMM/L"
+  },
+  {
+   "lesson": "ECE:0017",
+   "session": 0,
+   "day": 4,
+   "start": 5,
+   "duration": 2,
+   "room": "COMM/L"
+  },
+  {
+   "lesson": "ECE:0018",
+   "session": 0,
+   "day": 0,
+   "start": 0,
+   "duration": 2,
+   "room": "COMP/L(EC)"
+  },
+  {
+   "lesson": "ECE:0019",
+   "session": 0,
+   "day": 0,
+   "start": 3,
+   "duration": 2,
+   "room": "COMP/L(EC)"
+  },
+  {
+   "lesson": "ECE:0020",
+   "session": 0,
+   "day": 0,
+   "start": 6,
+   "duration": 2,
+   "room": "COMP/L(EC)"
+  },
+  {
+   "lesson": "ECE:0021",
+   "session": 0,
+   "day": 1,
+   "start": 2,
+   "duration": 2,
+   "room": "COMP/L(EC)"
+  },
+  {
+   "lesson": "ECE:0022",
+   "session": 0,
+   "day": 1,
+   "start": 6,
+   "duration": 2,
+   "room": "COMP/L(EC)"
+  },
+  {
+   "lesson": "ECE:0022",
+   "session": 1,
+   "day": 2,
+   "start": 0,
+   "duration": 2,
+   "room": "COMP/L(EC)"
+  },
+  {
+   "lesson": "ECE:0023",
+   "session": 0,
+   "day": 2,
+   "start": 2,
+   "duration": 1,
+   "room": "COMP/L(EC)"
+  },
+  {
+   "lesson": "ECE:0024",
+   "session": 0,
+   "day": 2,
+   "start": 4,
+   "duration": 1,
+   "room": "COMP/L(EC)"
+  },
+  {
+   "lesson": "ECE:0025",
+   "session": 0,
+   "day": 2,
+   "start": 6,
+   "duration": 2,
+   "room": "COMP/L(EC)"
+  },
+  {
+   "lesson": "ECE:0020",
+   "session": 1,
+   "day": 3,
+   "start": 1,
+   "duration": 2,
+   "room": "COMP/L(EC)"
+  },
+  {
+   "lesson": "ECE:0025",
+   "session": 1,
+   "day": 3,
+   "start": 4,
+   "duration": 2,
+   "room": "COMP/L(EC)"
+  },
+  {
+   "lesson": "ECE:0026",
+   "session": 0,
+   "day": 3,
+   "start": 6,
+   "duration": 2,
+   "room": "COMP/L(EC)"
+  },
+  {
+   "lesson": "ECE:0027",
+   "session": 0,
+   "day": 4,
+   "start": 1,
+   "duration": 2,
+   "room": "COMP/L(EC)"
+  },
+  {
+   "lesson": "ECE:0027",
+   "session": 1,
+   "day": 0,
+   "start": 4,
+   "duration": 2,
+   "room": "COMP/L(EE)"
+  },
+  {
+   "lesson": "ECE:0018",
+   "session": 1,
+   "day": 1,
+   "start": 4,
+   "duration": 2,
+   "room": "COMP/L(EE)"
+  },
+  {
+   "lesson": "ECE:0028",
+   "session": 0,
+   "day": 1,
+   "start": 6,
+   "duration": 2,
+   "room": "COMP/L(EE)"
+  },
+  {
+   "lesson": "ECE:0029",
+   "session": 0,
+   "day": 2,
+   "start": 0,
+   "duration": 2,
+   "room": "COMP/L(EE)"
+  },
+  {
+   "lesson": "ECE:0030",
+   "session": 0,
+   "day": 2,
+   "start": 6,
+   "duration": 2,
+   "room": "COMP/L(EE)"
+  },
+  {
+   "lesson": "ECE:0029",
+   "session": 1,
+   "day": 3,
+   "start": 2,
+   "duration": 2,
+   "room": "COMP/L(EE)"
+  },
+  {
+   "lesson": "ECE:0030",
+   "session": 1,
+   "day": 3,
+   "start": 5,
+   "duration": 2,
+   "room": "COMP/L(EE)"
+  },
+  {
+   "lesson": "ECE:0028",
+   "session": 1,
+   "day": 4,
+   "start": 0,
+   "duration": 2,
+   "room": "COMP/L(EE)"
+  },
+  {
+   "lesson": "ECE:0031",
+   "session": 0,
+   "day": 0,
+   "start": 1,
+   "duration": 2,
+   "room": "EDA/L"
+  },
+  {
+   "lesson": "ECE:0032",
+   "session": 0,
+   "day": 0,
+   "start": 5,
+   "duration": 2,
+   "room": "EDA/L"
+  },
+  {
+   "lesson": "ECE:0023",
+   "session": 1,
+   "day": 1,
+   "start": 1,
+   "duration": 1,
+   "room": "EDA/L"
+  },
+  {
+   "lesson": "ECE:0033",
+   "session": 0,
+   "day": 1,
+   "start": 2,
+   "duration": 2,
+   "room": "EDA/L"
+  },
+  {
+   "lesson": "ECE:0034",
+   "session": 0,
+   "day": 1,
+   "start": 5,
+   "duration": 1,
+   "room": "EDA/L"
+  },
+  {
+   "lesson": "ECE:0035",
+   "session": 0,
+   "day": 1,
+   "start": 6,
+   "duration": 2,
+   "room": "EDA/L"
+  },
+  {
+   "lesson": "ECE:0036",
+   "session": 0,
+   "day": 2,
+   "start": 0,
+   "duration": 2,
+   "room": "EDA/L"
+  },
+  {
+   "lesson": "ECE:0037",
+   "session": 0,
+   "day": 2,
+   "start": 2,
+   "duration": 2,
+   "room": "EDA/L"
+  },
+  {
+   "lesson": "ECE:0038",
+   "session": 0,
+   "day": 2,
+   "start": 5,
+   "duration": 2,
+   "room": "EDA/L"
+  },
+  {
+   "lesson": "ECE:0039",
+   "session": 0,
+   "day": 3,
+   "start": 2,
+   "duration": 2,
+   "room": "EDA/L"
+  },
+  {
+   "lesson": "ECE:0040",
+   "session": 0,
+   "day": 3,
+   "start": 5,
+   "duration": 2,
+   "room": "EDA/L"
+  },
+  {
+   "lesson": "ECE:0041",
+   "session": 0,
+   "day": 4,
+   "start": 1,
+   "duration": 2,
+   "room": "EDA/L"
+  },
+  {
+   "lesson": "ECE:0042",
+   "session": 0,
+   "day": 0,
+   "start": 2,
+   "duration": 1,
+   "room": "EDC/L"
+  },
+  {
+   "lesson": "ECE:0043",
+   "session": 0,
+   "day": 0,
+   "start": 3,
+   "duration": 1,
+   "room": "EDC/L"
+  },
+  {
+   "lesson": "ECE:0044",
+   "session": 0,
+   "day": 0,
+   "start": 4,
+   "duration": 1,
+   "room": "EDC/L"
+  },
+  {
+   "lesson": "ECE:0045",
+   "session": 0,
+   "day": 0,
+   "start": 5,
+   "duration": 1,
+   "room": "EDC/L"
+  },
+  {
+   "lesson": "ECE:0042",
+   "session": 1,
+   "day": 2,
+   "start": 1,
+   "duration": 1,
+   "room": "EDC/L"
+  },
+  {
+   "lesson": "ECE:0046",
+   "session": 0,
+   "day": 2,
+   "start": 2,
+   "duration": 2,
+   "room": "EDC/L"
+  },
+  {
+   "lesson": "ECE:0047",
+   "session": 0,
+   "day": 2,
+   "start": 5,
+   "duration": 2,
+   "room": "EDC/L"
+  },
+  {
+   "lesson": "ECE:0048",
+   "session": 0,
+   "day": 3,
+   "start": 2,
+   "duration": 2,
+   "room": "EDC/L"
+  },
+  {
+   "lesson": "ECE:0049",
+   "session": 0,
+   "day": 3,
+   "start": 5,
+   "duration": 1,
+   "room": "EDC/L"
+  },
+  {
+   "lesson": "ECE:0050",
+   "session": 0,
+   "day": 4,
+   "start": 5,
+   "duration": 2,
+   "room": "EDC/L"
+  },
+  {
+   "lesson": "ECE:0051",
+   "session": 0,
+   "day": 0,
+   "start": 2,
+   "duration": 1,
+   "room": "F102"
+  },
+  {
+   "lesson": "ECE:0052",
+   "session": 0,
+   "day": 0,
+   "start": 0,
+   "duration": 1,
+   "room": "F104"
+  },
+  {
+   "lesson": "ECE:0053",
+   "session": 0,
+   "day": 0,
+   "start": 1,
+   "duration": 1,
+   "room": "F104"
+  },
+  {
+   "lesson": "ECE:0054",
+   "session": 0,
+   "day": 0,
+   "start": 2,
+   "duration": 1,
+   "room": "F104"
+  },
+  {
+   "lesson": "ECE:0055",
+   "session": 0,
+   "day": 0,
+   "start": 5,
+   "duration": 1,
+   "room": "F104"
+  },
+  {
+   "lesson": "ECE:0056",
+   "session": 0,
+   "day": 0,
+   "start": 6,
+   "duration": 1,
+   "room": "F104"
+  },
+  {
+   "lesson": "ECE:0053",
+   "session": 1,
+   "day": 1,
+   "start": 0,
+   "duration": 1,
+   "room": "F104"
+  },
+  {
+   "lesson": "ECE:0057",
+   "session": 0,
+   "day": 1,
+   "start": 1,
+   "duration": 1,
+   "room": "F104"
+  },
+  {
+   "lesson": "ECE:0054",
+   "session": 1,
+   "day": 1,
+   "start": 2,
+   "duration": 1,
+   "room": "F104"
+  },
+  {
+   "lesson": "ECE:0051",
+   "session": 1,
+   "day": 1,
+   "start": 5,
+   "duration": 1,
+   "room": "F104"
+  },
+  {
+   "lesson": "ECE:0058",
+   "session": 0,
+   "day": 1,
+   "start": 6,
+   "duration": 1,
+   "room": "F104"
+  },
+  {
+   "lesson": "ECE:0059",
+   "session": 0,
+   "day": 2,
+   "start": 0,
+   "duration": 1,
+   "room": "F104"
+  },
+  {
+   "lesson": "ECE:0060",
+   "session": 0,
+   "day": 2,
+   "start": 1,
+   "duration": 1,
+   "room": "F104"
+  },
+  {
+   "lesson": "ECE:0052",
+   "session": 1,
+   "day": 2,
+   "start": 2,
+   "duration": 1,
+   "room": "F104"
+  },
+  {
+   "lesson": "ECE:0061",
+   "session": 0,
+   "day": 2,
+   "start": 4,
+   "duration": 1,
+   "room": "F104"
+  },
+  {
+   "lesson": "ECE:0055",
+   "session": 1,
+   "day": 2,
+   "start": 5,
+   "duration": 1,
+   "room": "F104"
+  },
+  {
+   "lesson": "ECE:0056",
+   "session": 1,
+   "day": 2,
+   "start": 7,
+   "duration": 1,
+   "room": "F104"
+  },
+  {
+   "lesson": "ECE:0057",
+   "session": 1,
+   "day": 3,
+   "start": 0,
+   "duration": 1,
+   "room": "F104"
+  },
+  {
+   "lesson": "ECE:0052",
+   "session": 2,
+   "day": 3,
+   "start": 1,
+   "duration": 1,
+   "room": "F104"
+  },
+  {
+   "lesson": "ECE:0061",
+   "session": 1,
+   "day": 3,
+   "start": 2,
+   "duration": 1,
+   "room": "F104"
+  },
+  {
+   "lesson": "ECE:0062",
+   "session": 0,
+   "day": 3,
+   "start": 3,
+   "duration": 1,
+   "room": "F104"
+  },
+  {
+   "lesson": "ECE:0053",
+   "session": 2,
+   "day": 3,
+   "start": 4,
+   "duration": 1,
+   "room": "F104"
+  },
+  {
+   "lesson": "ECE:0063",
+   "session": 0,
+   "day": 3,
+   "start": 5,
+   "duration": 1,
+   "room": "F104"
+  },
+  {
+   "lesson": "ECE:0054",
+   "session": 2,
+   "day": 4,
+   "start": 0,
+   "duration": 1,
+   "room": "F104"
+  },
+  {
+   "lesson": "ECE:0057",
+   "session": 2,
+   "day": 4,
+   "start": 1,
+   "duration": 1,
+   "room": "F104"
+  },
+  {
+   "lesson": "ECE:0056",
+   "session": 2,
+   "day": 4,
+   "start": 2,
+   "duration": 1,
+   "room": "F104"
+  },
+  {
+   "lesson": "ECE:0061",
+   "session": 2,
+   "day": 4,
+   "start": 4,
+   "duration": 1,
+   "room": "F104"
+  },
+  {
+   "lesson": "ECE:0064",
+   "session": 0,
+   "day": 0,
+   "start": 0,
+   "duration": 1,
+   "room": "F105"
+  },
+  {
+   "lesson": "ECE:0062",
+   "session": 1,
+   "day": 0,
+   "start": 1,
+   "duration": 1,
+   "room": "F105"
+  },
+  {
+   "lesson": "ECE:0060",
+   "session": 1,
+   "day": 0,
+   "start": 2,
+   "duration": 1,
+   "room": "F105"
+  },
+  {
+   "lesson": "ECE:0065",
+   "session": 0,
+   "day": 0,
+   "start": 5,
+   "duration": 1,
+   "room": "F105"
+  },
+  {
+   "lesson": "ECE:0061",
+   "session": 3,
+   "day": 0,
+   "start": 7,
+   "duration": 1,
+   "room": "F105"
+  },
+  {
+   "lesson": "ECE:0066",
+   "session": 0,
+   "day": 1,
+   "start": 0,
+   "duration": 1,
+   "room": "F105"
+  },
+  {
+   "lesson": "ECE:0064",
+   "session": 1,
+   "day": 1,
+   "start": 1,
+   "duration": 1,
+   "room": "F105"
+  },
+  {
+   "lesson": "ECE:0067",
+   "session": 0,
+   "day": 1,
+   "start": 2,
+   "duration": 1,
+   "room": "F105"
+  },
+  {
+   "lesson": "ECE:0068",
+   "session": 0,
+   "day": 1,
+   "start": 4,
+   "duration": 1,
+   "room": "F105"
+  },
+  {
+   "lesson": "ECE:0065",
+   "session": 1,
+   "day": 1,
+   "start": 5,
+   "duration": 1,
+   "room": "F105"
+  },
+  {
+   "lesson": "ECE:0068",
+   "session": 1,
+   "day": 2,
+   "start": 0,
+   "duration": 1,
+   "room": "F105"
+  },
+  {
+   "lesson": "ECE:0067",
+   "session": 1,
+   "day": 2,
+   "start": 1,
+   "duration": 1,
+   "room": "F105"
+  },
+  {
+   "lesson": "ECE:0066",
+   "session": 1,
+   "day": 2,
+   "start": 2,
+   "duration": 1,
+   "room": "F105"
+  },
+  {
+   "lesson": "ECE:0069",
+   "session": 0,
+   "day": 2,
+   "start": 6,
+   "duration": 1,
+   "room": "F105"
+  },
+  {
+   "lesson": "ECE:0070",
+   "session": 0,
+   "day": 2,
+   "start": 7,
+   "duration": 1,
+   "room": "F105"
+  },
+  {
+   "lesson": "ECE:0060",
+   "session": 2,
+   "day": 3,
+   "start": 2,
+   "duration": 1,
+   "room": "F105"
+  },
+  {
+   "lesson": "ECE:0058",
+   "session": 1,
+   "day": 3,
+   "start": 5,
+   "duration": 1,
+   "room": "F105"
+  },
+  {
+   "lesson": "ECE:0067",
+   "session": 2,
+   "day": 4,
+   "start": 0,
+   "duration": 1,
+   "room": "F105"
+  },
+  {
+   "lesson": "ECE:0064",
+   "session": 2,
+   "day": 4,
+   "start": 1,
+   "duration": 1,
+   "room": "F105"
+  },
+  {
+   "lesson": "ECE:0066",
+   "session": 2,
+   "day": 4,
+   "start": 2,
+   "duration": 1,
+   "room": "F105"
+  },
+  {
+   "lesson": "ECE:0068",
+   "session": 2,
+   "day": 4,
+   "start": 5,
+   "duration": 1,
+   "room": "F105"
+  },
+  {
+   "lesson": "ECE:0065",
+   "session": 2,
+   "day": 4,
+   "start": 6,
+   "duration": 1,
+   "room": "F105"
+  },
+  {
+   "lesson": "ECE:0070",
+   "session": 1,
+   "day": 4,
+   "start": 7,
+   "duration": 1,
+   "room": "F105"
+  },
+  {
+   "lesson": "ECE:0071",
+   "session": 0,
+   "day": 1,
+   "start": 4,
+   "duration": 1,
+   "room": "F106"
+  },
+  {
+   "lesson": "ECE:0072",
+   "session": 0,
+   "day": 2,
+   "start": 2,
+   "duration": 1,
+   "room": "F107"
+  },
+  {
+   "lesson": "ECE:0073",
+   "session": 0,
+   "day": 2,
+   "start": 5,
+   "duration": 1,
+   "room": "F107"
+  },
+  {
+   "lesson": "ECE:0074",
+   "session": 0,
+   "day": 1,
+   "start": 6,
+   "duration": 1,
+   "room": "F108"
+  },
+  {
+   "lesson": "ECE:0075",
+   "session": 0,
+   "day": 3,
+   "start": 5,
+   "duration": 1,
+   "room": "F110"
+  },
+  {
+   "lesson": "ECE:0076",
+   "session": 0,
+   "day": 0,
+   "start": 5,
+   "duration": 1,
+   "room": "F112"
+  },
+  {
+   "lesson": "ECE:0072",
+   "session": 1,
+   "day": 0,
+   "start": 2,
+   "duration": 1,
+   "room": "F113"
+  },
+  {
+   "lesson": "ECE:0077",
+   "session": 0,
+   "day": 2,
+   "start": 1,
+   "duration": 1,
+   "room": "F113"
+  },
+  {
+   "lesson": "ECE:0073",
+   "session": 1,
+   "day": 3,
+   "start": 5,
+   "duration": 1,
+   "room": "F113"
+  },
+  {
+   "lesson": "ECE:0073",
+   "session": 2,
+   "day": 4,
+   "start": 5,
+   "duration": 1,
+   "room": "F114"
+  },
+  {
+   "lesson": "ECE:0078",
+   "session": 0,
+   "day": 0,
+   "start": 1,
+   "duration": 2,
+   "room": "FO&R/L"
+  },
+  {
+   "lesson": "ECE:0079",
+   "session": 0,
+   "day": 0,
+   "start": 3,
+   "duration": 1,
+   "room": "FO&R/L"
+  },
+  {
+   "lesson": "ECE:0080",
+   "session": 0,
+   "day": 0,
+   "start": 4,
+   "duration": 1,
+   "room": "FO&R/L"
+  },
+  {
+   "lesson": "ECE:0081",
+   "session": 0,
+   "day": 0,
+   "start": 5,
+   "duration": 1,
+   "room": "FO&R/L"
+  },
+  {
+   "lesson": "ECE:0082",
+   "session": 0,
+   "day": 1,
+   "start": 2,
+   "duration": 2,
+   "room": "FO&R/L"
+  },
+  {
+   "lesson": "ECE:0083",
+   "session": 0,
+   "day": 1,
+   "start": 5,
+   "duration": 1,
+   "room": "FO&R/L"
+  },
+  {
+   "lesson": "ECE:0080",
+   "session": 1,
+   "day": 1,
+   "start": 6,
+   "duration": 1,
+   "room": "FO&R/L"
+  },
+  {
+   "lesson": "ECE:0084",
+   "session": 0,
+   "day": 2,
+   "start": 1,
+   "duration": 2,
+   "room": "FO&R/L"
+  },
+  {
+   "lesson": "ECE:0080",
+   "session": 2,
+   "day": 2,
+   "start": 4,
+   "duration": 1,
+   "room": "FO&R/L"
+  },
+  {
+   "lesson": "ECE:0085",
+   "session": 0,
+   "day": 2,
+   "start": 6,
+   "duration": 1,
+   "room": "FO&R/L"
+  },
+  {
+   "lesson": "ECE:0086",
+   "session": 0,
+   "day": 3,
+   "start": 3,
+   "duration": 2,
+   "room": "FO&R/L"
+  },
+  {
+   "lesson": "ECE:0087",
+   "session": 0,
+   "day": 3,
+   "start": 5,
+   "duration": 1,
+   "room": "FO&R/L"
+  },
+  {
+   "lesson": "ECE:0088",
+   "session": 0,
+   "day": 4,
+   "start": 1,
+   "duration": 1,
+   "room": "FO&R/L"
+  },
+  {
+   "lesson": "ECE:0089",
+   "session": 0,
+   "day": 4,
+   "start": 3,
+   "duration": 2,
+   "room": "FO&R/L"
+  },
+  {
+   "lesson": "ECE:0090",
+   "session": 0,
+   "day": 4,
+   "start": 5,
+   "duration": 2,
+   "room": "FO&R/L"
+  },
+  {
+   "lesson": "ECE:0075",
+   "session": 1,
+   "day": 2,
+   "start": 5,
+   "duration": 1,
+   "room": "G10"
+  },
+  {
+   "lesson": "ECE:0091",
+   "session": 0,
+   "day": 0,
+   "start": 5,
+   "duration": 1,
+   "room": "G11A"
+  },
+  {
+   "lesson": "ECE:0091",
+   "session": 1,
+   "day": 1,
+   "start": 5,
+   "duration": 1,
+   "room": "G11A"
+  },
+  {
+   "lesson": "ECE:0091",
+   "session": 2,
+   "day": 2,
+   "start": 5,
+   "duration": 1,
+   "room": "G11A"
+  },
+  {
+   "lesson": "ECE:0092",
+   "session": 0,
+   "day": 0,
+   "start": 0,
+   "duration": 1,
+   "room": "G6"
+  },
+  {
+   "lesson": "ECE:0093",
+   "session": 0,
+   "day": 0,
+   "start": 1,
+   "duration": 1,
+   "room": "G6"
+  },
+  {
+   "lesson": "ECE:0094",
+   "session": 0,
+   "day": 0,
+   "start": 2,
+   "duration": 1,
+   "room": "G6"
+  },
+  {
+   "lesson": "ECE:0095",
+   "session": 0,
+   "day": 0,
+   "start": 4,
+   "duration": 1,
+   "room": "G6"
+  },
+  {
+   "lesson": "ECE:0096",
+   "session": 0,
+   "day": 0,
+   "start": 5,
+   "duration": 1,
+   "room": "G6"
+  },
+  {
+   "lesson": "ECE:0097",
+   "session": 0,
+   "day": 0,
+   "start": 6,
+   "duration": 1,
+   "room": "G6"
+  },
+  {
+   "lesson": "ECE:0098",
+   "session": 0,
+   "day": 0,
+   "start": 7,
+   "duration": 1,
+   "room": "G6"
+  },
+  {
+   "lesson": "ECE:0093",
+   "session": 1,
+   "day": 1,
+   "start": 0,
+   "duration": 1,
+   "room": "G6"
+  },
+  {
+   "lesson": "ECE:0099",
+   "session": 0,
+   "day": 1,
+   "start": 1,
+   "duration": 1,
+   "room": "G6"
+  },
+  {
+   "lesson": "ECE:0072",
+   "session": 2,
+   "day": 1,
+   "start": 2,
+   "duration": 1,
+   "room": "G6"
+  },
+  {
+   "lesson": "ECE:0092",
+   "session": 1,
+   "day": 1,
+   "start": 5,
+   "duration": 1,
+   "room": "G6"
+  },
+  {
+   "lesson": "ECE:0100",
+   "session": 0,
+   "day": 2,
+   "start": 0,
+   "duration": 1,
+   "room": "G6"
+  },
+  {
+   "lesson": "ECE:0094",
+   "session": 1,
+   "day": 2,
+   "start": 1,
+   "duration": 1,
+   "room": "G6"
+  },
+  {
+   "lesson": "ECE:0101",
+   "session": 0,
+   "day": 2,
+   "start": 5,
+   "duration": 1,
+   "room": "G6"
+  },
+  {
+   "lesson": "ECE:0102",
+   "session": 0,
+   "day": 2,
+   "start": 6,
+   "duration": 1,
+   "room": "G6"
+  },
+  {
+   "lesson": "ECE:0099",
+   "session": 1,
+   "day": 3,
+   "start": 0,
+   "duration": 1,
+   "room": "G6"
+  },
+  {
+   "lesson": "ECE:0093",
+   "session": 2,
+   "day": 3,
+   "start": 1,
+   "duration": 1,
+   "room": "G6"
+  },
+  {
+   "lesson": "ECE:0092",
+   "session": 2,
+   "day": 3,
+   "start": 2,
+   "duration": 1,
+   "room": "G6"
+  },
+  {
+   "lesson": "ECE:0100",
+   "session": 1,
+   "day": 3,
+   "start": 3,
+   "duration": 1,
+   "room": "G6"
+  },
+  {
+   "lesson": "ECE:0103",
+   "session": 0,
+   "day": 3,
+   "start": 6,
+   "duration": 1,
+   "room": "G6"
+  },
+  {
+   "lesson": "ECE:0059",
+   "session": 1,
+   "day": 4,
+   "start": 0,
+   "duration": 1,
+   "room": "G6"
+  },
+  {
+   "lesson": "ECE:0099",
+   "session": 2,
+   "day": 4,
+   "start": 1,
+   "duration": 1,
+   "room": "G6"
+  },
+  {
+   "lesson": "ECE:0094",
+   "session": 2,
+   "day": 4,
+   "start": 2,
+   "duration": 1,
+   "room": "G6"
+  },
+  {
+   "lesson": "ECE:0104",
+   "session": 0,
+   "day": 4,
+   "start": 3,
+   "duration": 1,
+   "room": "G6"
+  },
+  {
+   "lesson": "ECE:0105",
+   "session": 0,
+   "day": 4,
+   "start": 7,
+   "duration": 1,
+   "room": "G6"
+  },
+  {
+   "lesson": "ECE:0059",
+   "session": 2,
+   "day": 0,
+   "start": 0,
+   "duration": 1,
+   "room": "G7"
+  },
+  {
+   "lesson": "ECE:0106",
+   "session": 0,
+   "day": 0,
+   "start": 1,
+   "duration": 1,
+   "room": "G7"
+  },
+  {
+   "lesson": "ECE:0107",
+   "session": 0,
+   "day": 0,
+   "start": 3,
+   "duration": 1,
+   "room": "G7"
+  },
+  {
+   "lesson": "ECE:0108",
+   "session": 0,
+   "day": 0,
+   "start": 4,
+   "duration": 1,
+   "room": "G7"
+  },
+  {
+   "lesson": "ECE:0109",
+   "session": 0,
+   "day": 0,
+   "start": 5,
+   "duration": 1,
+   "room": "G7"
+  },
+  {
+   "lesson": "ECE:0110",
+   "session": 0,
+   "day": 0,
+   "start": 6,
+   "duration": 1,
+   "room": "G7"
+  },
+  {
+   "lesson": "ECE:0111",
+   "session": 0,
+   "day": 1,
+   "start": 0,
+   "duration": 1,
+   "room": "G7"
+  },
+  {
+   "lesson": "ECE:0112",
+   "session": 0,
+   "day": 1,
+   "start": 1,
+   "duration": 1,
+   "room": "G7"
+  },
+  {
+   "lesson": "ECE:0113",
+   "session": 0,
+   "day": 1,
+   "start": 2,
+   "duration": 1,
+   "room": "G7"
+  },
+  {
+   "lesson": "ECE:0110",
+   "session": 1,
+   "day": 1,
+   "start": 3,
+   "duration": 1,
+   "room": "G7"
+  },
+  {
+   "lesson": "ECE:0114",
+   "session": 0,
+   "day": 1,
+   "start": 6,
+   "duration": 1,
+   "room": "G7"
+  },
+  {
+   "lesson": "ECE:0113",
+   "session": 1,
+   "day": 2,
+   "start": 0,
+   "duration": 1,
+   "room": "G7"
+  },
+  {
+   "lesson": "ECE:0111",
+   "session": 1,
+   "day": 2,
+   "start": 1,
+   "duration": 1,
+   "room": "G7"
+  },
+  {
+   "lesson": "ECE:0115",
+   "session": 0,
+   "day": 2,
+   "start": 5,
+   "duration": 1,
+   "room": "G7"
+  },
+  {
+   "lesson": "ECE:0116",
+   "session": 0,
+   "day": 2,
+   "start": 6,
+   "duration": 1,
+   "room": "G7"
+  },
+  {
+   "lesson": "ECE:0112",
+   "session": 1,
+   "day": 3,
+   "start": 0,
+   "duration": 1,
+   "room": "G7"
+  },
+  {
+   "lesson": "ECE:0106",
+   "session": 1,
+   "day": 3,
+   "start": 1,
+   "duration": 1,
+   "room": "G7"
+  },
+  {
+   "lesson": "ECE:0117",
+   "session": 0,
+   "day": 3,
+   "start": 4,
+   "duration": 1,
+   "room": "G7"
+  },
+  {
+   "lesson": "ECE:0111",
+   "session": 2,
+   "day": 3,
+   "start": 5,
+   "duration": 1,
+   "room": "G7"
+  },
+  {
+   "lesson": "ECE:0118",
+   "session": 0,
+   "day": 3,
+   "start": 6,
+   "duration": 1,
+   "room": "G7"
+  },
+  {
+   "lesson": "ECE:0106",
+   "session": 2,
+   "day": 4,
+   "start": 0,
+   "duration": 1,
+   "room": "G7"
+  },
+  {
+   "lesson": "ECE:0113",
+   "session": 2,
+   "day": 4,
+   "start": 1,
+   "duration": 1,
+   "room": "G7"
+  },
+  {
+   "lesson": "ECE:0119",
+   "session": 0,
+   "day": 4,
+   "start": 3,
+   "duration": 1,
+   "room": "G7"
+  },
+  {
+   "lesson": "ECE:0098",
+   "session": 1,
+   "day": 4,
+   "start": 4,
+   "duration": 1,
+   "room": "G7"
+  },
+  {
+   "lesson": "ECE:0112",
+   "session": 2,
+   "day": 4,
+   "start": 5,
+   "duration": 1,
+   "room": "G7"
+  },
+  {
+   "lesson": "ECE:0120",
+   "session": 0,
+   "day": 4,
+   "start": 6,
+   "duration": 1,
+   "room": "G7"
+  },
+  {
+   "lesson": "ECE:0121",
+   "session": 0,
+   "day": 0,
+   "start": 1,
+   "duration": 1,
+   "room": "G8"
+  },
+  {
+   "lesson": "ECE:0122",
+   "session": 0,
+   "day": 0,
+   "start": 2,
+   "duration": 1,
+   "room": "G8"
+  },
+  {
+   "lesson": "ECE:0123",
+   "session": 0,
+   "day": 0,
+   "start": 7,
+   "duration": 1,
+   "room": "G8"
+  },
+  {
+   "lesson": "ECE:0124",
+   "session": 0,
+   "day": 1,
+   "start": 2,
+   "duration": 1,
+   "room": "G8"
+  },
+  {
+   "lesson": "ECE:0125",
+   "session": 0,
+   "day": 1,
+   "start": 3,
+   "duration": 1,
+   "room": "G8"
+  },
+  {
+   "lesson": "ECE:0122",
+   "session": 1,
+   "day": 1,
+   "start": 4,
+   "duration": 1,
+   "room": "G8"
+  },
+  {
+   "lesson": "ECE:0121",
+   "session": 1,
+   "day": 1,
+   "start": 6,
+   "duration": 1,
+   "room": "G8"
+  },
+  {
+   "lesson": "ECE:0124",
+   "session": 1,
+   "day": 2,
+   "start": 3,
+   "duration": 1,
+   "room": "G8"
+  },
+  {
+   "lesson": "ECE:0126",
+   "session": 0,
+   "day": 2,
+   "start": 4,
+   "duration": 1,
+   "room": "G8"
+  },
+  {
+   "lesson": "ECE:0123",
+   "session": 1,
+   "day": 3,
+   "start": 2,
+   "duration": 1,
+   "room": "G8"
+  },
+  {
+   "lesson": "ECE:0125",
+   "session": 1,
+   "day": 3,
+   "start": 3,
+   "duration": 1,
+   "room": "G8"
+  },
+  {
+   "lesson": "ECE:0122",
+   "session": 2,
+   "day": 3,
+   "start": 4,
+   "duration": 1,
+   "room": "G8"
+  },
+  {
+   "lesson": "ECE:0127",
+   "session": 0,
+   "day": 3,
+   "start": 5,
+   "duration": 1,
+   "room": "G8"
+  },
+  {
+   "lesson": "ECE:0128",
+   "session": 0,
+   "day": 3,
+   "start": 6,
+   "duration": 1,
+   "room": "G8"
+  },
+  {
+   "lesson": "ECE:0125",
+   "session": 2,
+   "day": 4,
+   "start": 1,
+   "duration": 1,
+   "room": "G8"
+  },
+  {
+   "lesson": "ECE:0126",
+   "session": 1,
+   "day": 4,
+   "start": 2,
+   "duration": 1,
+   "room": "G8"
+  },
+  {
+   "lesson": "ECE:0123",
+   "session": 2,
+   "day": 4,
+   "start": 4,
+   "duration": 1,
+   "room": "G8"
+  },
+  {
+   "lesson": "ECE:0129",
+   "session": 0,
+   "day": 4,
+   "start": 6,
+   "duration": 1,
+   "room": "G8"
+  },
+  {
+   "lesson": "ECE:0130",
+   "session": 0,
+   "day": 0,
+   "start": 1,
+   "duration": 2,
+   "room": "MP/L"
+  },
+  {
+   "lesson": "ECE:0131",
+   "session": 0,
+   "day": 0,
+   "start": 3,
+   "duration": 1,
+   "room": "MP/L"
+  },
+  {
+   "lesson": "ECE:0132",
+   "session": 0,
+   "day": 0,
+   "start": 4,
+   "duration": 1,
+   "room": "MP/L"
+  },
+  {
+   "lesson": "ECE:0133",
+   "session": 0,
+   "day": 0,
+   "start": 5,
+   "duration": 2,
+   "room": "MP/L"
+  },
+  {
+   "lesson": "ECE:0013",
+   "session": 1,
+   "day": 0,
+   "start": 7,
+   "duration": 1,
+   "room": "MP/L"
+  },
+  {
+   "lesson": "ECE:0134",
+   "session": 0,
+   "day": 1,
+   "start": 0,
+   "duration": 2,
+   "room": "MP/L"
+  },
+  {
+   "lesson": "ECE:0135",
+   "session": 0,
+   "day": 1,
+   "start": 2,
+   "duration": 2,
+   "room": "MP/L"
+  },
+  {
+   "lesson": "ECE:0136",
+   "session": 0,
+   "day": 1,
+   "start": 4,
+   "duration": 2,
+   "room": "MP/L"
+  },
+  {
+   "lesson": "ECE:0137",
+   "session": 0,
+   "day": 1,
+   "start": 6,
+   "duration": 2,
+   "room": "MP/L"
+  },
+  {
+   "lesson": "ECE:0138",
+   "session": 0,
+   "day": 2,
+   "start": 0,
+   "duration": 2,
+   "room": "MP/L"
+  },
+  {
+   "lesson": "ECE:0139",
+   "session": 0,
+   "day": 2,
+   "start": 2,
+   "duration": 2,
+   "room": "MP/L"
+  },
+  {
+   "lesson": "ECE:0140",
+   "session": 0,
+   "day": 2,
+   "start": 5,
+   "duration": 2,
+   "room": "MP/L"
+  },
+  {
+   "lesson": "ECE:0141",
+   "session": 0,
+   "day": 3,
+   "start": 0,
+   "duration": 2,
+   "room": "MP/L"
+  },
+  {
+   "lesson": "ECE:0013",
+   "session": 2,
+   "day": 3,
+   "start": 2,
+   "duration": 1,
+   "room": "MP/L"
+  },
+  {
+   "lesson": "ECE:0142",
+   "session": 0,
+   "day": 3,
+   "start": 4,
+   "duration": 2,
+   "room": "MP/L"
+  },
+  {
+   "lesson": "ECE:0143",
+   "session": 0,
+   "day": 4,
+   "start": 0,
+   "duration": 2,
+   "room": "MP/L"
+  },
+  {
+   "lesson": "ECE:0144",
+   "session": 0,
+   "day": 4,
+   "start": 2,
+   "duration": 2,
+   "room": "MP/L"
+  },
+  {
+   "lesson": "ECE:0013",
+   "session": 3,
+   "day": 4,
+   "start": 4,
+   "duration": 1,
+   "room": "MP/L"
+  },
+  {
+   "lesson": "ECE:0145",
+   "session": 0,
+   "day": 4,
+   "start": 5,
+   "duration": 2,
+   "room": "MP/L"
+  },
+  {
+   "lesson": "ECE:0146",
+   "session": 0,
+   "day": 4,
+   "start": 7,
+   "duration": 1,
+   "room": "MP/L"
+  },
+  {
+   "lesson": "ECE:0147",
+   "session": 0,
+   "day": 0,
+   "start": 2,
+   "duration": 1,
+   "room": "MWR/L"
+  },
+  {
+   "lesson": "ECE:0148",
+   "session": 0,
+   "day": 0,
+   "start": 3,
+   "duration": 1,
+   "room": "MWR/L"
+  },
+  {
+   "lesson": "ECE:0149",
+   "session": 0,
+   "day": 0,
+   "start": 4,
+   "duration": 1,
+   "room": "MWR/L"
+  },
+  {
+   "lesson": "ECE:0150",
+   "session": 0,
+   "day": 1,
+   "start": 2,
+   "duration": 2,
+   "room": "MWR/L"
+  },
+  {
+   "lesson": "ECE:0042",
+   "session": 2,
+   "day": 1,
+   "start": 5,
+   "duration": 1,
+   "room": "MWR/L"
+  },
+  {
+   "lesson": "ECE:0151",
+   "session": 0,
+   "day": 1,
+   "start": 6,
+   "duration": 1,
+   "room": "MWR/L"
+  },
+  {
+   "lesson": "ECE:0152",
+   "session": 0,
+   "day": 2,
+   "start": 2,
+   "duration": 2,
+   "room": "MWR/L"
+  },
+  {
+   "lesson": "ECE:0153",
+   "session": 0,
+   "day": 2,
+   "start": 5,
+   "duration": 2,
+   "room": "MWR/L"
+  },
+  {
+   "lesson": "ECE:0042",
+   "session": 3,
+   "day": 3,
+   "start": 2,
+   "duration": 1,
+   "room": "MWR/L"
+  },
+  {
+   "lesson": "ECE:0154",
+   "session": 0,
+   "day": 3,
+   "start": 5,
+   "duration": 1,
+   "room": "MWR/L"
+  },
+  {
+   "lesson": "ECE:0155",
+   "session": 0,
+   "day": 3,
+   "start": 6,
+   "duration": 1,
+   "room": "MWR/L"
+  },
+  {
+   "lesson": "ECE:0156",
+   "session": 0,
+   "day": 4,
+   "start": 2,
+   "duration": 2,
+   "room": "MWR/L"
+  },
+  {
+   "lesson": "ECE:0157",
+   "session": 0,
+   "day": 4,
+   "start": 5,
+   "duration": 1,
+   "room": "MWR/L"
+  },
+  {
+   "lesson": "ECE:0158",
+   "session": 0,
+   "day": 4,
+   "start": 6,
+   "duration": 1,
+   "room": "MWR/L"
+  },
+  {
+   "lesson": "ECE:0159",
+   "session": 0,
+   "day": 0,
+   "start": 3,
+   "duration": 1,
+   "room": "PROJ/L"
+  },
+  {
+   "lesson": "ECE:0160",
+   "session": 0,
+   "day": 0,
+   "start": 5,
+   "duration": 1,
+   "room": "PROJ/L"
+  },
+  {
+   "lesson": "ECE:0161",
+   "session": 0,
+   "day": 2,
+   "start": 3,
+   "duration": 1,
+   "room": "PROJ/L"
+  },
+  {
+   "lesson": "ECE:0162",
+   "session": 0,
+   "day": 2,
+   "start": 5,
+   "duration": 1,
+   "room": "PROJ/L"
+  },
+  {
+   "lesson": "ECE:0163",
+   "session": 0,
+   "day": 3,
+   "start": 1,
+   "duration": 1,
+   "room": "PROJ/L"
+  },
+  {
+   "lesson": "ECE:0164",
+   "session": 0,
+   "day": 3,
+   "start": 5,
+   "duration": 1,
+   "room": "PROJ/L"
+  },
+  {
+   "lesson": "ECE:0165",
+   "session": 0,
+   "day": 4,
+   "start": 3,
+   "duration": 1,
+   "room": "PROJ/L"
+  },
+  {
+   "lesson": "ECE:0166",
+   "session": 0,
+   "day": 0,
+   "start": 1,
+   "duration": 1,
+   "room": "TI/L"
+  },
+  {
+   "lesson": "ECE:0167",
+   "session": 0,
+   "day": 0,
+   "start": 2,
+   "duration": 1,
+   "room": "TI/L"
+  },
+  {
+   "lesson": "ECE:0166",
+   "session": 1,
+   "day": 1,
+   "start": 1,
+   "duration": 1,
+   "room": "TI/L"
+  },
+  {
+   "lesson": "ECE:0168",
+   "session": 0,
+   "day": 1,
+   "start": 6,
+   "duration": 1,
+   "room": "TI/L"
+  },
+  {
+   "lesson": "ECE:0166",
+   "session": 2,
+   "day": 2,
+   "start": 2,
+   "duration": 1,
+   "room": "TI/L"
+  },
+  {
+   "lesson": "ECE:0169",
+   "session": 0,
+   "day": 2,
+   "start": 4,
+   "duration": 1,
+   "room": "TI/L"
+  },
+  {
+   "lesson": "ECE:0024",
+   "session": 1,
+   "day": 3,
+   "start": 2,
+   "duration": 1,
+   "room": "TI/L"
+  },
+  {
+   "lesson": "ECE:0166",
+   "session": 3,
+   "day": 3,
+   "start": 3,
+   "duration": 1,
+   "room": "TI/L"
+  },
+  {
+   "lesson": "ECE:0170",
+   "session": 0,
+   "day": 3,
+   "start": 5,
+   "duration": 1,
+   "room": "TI/L"
+  },
+  {
+   "lesson": "ECE:0171",
+   "session": 0,
+   "day": 4,
+   "start": 1,
+   "duration": 2,
+   "room": "TI/L"
+  },
+  {
+   "lesson": "ECE:0172",
+   "session": 0,
+   "day": 4,
+   "start": 6,
+   "duration": 1,
+   "room": "TI/L"
+  },
+  {
+   "lesson": "ECE:O0001",
+   "session": 0,
+   "day": 0,
+   "start": 0,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0002",
+   "session": 0,
+   "day": 2,
+   "start": 0,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0003",
+   "session": 0,
+   "day": 4,
+   "start": 0,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0004",
+   "session": 0,
+   "day": 0,
+   "start": 0,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0005",
+   "session": 0,
+   "day": 2,
+   "start": 0,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0006",
+   "session": 0,
+   "day": 4,
+   "start": 0,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0007",
+   "session": 0,
+   "day": 2,
+   "start": 0,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0008",
+   "session": 0,
+   "day": 2,
+   "start": 1,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0009",
+   "session": 0,
+   "day": 3,
+   "start": 2,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0010",
+   "session": 0,
+   "day": 1,
+   "start": 4,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0011",
+   "session": 0,
+   "day": 2,
+   "start": 4,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0012",
+   "session": 0,
+   "day": 4,
+   "start": 4,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0013",
+   "session": 0,
+   "day": 1,
+   "start": 5,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0014",
+   "session": 0,
+   "day": 3,
+   "start": 5,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0015",
+   "session": 0,
+   "day": 4,
+   "start": 5,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0016",
+   "session": 0,
+   "day": 1,
+   "start": 6,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0017",
+   "session": 0,
+   "day": 2,
+   "start": 6,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0018",
+   "session": 0,
+   "day": 3,
+   "start": 6,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0019",
+   "session": 0,
+   "day": 4,
+   "start": 6,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0020",
+   "session": 0,
+   "day": 0,
+   "start": 7,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0021",
+   "session": 0,
+   "day": 1,
+   "start": 7,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0022",
+   "session": 0,
+   "day": 4,
+   "start": 7,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0023",
+   "session": 0,
+   "day": 3,
+   "start": 0,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0024",
+   "session": 0,
+   "day": 0,
+   "start": 1,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0025",
+   "session": 0,
+   "day": 3,
+   "start": 1,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0026",
+   "session": 0,
+   "day": 0,
+   "start": 2,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0027",
+   "session": 0,
+   "day": 3,
+   "start": 2,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0028",
+   "session": 0,
+   "day": 2,
+   "start": 4,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0029",
+   "session": 0,
+   "day": 3,
+   "start": 4,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0030",
+   "session": 0,
+   "day": 4,
+   "start": 4,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0031",
+   "session": 0,
+   "day": 2,
+   "start": 5,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0032",
+   "session": 0,
+   "day": 3,
+   "start": 5,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0033",
+   "session": 0,
+   "day": 0,
+   "start": 6,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0034",
+   "session": 0,
+   "day": 1,
+   "start": 6,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0035",
+   "session": 0,
+   "day": 2,
+   "start": 6,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0036",
+   "session": 0,
+   "day": 0,
+   "start": 7,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0037",
+   "session": 0,
+   "day": 1,
+   "start": 7,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0038",
+   "session": 0,
+   "day": 1,
+   "start": 2,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0039",
+   "session": 0,
+   "day": 2,
+   "start": 2,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0040",
+   "session": 0,
+   "day": 1,
+   "start": 3,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0041",
+   "session": 0,
+   "day": 2,
+   "start": 3,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0042",
+   "session": 0,
+   "day": 4,
+   "start": 3,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0043",
+   "session": 0,
+   "day": 0,
+   "start": 5,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0044",
+   "session": 0,
+   "day": 2,
+   "start": 5,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0045",
+   "session": 0,
+   "day": 4,
+   "start": 5,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0046",
+   "session": 0,
+   "day": 0,
+   "start": 6,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0047",
+   "session": 0,
+   "day": 2,
+   "start": 6,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0048",
+   "session": 0,
+   "day": 3,
+   "start": 6,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0049",
+   "session": 0,
+   "day": 4,
+   "start": 6,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0050",
+   "session": 0,
+   "day": 2,
+   "start": 2,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0051",
+   "session": 0,
+   "day": 3,
+   "start": 2,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0052",
+   "session": 0,
+   "day": 4,
+   "start": 2,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0053",
+   "session": 0,
+   "day": 2,
+   "start": 3,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0054",
+   "session": 0,
+   "day": 3,
+   "start": 3,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0055",
+   "session": 0,
+   "day": 4,
+   "start": 3,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0056",
+   "session": 0,
+   "day": 0,
+   "start": 5,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0057",
+   "session": 0,
+   "day": 2,
+   "start": 5,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0058",
+   "session": 0,
+   "day": 1,
+   "start": 6,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0059",
+   "session": 0,
+   "day": 2,
+   "start": 6,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0060",
+   "session": 0,
+   "day": 3,
+   "start": 6,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0061",
+   "session": 0,
+   "day": 4,
+   "start": 6,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0062",
+   "session": 0,
+   "day": 0,
+   "start": 1,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0063",
+   "session": 0,
+   "day": 4,
+   "start": 1,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0064",
+   "session": 0,
+   "day": 0,
+   "start": 2,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0065",
+   "session": 0,
+   "day": 1,
+   "start": 2,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0066",
+   "session": 0,
+   "day": 4,
+   "start": 2,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0067",
+   "session": 0,
+   "day": 0,
+   "start": 3,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0068",
+   "session": 0,
+   "day": 0,
+   "start": 4,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0069",
+   "session": 0,
+   "day": 1,
+   "start": 3,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0070",
+   "session": 0,
+   "day": 2,
+   "start": 3,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0071",
+   "session": 0,
+   "day": 3,
+   "start": 3,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0072",
+   "session": 0,
+   "day": 4,
+   "start": 3,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0073",
+   "session": 0,
+   "day": 4,
+   "start": 4,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0074",
+   "session": 0,
+   "day": 1,
+   "start": 4,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0075",
+   "session": 0,
+   "day": 2,
+   "start": 4,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0076",
+   "session": 0,
+   "day": 3,
+   "start": 4,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0077",
+   "session": 0,
+   "day": 0,
+   "start": 5,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0078",
+   "session": 0,
+   "day": 1,
+   "start": 5,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0079",
+   "session": 0,
+   "day": 2,
+   "start": 5,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0080",
+   "session": 0,
+   "day": 3,
+   "start": 5,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0081",
+   "session": 0,
+   "day": 4,
+   "start": 5,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0082",
+   "session": 0,
+   "day": 4,
+   "start": 6,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0083",
+   "session": 0,
+   "day": 1,
+   "start": 6,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0084",
+   "session": 0,
+   "day": 2,
+   "start": 6,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0085",
+   "session": 0,
+   "day": 3,
+   "start": 6,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0086",
+   "session": 0,
+   "day": 3,
+   "start": 7,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0087",
+   "session": 0,
+   "day": 0,
+   "start": 1,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0088",
+   "session": 0,
+   "day": 0,
+   "start": 2,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0089",
+   "session": 0,
+   "day": 2,
+   "start": 1,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0090",
+   "session": 0,
+   "day": 2,
+   "start": 2,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0091",
+   "session": 0,
+   "day": 4,
+   "start": 1,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0092",
+   "session": 0,
+   "day": 1,
+   "start": 2,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0093",
+   "session": 0,
+   "day": 1,
+   "start": 3,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0094",
+   "session": 0,
+   "day": 3,
+   "start": 3,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0095",
+   "session": 0,
+   "day": 3,
+   "start": 4,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0096",
+   "session": 0,
+   "day": 0,
+   "start": 4,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0097",
+   "session": 0,
+   "day": 2,
+   "start": 4,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0098",
+   "session": 0,
+   "day": 0,
+   "start": 5,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0099",
+   "session": 0,
+   "day": 1,
+   "start": 5,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0100",
+   "session": 0,
+   "day": 2,
+   "start": 5,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0101",
+   "session": 0,
+   "day": 1,
+   "start": 6,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0102",
+   "session": 0,
+   "day": 0,
+   "start": 0,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0103",
+   "session": 0,
+   "day": 2,
+   "start": 0,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0104",
+   "session": 0,
+   "day": 4,
+   "start": 0,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0105",
+   "session": 0,
+   "day": 4,
+   "start": 2,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0106",
+   "session": 0,
+   "day": 4,
+   "start": 3,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0107",
+   "session": 0,
+   "day": 1,
+   "start": 4,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0108",
+   "session": 0,
+   "day": 1,
+   "start": 5,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0109",
+   "session": 0,
+   "day": 1,
+   "start": 6,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0110",
+   "session": 0,
+   "day": 2,
+   "start": 1,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0111",
+   "session": 0,
+   "day": 2,
+   "start": 2,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0112",
+   "session": 0,
+   "day": 2,
+   "start": 3,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0113",
+   "session": 0,
+   "day": 0,
+   "start": 5,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0114",
+   "session": 0,
+   "day": 4,
+   "start": 6,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0115",
+   "session": 0,
+   "day": 4,
+   "start": 7,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0116",
+   "session": 0,
+   "day": 0,
+   "start": 2,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0117",
+   "session": 0,
+   "day": 0,
+   "start": 5,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0118",
+   "session": 0,
+   "day": 0,
+   "start": 5,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0119",
+   "session": 0,
+   "day": 0,
+   "start": 2,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0120",
+   "session": 0,
+   "day": 4,
+   "start": 6,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  },
+  {
+   "lesson": "ECE:O0121",
+   "session": 0,
+   "day": 0,
+   "start": 2,
+   "duration": 1,
+   "room": "OTHER DEPARTMENT"
+  }
+ ],
+ "outside_placeholders": 121
+}

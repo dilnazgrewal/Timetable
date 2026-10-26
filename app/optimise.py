@@ -58,9 +58,9 @@ class OptResult:
 def movable(college: College, l: Lesson, dept: str) -> bool:
     if not l.fixed or l.dept != dept:
         return False
-    if any(r.type == "keep_as_published" and r.applies(l) for r in college.rules):
+    if any(r.type == "keep_as_published" and r.applies(l, college) for r in college.rules):
         return False  # the college's rules keep it where it is
-    return all((r := college.room_by_id.get(rid)) is not None and r.dept == dept for rid in l.rooms)
+    return all((r := college.room_by_id.get(rid)) is not None and r.kind != "Other department" for rid in l.rooms)
 
 
 def optimise_department(college: College, dept: str = "CSE", time_limit: float = 120, workers: int = 8,
@@ -74,6 +74,8 @@ def optimise_department(college: College, dept: str = "CSE", time_limit: float =
     move = [l for l in lessons if movable(college, l, dept)]
     move_ids = {l.id for l in move}
     pinned = [e for e in college.fixed_entries if e.lesson not in move_ids and college.lesson_by_id[e.lesson].dept == dept]
+    # other departments' classes stay put and share teachers and rooms with this one
+    others = [e for e in college.fixed_entries if college.lesson_by_id[e.lesson].dept != dept]
     by_lesson: dict[str, list[Entry]] = defaultdict(list)
     for e in college.fixed_entries:
         if e.lesson in move_ids:
@@ -118,6 +120,16 @@ def optimise_department(college: College, dept: str = "CSE", time_limit: float =
     late: list = []
     spare_use: list = []
 
+    # electives that may share a group's students (no lists to tell): never at the same time as its classes
+    guard_at: dict[str, set[int]] = defaultdict(set)
+    for e in college.fixed_entries:
+        guard_at[e.lesson].update(e.day * n_per + q for q in e.slots)
+    forbid: dict[str, set[int]] = defaultdict(set)
+    for _, mine, guards in college.guarded():
+        busy = set().union(*(guard_at[g] for g in guards if g not in move_ids))
+        for lid in mine & move_ids:
+            forbid[lid] |= busy
+
     for si, (l, k) in enumerate(sessions):
         unav = {tuple(u) for u in college.teacher_by_id[l.teacher].unavailable}
         # classrooms are pooled (assigned after solving); labs and special rooms are chosen by the model
@@ -129,7 +141,7 @@ def optimise_department(college: College, dept: str = "CSE", time_limit: float =
             rooms = sorted(r for r in used if college.room_by_id[r].kind == l.room_kind)
         for d in range(n_days):
             for p in range(n_per - l.duration + 1):
-                if any((d, q) in unav for q in range(p, p + l.duration)):
+                if any((d, q) in unav or d * n_per + q in forbid[l.id] for q in range(p, p + l.duration)):
                     continue
                 for r in rooms:
                     v = m.NewBoolVar("")
@@ -155,20 +167,24 @@ def optimise_department(college: College, dept: str = "CSE", time_limit: float =
     pin_t: dict[tuple, int] = defaultdict(int)
     pin_g: dict[tuple, int] = defaultdict(int)
     pin_r: dict[tuple, int] = defaultdict(int)
-    for e in pinned:
+    start: dict[tuple, int] = defaultdict(int)  # how often the college itself books each teacher/group/room
+    for e in pinned + others + [e for es in by_lesson.values() for e in es]:
         l = college.lesson_by_id[e.lesson]
+        fixed = e.lesson not in move_ids
         for q in e.slots:
-            for t in (l.teacher, *l.co_teachers):
-                pin_t[t, e.day, q] += 1
-            for u in unit_of[l.id]:
-                pin_g[u, e.day, q] += 1
-            pin_r[e.room, e.day, q] += 1
+            keys = [("t", t, e.day, q) for t in (l.teacher, *l.co_teachers)] + [("g", u, e.day, q) for u in unit_of[l.id]]
+            if college.room_by_id[e.room].kind != "Other department":
+                keys.append(("r", e.room, e.day, q))
+            for key in keys:
+                start[key] += 1
+                if fixed:
+                    {"t": pin_t, "g": pin_g, "r": pin_r}[key[0]][key[1:]] += 1
 
     for si in range(len(sessions)):
         m.AddExactlyOne(by_s[si])
-    for table, pins in ((t_cov, pin_t), (g_cov, pin_g), (r_cov, pin_r)):
-        for key, vs in table.items():
-            m.Add(sum(vs) <= max(0, 1 - pins.get(key, 0)))
+    for tag, table, pins in (("t", t_cov, pin_t), ("g", g_cov, pin_g), ("r", r_cov, pin_r)):
+        for key, vs in table.items():  # never double-booked (and never worse where the published data already is)
+            m.Add(sum(vs) <= max(0, max(1, start.get((tag, *key), 0)) - pins.get(key, 0)))
     for d in range(n_days if "rooms" not in relax else 0):
         for q in range(n_per):
             busy_cls = sum(pin_r.get((r, d, q), 0) > 0 for r in classrooms)
@@ -271,8 +287,12 @@ def optimise_department(college: College, dept: str = "CSE", time_limit: float =
     def occupancy(table, pins, who, d):
         occ = []
         for q in range(n_per):
-            o = m.NewBoolVar("")
-            m.Add(o == sum(table.get((who, d, q), [])) + pins.get((who, d, q), 0))
+            o = m.NewBoolVar("")  # busy (the published data may already double-book someone: still just busy)
+            vs, pin = table.get((who, d, q), []), pins.get((who, d, q), 0)
+            if pin:
+                m.Add(o == 1)
+            else:
+                m.Add(o == sum(vs))
             occ.append(o)
         return occ
 
@@ -294,11 +314,10 @@ def optimise_department(college: College, dept: str = "CSE", time_limit: float =
     obj = [W_LATE * v for v in late] + [W_SPARE * v for v in spare_use] + rule_obj
     # the college's own count of days with no free midday hour is a ceiling we may never exceed
     occ_before: dict[tuple, set[int]] = defaultdict(set)
-    for e in college.fixed_entries:
+    for e in college.fixed_entries:  # every department: a teacher's day includes classes they give elsewhere
         l = college.lesson_by_id[e.lesson]
-        if l.dept == dept:
-            for who in (*unit_of[l.id], l.teacher, *l.co_teachers):
-                occ_before[who, e.day].update(e.slots)
+        for who in (*unit_of[l.id], l.teacher, *l.co_teachers):
+            occ_before[who, e.day].update(e.slots)
     window_full = lambda who, d: all(q in occ_before.get((who, d), ()) for q in LUNCH_WINDOW)
     g_no_lunch, t_no_lunch_all, g_idle, t_streak_days, g_long, g_lonely = [], [], [], [], [], []
 
@@ -352,13 +371,17 @@ def optimise_department(college: College, dept: str = "CSE", time_limit: float =
                 m.Add(day_streak >= streak)
                 obj.append(W_STREAK * streak)
             t_streak_days.append(day_streak)
-    m.Add(sum(g_no_lunch) <= sum(window_full(g, d) for g in groups for d in range(n_days)))
-    m.Add(sum(t_no_lunch_all) <= sum(window_full(t, d) for t in teachers for d in range(n_days)))
-    m.Add(sum(g_idle) <= sum(idle_of(occ_before.get((g, d), set())) for g in groups for d in range(n_days)))
-    m.Add(sum(t_streak_days) <= sum(run_len(occ_before.get((t, d), set())) >= 4 for t in teachers for d in range(n_days)))
-    m.Add(sum(late) <= sum(e.start + e.duration > n_per - 1 for e in original.values()))
-    m.Add(sum(g_long) <= sum(len(occ_before.get((g, d), ())) > SOFT_DAY for g in groups for d in range(n_days)))
-    m.Add(sum(g_lonely) <= sum(len(occ_before.get((g, d), ())) == 1 for g in groups for d in range(n_days)))
+    ceilings: list = []  # never worse than the college (its own numbers)
+    ceilings.append(sum(g_no_lunch) <= sum(window_full(g, d) for g in groups for d in range(n_days)))
+    ceilings.append(sum(t_no_lunch_all) <= sum(window_full(t, d) for t in teachers for d in range(n_days)))
+    ceilings.append(sum(g_idle) <= sum(idle_of(occ_before.get((g, d), set())) for g in groups for d in range(n_days)))
+    ceilings.append(sum(t_streak_days) <= sum(run_len(occ_before.get((t, d), set())) >= 4 for t in teachers for d in range(n_days)))
+    ceilings.append(sum(late) <= sum(e.start + e.duration > n_per - 1 for e in original.values()))
+    ceilings.append(sum(g_long) <= sum(len(occ_before.get((g, d), ())) > SOFT_DAY for g in groups for d in range(n_days)))
+    ceilings.append(sum(g_lonely) <= sum(len(occ_before.get((g, d), ())) == 1 for g in groups for d in range(n_days)))
+    for i, ceiling in enumerate(ceilings):
+        if f"ceiling{i}" not in relax:
+            m.Add(ceiling)
     m.Minimize(sum(obj))
 
     # Large-neighbourhood search from the college's own timetable (it meets every rule and ceiling):
@@ -435,7 +458,7 @@ def optimise_department(college: College, dept: str = "CSE", time_limit: float =
     # rooms: labs come from the model; theory rooms are assigned per day with a small exact model
     # (prefer the room the class had before), using only rooms the college uses and small rooms only
     # for classes the college itself puts there
-    blocked = {(e.room, e.day, q) for e in pinned for q in e.slots}
+    blocked = {(e.room, e.day, q) for e in pinned + others for q in e.slots}
     theory_rooms: dict[tuple, str] = {}
     for d in range(n_days):
         today = [(i, t) for i, t in enumerate(placed) if t[2] == d and not t[4]]
@@ -489,10 +512,15 @@ def department_college(college: College, dept: str = "CSE") -> College:
 OUT = Path(__file__).resolve().parent.parent / "data" / "gndec" / "cse_optimised.json"
 
 
-def add_new_pins(college: College, dept: str = "CSE", path: Path = OUT) -> dict | None:
+def out_path(dept: str) -> Path:
+    return OUT.with_name(f"{dept.lower()}_optimised.json")
+
+
+def add_new_pins(college: College, dept: str = "CSE", path: Path | None = None) -> dict | None:
     """After a re-import found more classes nobody may move (e.g. open electives taught in another department),
     put them into the saved optimised timetable as published and measure it again. No re-solve: the independent
     validator says whether the saved timetable still fits around them."""
+    path = path or out_path(dept)
     if not path.exists():
         return None
     saved = json.loads(path.read_text(encoding="utf-8"))
@@ -504,7 +532,7 @@ def add_new_pins(college: College, dept: str = "CSE", path: Path = OUT) -> dict 
     return save(college, res, dept, path)
 
 
-def save(college: College, res: OptResult, dept: str = "CSE", path: Path = OUT) -> dict:
+def save(college: College, res: OptResult, dept: str = "CSE", path: Path | None = None) -> dict:
     """Store the optimised timetable next to the imported one, with before/after numbers."""
     from app.validator import metrics, split_issues, validate
 
@@ -519,7 +547,7 @@ def save(college: College, res: OptResult, dept: str = "CSE", path: Path = OUT) 
         out["clashes"][label] = len(split_issues(validate(sub, entries))[0])
     out["rules"] = {r["id"]: {"college": r["college"], "optimised": r["optimised"]}
                     for r in rules.report(college, before, res.entries)}
-    path.write_text(json.dumps(out), encoding="utf-8")
+    (path or out_path(dept)).write_text(json.dumps(out), encoding="utf-8")
     return out
 
 
@@ -530,19 +558,25 @@ if __name__ == "__main__":
     from app.validator import metrics, split_issues, validate
 
     limit = float(sys.argv[1]) if len(sys.argv) > 1 else 120
+    which = [a.upper() for a in sys.argv[2:]] or ["CSE"]
     c = build_college()
-    res = optimise_department(c, "CSE", limit, check_start=True)
-    print(res.status, res.seconds, "s ·", len(res.entries), "entries ·", res.moved, "moved ·", res.pinned, "pinned", res.problems)
-    if res.entries:
-        sub = department_college(c)
-        for label, entries in (("college", c.fixed_entries), ("optimised", res.entries)):
-            clashes, notes = split_issues(validate(sub, entries))
-            mt = metrics(sub, entries)
-            print(f"{label:10s} clashes={len(clashes)} notes={len(notes)}",
-                  {k: mt[k] for k in ("idle_total", "worst_gap", "lonely_days", "no_lunch_days", "long_days",
-                                      "teacher_streak_days", "teacher_no_lunch_days", "teacher_idle_total", "late_sessions")})
-            for cl in clashes[:5]:
-                print("   ", cl)
-        if res.status == "IMPROVED":
-            save(c, res)
-            print("saved ->", OUT)
+    if which == ["ALL"]:
+        which = sorted({l.dept for l in c.lessons if l.fixed})
+    for dept in which:
+        print(f"===== {dept}", flush=True)
+        res = optimise_department(c, dept, limit, check_start=True)
+        print(res.status, res.seconds, "s ·", len(res.entries), "entries ·", res.moved, "moved ·", res.pinned, "pinned", res.problems)
+        if res.entries:
+            sub = department_college(c, dept)
+            before = [e for e in c.fixed_entries if c.lesson_by_id[e.lesson].dept == dept]
+            for label, entries in (("college", before), ("optimised", res.entries)):
+                clashes, notes = split_issues(validate(sub, entries))
+                mt = metrics(sub, entries)
+                print(f"{label:10s} clashes={len(clashes)} notes={len(notes)}",
+                      {k: mt[k] for k in ("idle_total", "worst_gap", "lonely_days", "no_lunch_days", "long_days",
+                                          "teacher_streak_days", "teacher_no_lunch_days", "teacher_idle_total", "late_sessions")})
+                for cl in clashes[:5]:
+                    print("   ", cl)
+            if res.status == "IMPROVED":
+                save(c, res, dept)
+                print("saved ->", out_path(dept), flush=True)

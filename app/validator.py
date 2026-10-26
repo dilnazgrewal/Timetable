@@ -65,7 +65,8 @@ def validate(college: College, entries: list[Entry]) -> list[str]:
                 issues.append(f"{teacher.name} is unavailable at {_slot(e.day, p)} but teaches {l.id}")
             for tid in [l.teacher, *l.co_teachers]:
                 teacher_at[(tid, e.day, p)].append(l.id)
-            room_at[(e.room, e.day, p)].append(l.id)
+            if room is None or room.kind != "Other department":  # a stand-in for rooms of other departments
+                room_at[(e.room, e.day, p)].append(l.id)
             for u in unit_of[l.id]:
                 batch_at[(u, e.day, p)].append(l.id)
                 batch_day[(u, e.day)] += 1
@@ -81,6 +82,15 @@ def validate(college: College, entries: list[Entry]) -> list[str]:
             if len(ids) > 1:
                 name = college.teacher_by_id[who].name if kind == "Teacher" else who
                 issues.append(f"CLASH {kind} {name} at {_slot(d, p)}: {', '.join(ids)}")
+    # electives whose students we can't tell apart from a type's: never at the same time as its classes
+    at: dict[str, set[tuple[int, int]]] = defaultdict(set)
+    for e in entries:
+        at[e.lesson].update((e.day, p) for p in e.slots)
+    for name, mine, guards in college.guarded():
+        busy = {s: lid for lid in mine for s in at.get(lid, ())}
+        for g in sorted(guards):
+            for s in sorted(at.get(g, set()) & busy.keys()):
+                issues.append(f"CLASH Students {name} at {_slot(*s)}: {busy[s]}, {g} (elective that may share students)")
 
     lunch_label = f"{PERIODS[LUNCH_WINDOW[0]][1]}–{PERIODS[LUNCH_WINDOW[-1]][2]}"
     for kind, table in (("Teacher", teacher_at), ("Students", batch_at)):

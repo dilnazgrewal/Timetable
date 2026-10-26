@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TimeWeave · Optimised CSE</title>
+<title>TimeWeave · Optimised timetables</title>
 <script src="https://cdn.tailwindcss.com/3.4.16"></script>
 <script src="/static/js/shell.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
@@ -13,12 +13,24 @@
   .wait { background: repeating-linear-gradient(135deg, #fff1f2, #fff1f2 6px, #ffe4e6 6px, #ffe4e6 12px); }
 </style>
 </head>
-<!-- Lane A owns this page: GNDEC's published CSE timetable vs TimeWeave's optimised version of the same lessons. -->
+<!-- Lane A owns this page: each department's published timetable vs TimeWeave's optimised version of the same lessons. -->
 <body class="bg-slate-50 text-slate-800 min-h-screen">
 <div class="max-w-7xl mx-auto px-4"><div id="tw-shell"></div></div>
 <main x-data="compareApp()" x-init="init()" x-cloak class="max-w-7xl mx-auto px-4 pb-16">
-  <h1 class="text-xl font-bold mt-2">CSE timetable: the college's version vs optimised</h1>
-  <p class="text-sm text-slate-500 max-w-3xl">Exactly the same lessons as GNDEC's published timetable: same teachers, subjects, weekly hours, 2-hour labs, groups and electives, in the same rooms. Every real combination of group and electives (from the department's distribution lists) is checked: no student gets two classes at once. Only the times change, and every number below is checked by the independent validator.</p>
+  <!-- department picker: every department whose real timetable is imported -->
+  <nav class="mt-2 flex flex-wrap gap-1" x-show="depts.length > 1">
+    <template x-for="x in depts" :key="x.code">
+      <button @click="pick(x.code)" class="px-3 py-1.5 rounded-lg text-sm border"
+              :class="dept === x.code ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white hover:bg-slate-50'">
+        <span x-text="x.code"></span>
+        <span x-show="x.status !== 'draft'" class="ml-1 text-[10px] uppercase" x-text="x.status"></span>
+      </button>
+    </template>
+  </nav>
+  <h1 class="text-xl font-bold mt-2" x-text="(d.dept_name || dept) + ': the college\u2019s timetable vs optimised'"></h1>
+  <p class="text-sm text-slate-500 max-w-3xl">Exactly the same lessons as GNDEC's published timetable: same teachers, subjects, weekly hours, labs, groups and electives, in rooms of the same kind. Only the times change, and every number below is checked by the independent validator.
+    <span x-show="dept === 'CSE'">Every real combination of group and electives (from the department's distribution lists) is checked: no student gets two classes at once.</span>
+    <span x-show="dept !== 'CSE'">Without this department's elective lists, electives, first year and 3rd/4th-year group classes stay exactly as published; 2nd year and whole-section classes are optimised.</span></p>
 
   <div x-show="!d.available" class="mt-4 rounded-xl border bg-white p-6 text-slate-600">
     <span x-text="d.running ? 'The optimiser is running… this takes a few minutes.' : (d.error || 'No optimised timetable yet.')"></span>
@@ -42,7 +54,7 @@
       </section>
       <p class="text-xs text-slate-500 mt-2">
         <b x-text="d.clashes.college === 0 && d.clashes.optimised === 0 ? '✔ 0 clashes in both' : `Clashes: college ${d.clashes.college}, optimised ${d.clashes.optimised}`"></b>
-        · <span x-text="d.moved"></span> classes moved to a better time · <span x-text="d.pinned"></span> kept exactly as published (M.Tech, PhD, mentoring)
+        · <span x-text="d.moved"></span> classes moved to a better time · <span x-text="d.pinned"></span> kept exactly as published (see the rules below)
         <template x-if="TW.can.optimised_run"><button @click="run()" :disabled="d.running" class="ml-2 underline text-indigo-700 disabled:opacity-50" x-text="d.running ? 'optimising…' : 'Re-run optimiser'"></button></template>
       </p>
 
@@ -177,17 +189,17 @@
 <script>
 function compareApp() {
   return {
-    d: { available: false }, meta: null, days: [], periods: [], user: null,
+    d: { available: false }, meta: null, days: [], periods: [], user: null, depts: [], dept: '',
     by: 'type', section: '', type: '', teacher: '', side: 'optimised', teacherList: [], lunch: [], typeLessons: {},
     collegeKeys: new Set(),
     cards: [
-      { key: 'idle_total', label: 'Student waiting periods / week', hint: 'free periods between classes, all CSE groups' },
+      { key: 'idle_total', label: 'Student waiting periods / week', hint: 'free periods between classes, all groups' },
       { key: 'no_lunch_days', label: 'Group-days with no break 11:30–2:30', hint: 'classes straight through midday' },
       { key: 'teacher_idle_total', label: 'Teacher waiting periods / week', hint: 'gaps in teachers\' days' },
       { key: 'teacher_no_lunch_days', label: 'Teacher-days with no midday break', hint: '' },
       { key: 'lonely_days', label: 'Days with a single lecture', hint: 'coming in for just one class' },
       { key: 'teacher_streak_days', label: 'Teacher-days with 4+ lectures in a row', hint: '' },
-      { key: 'long_days', label: 'Group-days over 6 periods', hint: 'D3 has 36 periods a week' },
+      { key: 'long_days', label: 'Group-days over 6 periods', hint: 'more than 6 classes in a day' },
       { key: 'late_sessions', label: 'Classes after 4:30', hint: 'mentoring hours stay as published' },
       { key: 'lab_same_day', label: 'Same lab for two groups on one day', hint: 'one teacher, e.g. SC Lab A1 and A2' },
     ],
@@ -195,6 +207,17 @@ function compareApp() {
       this.user = await TW.ready;
       this.meta = await TW.api('/api/meta');
       this.days = this.meta.days; this.periods = this.meta.periods; this.lunch = this.meta.lunch.window;
+      try { this.depts = (await TW.api('/api/compare')).departments; } catch { this.depts = []; }
+      const want = (new URLSearchParams(location.search).get('dept') || '').toUpperCase();
+      const codes = this.depts.map(x => x.code);
+      this.dept = codes.includes(want) ? want : codes.includes(this.user.dept) ? this.user.dept : (codes[0] || 'CSE');
+      await this.load();
+    },
+    async pick(code) {
+      if (code === this.dept) return;
+      this.dept = code;
+      this.section = this.type = this.teacher = '';
+      history.replaceState(null, '', `?dept=${code}`);
       await this.load();
     },
     pub() { return this.d.publication || { status: 'draft' }; },
@@ -208,14 +231,14 @@ function compareApp() {
     },
     async act(what) {
       const ask = { propose: 'Send this timetable to the timetable office for publishing?',
-        publish: 'Publish this timetable? Every CSE student and teacher will see the new times and be notified.',
-        unpublish: 'Go back to the college’s original CSE timetable for everyone?' }[what];
+        publish: `Publish this timetable? Every ${this.dept} student and teacher will see the new times and be notified.`,
+        unpublish: `Go back to the college’s original ${this.dept} timetable for everyone?` }[what];
       if (!confirm(ask)) return;
-      try { this.d.publication = (await TW.api(`/api/compare/cse/${what}`, { method: 'POST' })).publication; }
+      try { this.d.publication = (await TW.api(`/api/compare/${this.dept}/${what}`, { method: 'POST' })).publication; }
       catch (e) { alert(e.message); }
     },
     async load() {
-      try { this.d = await TW.api('/api/compare/cse'); }
+      try { this.d = await TW.api(`/api/compare/${this.dept}`); }
       catch (e) { this.d = { available: false, error: e.message }; return; }
       if (!this.d.available) { if (this.d.running) setTimeout(() => this.load(), 10000); return; }
       this.collegeKeys = new Set(this.d.college.map(e => `${e.lesson}|${e.day}|${e.start}`));
@@ -224,14 +247,14 @@ function compareApp() {
       this.teacherList = this.d.teachers.map(id => ({ id, name: names[id] || id })).sort((a, b) => a.name.localeCompare(b.name));
       this.typeLessons = Object.fromEntries(this.d.types.map(t => [t.id, new Set(t.lessons)]));
       const mine = this.d.types.find(t => t.id === this.user.student_type);
-      const best = mine ? null : this.bestType();  // others start on the combination that gains the most
-      this.section = this.section || (mine ? mine.section : best.section);
-      this.type = this.type || (mine ? mine.id : best.type);
+      const best = mine || !this.d.types.length ? null : this.bestType();  // others start on the combination that gains the most
+      this.section = this.section || (mine ? mine.section : best?.section || this.d.sections[0]?.id || '');
+      this.type = this.type || (mine ? mine.id : best?.type || '');
       this.teacher = this.teacher || (this.user.teacher_id && this.d.teachers.includes(this.user.teacher_id) ? this.user.teacher_id : this.teacherList[0]?.id);
       if (this.d.running) setTimeout(() => this.load(), 10000);
     },
     async run() {
-      try { await TW.api('/api/compare/cse/run?seconds=300', { method: 'POST' }); this.d.running = true; setTimeout(() => this.load(), 10000); }
+      try { await TW.api(`/api/compare/${this.dept}/run?seconds=300`, { method: 'POST' }); this.d.running = true; setTimeout(() => this.load(), 10000); }
       catch (e) { alert(e.message); }
     },
     typesOf(sid) { return (this.d.types || []).filter(t => t.section === sid); },

@@ -5,14 +5,14 @@ from dataclasses import replace
 import pytest
 
 from app.models import LUNCH_WINDOW, PERIODS, Entry
-from app.seed import build_college
+from app.seed import SEED_DEPTS, _build_seed
 from app.solver import prechecks, solve
 from app.validator import split_issues, validate
 
 
 @pytest.fixture(scope="module")
 def college():
-    return build_college()
+    return _build_seed(SEED_DEPTS)  # every department generated (the real ones are imported, see test_core_*)
 
 
 @pytest.fixture(scope="module")
@@ -101,7 +101,7 @@ def test_detects_wrong_room_type(college, entries):
 
 
 def test_precheck_explains_overloaded_teacher():
-    c = build_college()
+    c = _build_seed(SEED_DEPTS)
     t = next(t for t in c.teachers if t.kind == "Visiting")
     t.unavailable = [(d, p) for d in range(5) for p in range(len(PERIODS)) if d != 1]  # only Tuesday left
     t.max_per_day = 3  # 4 hours assigned, at most 3 possible

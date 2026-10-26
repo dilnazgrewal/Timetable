@@ -3,8 +3,11 @@ an Applied Sciences department teaching Maths to every 2nd-year section, teacher
 departments, and a visiting teacher available only Tue/Thu."""
 from __future__ import annotations
 
+import re
+from dataclasses import replace
+
 from app import rules
-from app.importers import fet, gndec_students
+from app.importers import fet, fet_dept, gndec_students
 from app.importers.fet import ROOT
 from app.models import PERIODS, Building, College, Department, Lesson, Room, Section, Teacher
 
@@ -14,6 +17,7 @@ DEPTS = [
     Department("ECE", "Electronics & Communication"),
     Department("ME", "Mechanical Engineering"),
     Department("CE", "Civil Engineering"),
+    Department("EE", "Electrical Engineering"),
     Department("AS", "Applied Sciences"),
 ]
 
@@ -85,7 +89,7 @@ BUILDINGS = [
     Building("MAIN", "Main Block", FLOORS),
     Building("WS", "Workshop Block", ["Ground"]),
 ]
-DEPT_BUILDING = {"CSE": "MBA", "IT": "MBA", "ECE": "ECE", "ME": "MECH", "CE": "CIVIL"}
+DEPT_BUILDING = {"CSE": "MBA", "IT": "MBA", "ECE": "ECE", "ME": "MECH", "CE": "CIVIL", "EE": "EE"}
 
 
 def _place_rooms(rooms: list[Room]) -> None:
@@ -111,23 +115,93 @@ def _place_rooms(rooms: list[Room]) -> None:
 
 
 def build_college() -> College:
-    """GNDEC demo college: the real CSE timetable (if imported from FET) + a GNDEC-shaped seed for the
-    other departments. Without an import, CSE is seeded too."""
+    """GNDEC: the real timetables of every department that publishes one (imported from FET: CSE, IT, ME, CE,
+    ECE, EE) + a GNDEC-shaped seed for any department without an import. Central halls come from the seed."""
     imported = fet.load()
-    seed = _build_seed([d for d in SEED_DEPTS if not (imported and d == "CSE")])
     if not imported:
-        return seed
+        return _build_seed(SEED_DEPTS)
+    others = {d: x for d in fet_dept.DEPARTMENTS if (x := fet_dept.load(d))}
+    seeded = [d for d in SEED_DEPTS if d != "CSE" and d not in others]
+    seed = _build_seed(seeded) if seeded else _central()
     rooms = {r.id: r for r in seed.rooms}
     rooms.update({r.id: r for r in imported["rooms"]})  # real rooms win (e.g. "WS SEMINAR HALL")
     teachers = {t.id: t for t in seed.teachers}
     teachers.update({t.id: t for t in imported["teachers"]})
-    college = College(DEPTS, list(rooms.values()), list(teachers.values()), imported["sections"] + seed.sections,
-                      imported["lessons"] + seed.lessons, BUILDINGS, fixed_entries=imported["entries"])
+    sections, lessons, entries = imported["sections"] + seed.sections, imported["lessons"] + seed.lessons, list(imported["entries"])
+    # a numbered classroom ("S-213" in IT's export is CSE's S213) is the same room in every department's
+    # export; labs and halls with the same name ("DBMS LAB") are each department's own
+    numbered = re.compile(r"^[GFS]\d{1,3}[A-Z]?$")
+    same_room = {fet_dept.room_key(r): r for r in rooms if numbered.match(fet_dept.room_key(r))}
+    for d, x in others.items():
+        rename = {}
+        for r in x["rooms"]:
+            if numbered.match(r.id) and r.id in same_room:
+                rename[r.id] = same_room[r.id]
+            elif r.id in rooms and r.kind != "Other department":
+                rename[r.id] = f"{r.id} ({d})"
+                rooms[rename[r.id]] = replace(r, id=rename[r.id])
+            else:
+                rename[r.id] = r.id
+                rooms.setdefault(r.id, r)
+                if numbered.match(r.id):
+                    same_room[r.id] = r.id
+        for t in x["teachers"]:
+            if t.id not in teachers or teachers[t.id].name == teachers[t.id].id:  # keep the fullest name
+                teachers[t.id] = t
+        for l in x["lessons"]:
+            l.rooms = [rename.get(r, r) for r in l.rooms]
+            l.room_kind = rooms[l.rooms[0]].kind if l.rooms else l.room_kind
+        # a class taught by one department to another's students is in both exports (same room, same time):
+        # keep the copy already imported (the students' own department; CSE first)
+        taken = {(e.room, e.day, q) for e in entries if rooms[e.room].kind != "Other department" for q in e.slots}
+        mine = [replace(e, room=rename.get(e.room, e.room)) for e in x["entries"]]
+        mine = [e for e in mine if rooms[e.room].kind == "Other department"
+                or not any((e.room, e.day, q) in taken for q in e.slots)]
+        count: dict[str, int] = {}
+        for i, e in enumerate(mine):
+            mine[i] = replace(e, session=count.get(e.lesson, 0))
+            count[e.lesson] = count.get(e.lesson, 0) + 1
+        kept = [l for l in x["lessons"] if count.get(l.id)]
+        for l in kept:
+            l.sessions = count[l.id]
+        sections += x["sections"]
+        lessons += kept
+        entries += mine
+    # full names: cells often show only initials; each department's teachers page has the names
+    names = fet_dept.teacher_names()
+    for t in teachers.values():
+        if not re.search(r"[a-z]{2}", t.name) and not t.id.startswith("TBA-"):
+            t.name = names.get(t.id) or f"{t.dept} teacher ({t.name})"
+    # one person, two records (CSE's page names an ME teacher in full, ME's own page by initials): merge
+    same: dict[str, str] = {}
+    first: dict[tuple[str, str], str] = {}
+    for t in sorted(teachers.values(), key=lambda t: (len(t.id), t.id)):  # keep the department's own short id
+        key = (t.dept, re.sub(r"^(Dr|Pf|Er|Prof|Mr|Ms)\.?\s+", "", t.name).lower())
+        if " teacher (" in t.name or t.id.startswith("TBA-"):
+            continue
+        if key in first:
+            same[t.id] = first[key]
+        else:
+            first[key] = t.id
+    for l in lessons:
+        l.teacher = same.get(l.teacher, l.teacher)
+        l.co_teachers = list(dict.fromkeys(same.get(t, t) for t in l.co_teachers if same.get(t, t) != l.teacher))
+    for tid in same:
+        teachers.pop(tid)
+    college = College(DEPTS, list(rooms.values()), list(teachers.values()), sections, lessons, BUILDINGS,
+                      fixed_entries=entries)
     gndec_students.split_lab_groups(college)
     types, _ = gndec_students.student_types(college, gndec_students.load())
     college.set_student_types(types)
     college.rules = rules.load(ROOT / "data" / "gndec" / "rules.json")
     return college
+
+
+def _central() -> College:
+    """Only the central rooms (halls, lecture theatres, library, central computer labs) of the seed."""
+    seed = _build_seed(["CSE"])
+    keep = [r for r in seed.rooms if r.dept != "CSE" or r.kind == "Seminar Hall"]
+    return College(DEPTS, keep, [], [], [], BUILDINGS)
 
 
 def _build_seed(depts: list[str]) -> College:

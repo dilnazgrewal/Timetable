@@ -169,9 +169,9 @@ def _parse_teachers(text: str) -> list[tuple[str, str, str]]:
         slug = re.sub(r"[^A-Za-z]", "", re.sub(r"^(Dr|Pf|Er|Prof)\.?\s*", "", name))[:16]
         if tag in DEPT_TAGS:
             out.append((f"{DEPT_TAGS[tag]}-{slug}", name, DEPT_TAGS[tag]))
-        elif "-" in tag:  # "JDS-CE": a teacher from another department
+        elif "-" in tag:  # "JDS-CE": a teacher from another department (same id as in CE's own import)
             abbr, dept = tag.split("-", 1)
-            out.append((abbr, name, dept))
+            out.append((f"{dept}-{abbr}", name, dept))
         elif tag:
             out.append((tag, name, DEPT))
         else:
