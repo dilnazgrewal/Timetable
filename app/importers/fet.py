@@ -37,13 +37,13 @@ SUBJECTS = {
     "TOC": "Theory of Computation", "DS": "Data Structures", "OOP": "Object Oriented Programming",
     "DAA": "Design & Analysis of Algorithms", "CA": "Computer Architecture", "DE": "Digital Electronics",
     "SE": "Software Engineering", "CN": "Computer Networks", "OS": "Operating Systems",
-    "DBMS": "Database Management Systems", "CS": "Cyber Security", "CNS": "Cryptography & Network Security",
+    "DBMS": "Database Management Systems", "CNS": "Cryptography & Network Security",
     "GAI": "Generative AI", "DWBI": "Data Warehousing & Business Intelligence",
     "OOAD": "Object Oriented Analysis & Design", "SC": "Soft Computing", "CV": "Computer Vision",
     "WT": "Web Technologies", "ERP": "Entrepreneurship Practices", "APP. MATH": "Applied Mathematics",
     "Ind. Con.": "Indian Constitution", "Ind. KS": "Indian Knowledge System",
     "Dis. Mgmt.": "Disaster Management", "MC": "Mentoring", "DWDM": "Data Warehousing & Data Mining",
-    "SDN": "Software Defined Networks", "Desg. Think.": "Design Thinking", "ACC": "Accounting",
+    "SDN": "Software Defined Networks", "Desg. Think.": "Design Thinking",
 }
 DEPT_TAGS = {"App. Sci.": "AS", "MPE": "ME"}  # teacher tags that name a department, not a person
 

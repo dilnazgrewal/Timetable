@@ -1800,7 +1800,7 @@
   {
    "id": "CSE:0017",
    "code": "CS",
-   "name": "Cyber Security",
+   "name": "CS",
    "kind": "theory",
    "dept": "CSE",
    "teacher": "SPS",
@@ -1931,7 +1931,7 @@
   {
    "id": "CSE:0022",
    "code": "CS",
-   "name": "Cyber Security",
+   "name": "CS",
    "kind": "theory",
    "dept": "CSE",
    "teacher": "SR",
@@ -2153,7 +2153,7 @@
   {
    "id": "CSE:0031",
    "code": "CS",
-   "name": "Cyber Security",
+   "name": "CS",
    "kind": "theory",
    "dept": "CSE",
    "teacher": "JJK",
@@ -2933,7 +2933,7 @@
   {
    "id": "CSE:0062",
    "code": "CS",
-   "name": "Cyber Security",
+   "name": "CS",
    "kind": "theory",
    "dept": "CSE",
    "teacher": "SR",
@@ -2961,7 +2961,7 @@
   {
    "id": "CSE:0063",
    "code": "CS",
-   "name": "Cyber Security",
+   "name": "CS",
    "kind": "theory",
    "dept": "CSE",
    "teacher": "HK",
@@ -3428,7 +3428,7 @@
   {
    "id": "CSE:0081",
    "code": "CS",
-   "name": "Cyber Security",
+   "name": "CS",
    "kind": "theory",
    "dept": "CSE",
    "teacher": "DS",
@@ -4396,7 +4396,7 @@
   {
    "id": "CSE:0120",
    "code": "ACC",
-   "name": "Accounting",
+   "name": "ACC",
    "kind": "theory",
    "dept": "CSE",
    "teacher": "DH",
@@ -5225,7 +5225,7 @@
   {
    "id": "CSE:0156",
    "code": "ACC Lab",
-   "name": "Accounting Lab",
+   "name": "ACC Lab",
    "kind": "lab",
    "dept": "CSE",
    "teacher": "SPS",
@@ -5845,7 +5845,7 @@
   {
    "id": "CSE:0183",
    "code": "CS Lab",
-   "name": "Cyber Security Lab",
+   "name": "CS Lab",
    "kind": "lab",
    "dept": "CSE",
    "teacher": "SR",
@@ -5866,7 +5866,7 @@
   {
    "id": "CSE:0184",
    "code": "CS Lab",
-   "name": "Cyber Security Lab",
+   "name": "CS Lab",
    "kind": "lab",
    "dept": "CSE",
    "teacher": "SR",
@@ -6157,7 +6157,7 @@
   {
    "id": "CSE:0197",
    "code": "CS Lab",
-   "name": "Cyber Security Lab",
+   "name": "CS Lab",
    "kind": "lab",
    "dept": "CSE",
    "teacher": "JJK",
@@ -6316,7 +6316,7 @@
   {
    "id": "CSE:0204",
    "code": "CS Lab",
-   "name": "Cyber Security Lab",
+   "name": "CS Lab",
    "kind": "lab",
    "dept": "CSE",
    "teacher": "DS",
@@ -6542,7 +6542,7 @@
   {
    "id": "CSE:0214",
    "code": "CS Lab",
-   "name": "Cyber Security Lab",
+   "name": "CS Lab",
    "kind": "lab",
    "dept": "CSE",
    "teacher": "DS",
@@ -6584,7 +6584,7 @@
   {
    "id": "CSE:0216",
    "code": "CS Lab",
-   "name": "Cyber Security Lab",
+   "name": "CS Lab",
    "kind": "lab",
    "dept": "CSE",
    "teacher": "JJK",
@@ -6626,7 +6626,7 @@
   {
    "id": "CSE:0218",
    "code": "CS Lab",
-   "name": "Cyber Security Lab",
+   "name": "CS Lab",
    "kind": "lab",
    "dept": "CSE",
    "teacher": "SPS",
@@ -6844,7 +6844,7 @@
   {
    "id": "CSE:0228",
    "code": "CS Lab",
-   "name": "Cyber Security Lab",
+   "name": "CS Lab",
    "kind": "lab",
    "dept": "CSE",
    "teacher": "SR",
@@ -7045,7 +7045,7 @@
   {
    "id": "CSE:0237",
    "code": "CS Lab",
-   "name": "Cyber Security Lab",
+   "name": "CS Lab",
    "kind": "lab",
    "dept": "CSE",
    "teacher": "HK",
@@ -7490,7 +7490,7 @@
   {
    "id": "CSE:0257",
    "code": "CS Lab",
-   "name": "Cyber Security Lab",
+   "name": "CS Lab",
    "kind": "lab",
    "dept": "CSE",
    "teacher": "SPS",
@@ -7735,7 +7735,7 @@
   {
    "id": "CSE:0268",
    "code": "CS Lab",
-   "name": "Cyber Security Lab",
+   "name": "CS Lab",
    "kind": "lab",
    "dept": "CSE",
    "teacher": "HK",
@@ -7915,7 +7915,7 @@
   {
    "id": "CSE:0276",
    "code": "CS Lab",
-   "name": "Cyber Security Lab",
+   "name": "CS Lab",
    "kind": "lab",
    "dept": "CSE",
    "teacher": "SR",

@@ -112,6 +112,34 @@ def combinations() -> dict:
     return out
 
 
+# Elective-IV labs run twice a week, once per lab group, but FET lists both sessions under one activity.
+# Which day is which group was confirmed by a student (SC A1 group = Thursday 11:30): A1 groups on
+# Thursday, A2 groups on Friday. Web Tech has a single lab group.
+LAB_GROUP_DAY = {"SC Lab": {3: "A1", 4: "A2"}, "ACC Lab": {3: "A1", 4: "A2"}}
+
+
+def split_lab_groups(college: College) -> None:
+    """Give each Elective-IV lab group its own lesson (e.g. 'SC Lab A1' on Thursday, 'SC Lab A2' on Friday)."""
+    from dataclasses import replace
+
+    for l in [l for l in college.lessons if l.fixed and l.code in LAB_GROUP_DAY]:
+        days = LAB_GROUP_DAY[l.code]
+        mine = [e for e in college.fixed_entries if e.lesson == l.id]
+        if not mine or any(e.day not in days for e in mine):
+            continue  # the data doesn't match what we know: leave it as published
+        for grp in sorted(set(days.values())):
+            ents = sorted((e for e in mine if days[e.day] == grp), key=lambda e: (e.day, e.start))
+            if not ents:
+                continue
+            new = replace(l, id=f"{l.id}-{grp}", code=f"{l.code} {grp}", name=f"{l.name} ({grp} group)",
+                          sessions=len(ents), rooms=sorted({e.room for e in ents}))
+            college.lessons.append(new)
+            for k, e in enumerate(ents):
+                college.fixed_entries[college.fixed_entries.index(e)] = replace(e, lesson=new.id, session=k)
+        college.lessons.remove(l)
+    college.__post_init__()
+
+
 # --- combinations -> the exact classes each student type attends ----------------------------------
 D4_E3_CODES, D4_E4_CODES = set(D4_ELECTIVE_III.values()), set(D4_ELECTIVE_IV.values())
 D3_ELECTIVES = set(D3_TRACK_ELECTIVE.values())
@@ -136,7 +164,8 @@ def d4_lessons(college: College, c: dict) -> tuple[list[str], list[str]]:
         if base in D4_E3_CODES:
             ok = base == c["elective_iii"]
         elif base in D4_E4_CODES:
-            ok = base == c["elective_iv"]  # both lab batches of the elective: FET doesn't say which is which
+            group = l.code.rsplit(" ", 1)[-1] if l.code.endswith((" A1", " A2")) else ""
+            ok = base == c["elective_iv"] and (not group or group == c["elective_iv_lab"])  # own lab group only
         elif l.code.startswith("TA Lab"):
             ok = f"{sec}-{letter}{c['ta_lab']}" in l.batches
         elif set(l.batches) >= set(college.section_by_id[sec].groups) or base == "MC":

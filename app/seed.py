@@ -121,6 +121,7 @@ def build_college() -> College:
     teachers.update({t.id: t for t in imported["teachers"]})
     college = College(DEPTS, list(rooms.values()), list(teachers.values()), imported["sections"] + seed.sections,
                       imported["lessons"] + seed.lessons, BUILDINGS, fixed_entries=imported["entries"])
+    gndec_students.split_lab_groups(college)
     types, _ = gndec_students.student_types(college, gndec_students.load())
     college.set_student_types(types)
     return college

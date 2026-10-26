@@ -41,8 +41,8 @@ def test_every_class_has_its_students(college):
 def test_a_real_student_sees_only_their_electives(college):
     t = college.type_by_id[MY_TYPE]
     codes = {college.lesson_by_id[l].code for l in t.lessons}
-    assert {"CV", "SC", "SC Lab", "TA Lab"} <= codes
-    assert not codes & {"DWDM", "DAAA", "SDN", "ACC", "WT"}  # other options of the same electives
+    assert {"CV", "SC", "SC Lab A1", "TA Lab"} <= codes
+    assert not codes & {"DWDM", "DAAA", "SDN", "ACC", "WT", "SC Lab A2"}  # other options / the other lab group
 
 
 def test_college_timetable_has_no_clash_for_any_real_student(college):
