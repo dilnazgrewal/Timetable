@@ -371,7 +371,7 @@ Status as of commit `53e1f7f`. ✅ built and committed · ⬜ designed, not buil
 | B7 | Mark leave (teacher for themself; HOD/coordinator/admin for their department) | ✅ |
 | B8 | Substitutions board: next 6 school days, state chips, ranked candidates with reasons, Assign, Cancel class | ✅ |
 | B9 | Substituted classes marked in timetables and Now/Next (names both teachers) | ✅ |
-| B10 | Panel comparing the real and generated timetables (since `dee7b1e` the server no longer sends a comparison, because every department is real); a timetable-issues badge for staff only, worded as teacher double-bookings in the published data (`286e3f8`); teacher-load bars; classroom and lab use | ✅ |
+| B10 | Panel comparing the real and generated timetables, shown only when some departments are generated. Since `dee7b1e` / `cabdf9e` every department is real, so the page shows the data source and a link to the optimised timetables instead, and no Generate button; a timetable-issues badge for staff only, worded as teacher double-bookings in the published data (`286e3f8`); teacher-load bars; classroom and lab use | ✅ |
 | B11 | Print / Save as PDF: one A4 landscape page per section, teacher or room | ✅ |
 | B12 | Ask tab (chat UI) | ✅ |
 | B13 | Phone layout with day tabs | ✅ |
@@ -774,7 +774,7 @@ It has **no write tools**.
 | Page | Who | What's on it |
 |---|---|---|
 | `/login.html` | everyone | Demo sign-in in 4 groups (Student, Teacher, HOD, Admin); students pick department and section first; extra duties (club lead, coordinator, Dean, T&P) shown next to names |
-| `/` (`index.html`, Lane B) | everyone signed in | **Timetable** tab: views and filters, week / dated week, the real-vs-generated panel (insights), **Regenerate** (admin), Print / Save PDF. **Find a teacher** (`#teacher`): day view, Request meeting. **Free rooms** (`#rooms`): Right now, building/floor, near me. **Meetings** (`#meetings`). **Substitutions** (`#subs`): leave board, candidates, Assign, Cancel class. **Teacher load** (`#load`). **Ask** (`#ask`, chatbot). **Mark leave**. **Now/Next** card. Phone layout with day tabs. |
+| `/` (`index.html`, Lane B) | everyone signed in | **Timetable** tab: views and filters, week / dated week, Print / Save PDF. When every department is imported (today), it shows the data source and **"See the optimised timetables →"** instead of the real-vs-generated panel and the **Regenerate** button (`cabdf9e`); both appear only for a college with generated departments. **Find a teacher** (`#teacher`): day view, Request meeting. **Free rooms** (`#rooms`): Right now, building/floor, near me. **Meetings** (`#meetings`). **Substitutions** (`#subs`): leave board, candidates, Assign, Cancel class. **Teacher load** (`#load`). **Ask** (`#ask`, chatbot). **Mark leave**. **Now/Next** card. Phone layout with day tabs. |
 | `/venues.html` (Lane C) | staff, clubs, orgs (by capability) | `#book` Book a venue (requirement form → ranked venues → request), `#requests` My requests with timeline, `#inbox` Approvals (endorse/approve/reject), `#slots` Event slot finder ("Find common free time", "Nearly free", "Book this") |
 | `/compare.html` (Lane A; "Optimised timetables" in the top bar) | each department's HOD/coordinator (their own department), Dean and admin (all six) | **Department picker**; college vs optimised timetable by section, student (group and electives) or teacher; before/after numbers (incl. "Same lab for two groups on one day"); **"GNDEC's timetable rules"**: each rule in plain words, must/prefer, and how often each version breaks it; Propose / Publish / Go back |
 | `/audit.html` (Lane A) | admin, Dean | Audit log, newest first |
@@ -1114,7 +1114,7 @@ Runs against a fresh `build_college()` store (since `39212e3`, the real six-depa
 ---
 
 ## 12. Timeline: how it was built
-From `git log` (60 commits up to `dee7b1e`, including 5 commits of this report). Commits per day: 21 Oct 15 · 22 Oct 14 · 26 Oct 31.
+From `git log` (62 commits by the end of 26 Oct, the last code commit being `cabdf9e`; 6 of them are this report). Commits per day: 21 Oct 15 · 22 Oct 14 · 26 Oct 33.
 
 ### Day 1: Wed 21 Oct, prototype (v0.1), demo at 4 PM
 - Scaffold, `CLAUDE.md`, plan.
@@ -1171,6 +1171,7 @@ From `git log` (60 commits up to `dee7b1e`, including 5 commits of this report).
 - **Lane B, final:**
   - pickers list real sections only, no "Other department" rooms (`e2795e7`)
   - a timetable-issues badge for staff only, worded as teacher double-bookings in the published data (`286e3f8`)
+  - no Generate button when every department is imported; the data source and a link to the optimised timetables instead (`cabdf9e`)
 - **Lane C, final:** elective audiences and student types also rule slot-finder times out; 3 new tests (`49004bb`).
 - This report was committed alongside.
 
@@ -1335,7 +1336,7 @@ Suggested, about 5 minutes. Built only from features listed above.
 | **8** | roles, with a deny-by-default permission table and an audit log |
 | **40** | API routes |
 | **117 / 117** | automated tests passing |
-| **3** | parallel build lanes, 60 commits |
+| **3** | parallel build lanes, 62 commits |
 
 ---
 
