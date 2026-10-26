@@ -169,3 +169,12 @@ def test_propose_publish_unpublish_adds_no_clash():
     assert _clashes() <= before  # the independent validator agrees: nothing new anywhere in the college
     assert as_("admin").post("/api/compare/cse/unpublish").json()["publication"]["status"] == "draft"
     assert _clashes() == before
+
+
+def test_timetable_route_reports_published_clashes_apart():
+    """The dashboards read this: clashes TimeWeave causes (none) apart from those already in the college's data."""
+    r = as_("hod-CSE").get("/api/timetable")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["ready"] and body["issues"] == [] and body["entries"]
+    assert all(c.startswith("CLASH Teacher") for c in body["published_issues"])

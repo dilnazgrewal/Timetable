@@ -138,7 +138,9 @@ def timetable() -> dict:
     r = STORE.result
     if not r:
         return {"ready": False}
-    return {"ready": True, "status": r["status"], "seconds": r["seconds"], "issues": r["issues"],
+    # issues: clashes TimeWeave would cause (none); published_issues: already in the college's own timetables
+    return {"ready": True, "status": r["status"], "seconds": r.get("seconds"), "issues": r["issues"],
+            "published_issues": r.get("published_issues", []),
             "notes": r.get("notes", []), "source": r.get("source", ""), "compare": r.get("compare"),
             "metrics": r["metrics"], "baseline": r.get("baseline"), "problems": r.get("problems", []),
             "entries": [entry_view(e) for e in STORE.entries]}
