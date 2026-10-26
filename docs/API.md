@@ -106,11 +106,11 @@ Owned by the Venues session. Logic lives in `app/venues/` (`ranking.py`, `reques
 |---|---|---|---|
 | `GET /api/venues` | anyone | | `{venues: [venue]}`, every bookable room, biggest first |
 | `POST /api/venues/rank` | anyone | `{date, periods, attendees, needs}` | `{date, periods, attendees, needs, venues: [venue + fit], near_misses: [venue + miss]}` |
-| `POST /api/venues/requests` | `booking.request` | `{title, purpose?, club?, attendees, needs, date, periods, room}` | `{request: request view, warnings: [str]}`. 409 if the room is already taken then. |
+| `POST /api/venues/requests` | `booking.request` | `{title, purpose?, club?, attendees, needs, date, periods, room, audience?}` | `{request: request view, warnings: [str]}`. 409 if the room is already taken then. |
 | `GET /api/venues/requests` | anyone | `?mine=1` (default) · `?inbox=1` · `?all=1` (admin) | `{items: [request view]}`, newest first |
 | `POST /api/venues/requests/{id}/decide` | the current step's approver | `{decision: "approved"\|"rejected", note}` | `{request: request view}`. 403 wrong approver, 400 reject without a note, 409 already decided or room no longer free |
 | `POST /api/venues/requests/{id}/cancel` | the requester (`booking.cancel`) | | `{request: request view}`; removes the booking override, so the room is free again |
-| `POST /api/venues/slot-finder` | `slotfinder.use` | `{dept+year \| sections \| groups, duration, from?, to?, attendees?, needs}` | see below |
+| `POST /api/venues/slot-finder` | `slotfinder.use` (org, HOD, teacher, club, admin) | `{dept+year \| sections \| groups, duration, from?, to?, attendees?, needs}` | see below |
 
 **venue** = `{id, kind, capacity, dept, building, building_name, floor, features, place}` (`place` = "Workshop Block, ground floor").
 - In `venues`: `fits: true`, `reason` ("Seats 120 for 100 people · has projector and sound · also ac · MBA Block (CSE & IT), first floor"), `warnings` (other pending requests for the same slot, much bigger than needed), `pending_requests`. Order: no competing request first, then smallest capacity ≥ attendees, then more features, then building/floor.
@@ -128,6 +128,7 @@ Owned by the Venues session. Logic lives in `app/venues/` (`ranking.py`, `reques
   - the next approver gets one linking to `/venues.html#inbox`
   - the requester hears about endorse / approve / reject, linking to `/venues.html#requests`
   - the final approver hears when an approved booking is cancelled
+  - if the request has an `audience` (group ids, filled by the slot finder's "Book this"), every student in those groups is told when it is approved ("📣 Event for your batch …") and if it is later cancelled. Unknown group ids get a 400.
 
 **request view** = every `BookingRequest` field plus:
 - `room_info` (venue), `requester_name`, `when` ("Fri 23 Oct, P5–P6 (12:30–2:30)")
@@ -135,6 +136,7 @@ Owned by the Venues session. Logic lives in `app/venues/` (`ranking.py`, `reques
 - `timeline`: `[{label, at, note?, state: done|current|todo|rejected}]`
 - `can_decide`, `can_cancel`, `assigned_to_me`
 - `competing`: ids of other waiting requests for the same room and time
+- `audience_label`: e.g. "D4 CS A, D4 CS B (B1, B2)": whole sections by name, otherwise the section plus group letters. Empty when there is no audience.
 
 **Slot finder**
 - Audience: `dept` + `year` (every section of that year), `sections` (ids), or `groups` (atomic group ids). A class blocks a group if the group, or its section id, is in the class's `batches`.

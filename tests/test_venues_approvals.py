@@ -135,3 +135,21 @@ def test_who_may_request(client, hall):
     student = next(u for u in STORE.users.values() if u.role == "student")
     assert ask(client, student.id, hall.id).status_code == 403
     assert ask(client, "club-DMC", "no-such-room").status_code == 400
+
+
+def test_event_audience_hears_about_approval_and_cancellation(client, hall):
+    sec = next(s for s in STORE.college.sections if s.batches)
+    students = [u.id for u in STORE.users.values() if u.role == "student" and u.group in sec.batches]
+    outsider = next(u.id for u in STORE.users.values() if u.role == "student" and u.group not in sec.batches)
+    body = {"title": "Placement talk", "attendees": 60, "needs": [], "date": next_weekday(),
+            "periods": PERIODS, "room": hall.id}
+    bad = call(client, "org-TNP", "POST", "/api/venues/requests", json={**body, "audience": ["no-such-group"]})
+    assert bad.status_code == 400
+    req = call(client, "org-TNP", "POST", "/api/venues/requests", json={**body, "audience": sec.batches}).json()["request"]
+    assert req["audience"] == sec.batches and req["audience_label"] == sec.name
+    assert not any(notes(s) for s in students)  # nothing until it's approved
+    decide(client, f"hod-{hall.dept}", req["id"])
+    assert students and all(any("Event for your batch" in t for t in notes(s)) for s in students)
+    assert not notes(outsider)
+    call(client, "org-TNP", "POST", f"/api/venues/requests/{req['id']}/cancel")
+    assert all(any("Cancelled" in t for t in notes(s)) for s in students)

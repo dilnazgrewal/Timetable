@@ -14,6 +14,7 @@ from app.models import ApprovalStep, BookingRequest, Override, User
 from app.store import new_id, now_iso
 from app.venues.common import day_label, periods_label, room_view, store
 from app.venues.ranking import ACTIVE, busy_reason, competing, conflicts
+from app.venues.slots import check_groups, groups_label
 
 INBOX = "/venues.html#inbox"
 MINE = "/venues.html#requests"
@@ -98,11 +99,11 @@ def view(req: BookingRequest, user: User) -> dict:
             "requester_name": who(req.requester), "when": f"{day_label(req.date)}, {periods_label(req.periods)}",
             "waiting_for": waiting, "step_role": step.role if step else None, "timeline": timeline,
             "can_decide": can_decide, "can_cancel": can_cancel, "assigned_to_me": bool(step and step.approver == user.id),
-            "competing": others}
+            "competing": others, "audience_label": groups_label(req.audience) if req.audience else ""}
 
 
 def create(user: User, title: str, purpose: str, club: str | None, attendees: int, needs: list[str],
-           on: str, periods: list[int], room_id: str) -> tuple[BookingRequest, list[str]]:
+           on: str, periods: list[int], room_id: str, audience: list[str] = ()) -> tuple[BookingRequest, list[str]]:
     s = store()
     require(user, "booking.request")
     room = s.college.room_by_id.get(room_id)
@@ -115,7 +116,7 @@ def create(user: User, title: str, purpose: str, club: str | None, attendees: in
     if not title.strip():
         raise HTTPException(400, "Give your event a title.")
     req = BookingRequest(new_id("bk"), title.strip(), user.id, club, attendees, needs, on, periods, room_id,
-                         created_at=now_iso(), purpose=purpose.strip())
+                         created_at=now_iso(), purpose=purpose.strip(), audience=check_groups(list(audience)))
     ensure_free(req)
     warnings = []
     if attendees > room.capacity:
@@ -146,6 +147,7 @@ def advance(req: BookingRequest, actor: User) -> None:
                                 created_by=actor.id))
         if req.requester != actor.id:
             s.notify(req.requester, f"✅ Approved: {summary(req)}. The room is yours.", MINE)
+        tell_audience(req, f"📣 Event for your batch: {summary(req)}.")
         return
     if any(st.role == "advisor" and st.decision == "approved" for st in req.steps):
         req.status = "endorsed"
@@ -154,6 +156,14 @@ def advance(req: BookingRequest, actor: User) -> None:
     if req.status == "endorsed" and req.requester != actor.id:
         s.notify(req.requester, f"👍 Endorsed by your faculty advisor: {summary(req)}. "
                                 f"Now waiting for {step_label(step)}.", MINE)
+
+
+def tell_audience(req: BookingRequest, text: str) -> None:
+    """Students in the event's audience groups (set when booked from the slot finder) hear about it."""
+    s = store()
+    for u in s.users.values():
+        if u.role == "student" and u.group in req.audience:
+            s.notify(u.id, text, "/")
 
 
 def decide(user: User, req_id: str, decision: str, note: str) -> BookingRequest:
@@ -194,6 +204,7 @@ def cancel(user: User, req_id: str) -> BookingRequest:
             last = req.steps[-1].approver
             if last != user.id:
                 s.notify(last, f"↩️ Cancelled by {who(req.requester)}: {summary(req)}. The room is free again.", INBOX)
+            tell_audience(req, f"↩️ Cancelled: {summary(req)} will not happen.")
         s.save()
         return req
 

@@ -32,6 +32,7 @@ class RequestBody(BaseModel):
     date: str
     periods: list[int]
     room: str
+    audience: list[str] = []  # group ids, e.g. from the slot finder; those students are notified
 
 
 class SlotBody(BaseModel):
@@ -70,7 +71,7 @@ def create_request(body: RequestBody, user: User = Depends(current_user)) -> dic
     d = parse_date(body.date)
     req, warnings = requests.create(user, body.title, body.purpose, body.club, body.attendees,
                                     ranking.check_needs(body.needs), d.isoformat(), check_periods(body.periods),
-                                    body.room)
+                                    body.room, body.audience)
     return {"request": requests.view(req, user), "warnings": warnings}
 
 

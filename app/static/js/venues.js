@@ -32,7 +32,7 @@ function venuesApp() {
       const role = this.user.role;
       const advisor = (TW.users.clubs || []).some(c => c.advisor === this.user.id);
       this.can = { request: ['club', 'teacher', 'hod', 'org', 'admin'].includes(role),
-                   slots: ['org', 'hod', 'teacher', 'admin'].includes(role),
+                   slots: ['org', 'hod', 'teacher', 'club', 'admin'].includes(role),
                    approve: ['hod', 'admin'].includes(role) || advisor };
       if (role === 'club') this.form.attendees = 100;
       const depts = this.deptsWithSections();
@@ -70,8 +70,9 @@ function venuesApp() {
       } catch (e) { this.results = null; this.say(e.message, false); }
       this.busy = false;
     },
-    openRequest(v, title = '') {
-      this.sheet = { venue: v, date: this.results.date, periods: this.results.periods, attendees: this.results.attendees, needs: this.results.needs };
+    openRequest(v, title = '', audience = null) {
+      this.sheet = { venue: v, date: this.results.date, periods: this.results.periods, attendees: this.results.attendees, needs: this.results.needs,
+                     audience: audience ? audience.groups : [], audienceLabel: audience ? audience.label : '' };
       this.draft = { title, purpose: '' };
     },
     async submitRequest() {
@@ -80,7 +81,7 @@ function venuesApp() {
       try {
         const res = await TW.api('/api/venues/requests', { method: 'POST', body: JSON.stringify({
           title: this.draft.title, purpose: this.draft.purpose, attendees: s.attendees, needs: s.needs,
-          date: s.date, periods: s.periods, room: s.venue.id }) });
+          date: s.date, periods: s.periods, room: s.venue.id, audience: s.audience }) });
         this.sheet = null; this.results = null;
         const r = res.request;
         const msg = r.status === 'approved' ? `Booked ${r.room} for ${r.when}.` : `Request sent. Waiting for ${r.waiting_for}.`;
@@ -143,11 +144,11 @@ function venuesApp() {
     async bookSlot(s) {
       Object.assign(this.form, { date: s.date, from: s.periods[0], to: s.periods[s.periods.length - 1],
                                  attendees: this.slots.audience.attendees, needs: [...this.sf.needs] });
-      const label = this.slots.audience.label;
+      const aud = this.slots.audience, label = aud.label;
       location.hash = 'book'; this.tab = 'book';
       await this.search();
       const v = this.results && (this.results.venues.find(x => x.id === s.venues[0].id) || this.results.venues[0]);
-      if (v) this.openRequest(v, `Session for ${label}`);
+      if (v) this.openRequest(v, `Session for ${label}`, aud);
     },
 
     // ---------- formatting ----------

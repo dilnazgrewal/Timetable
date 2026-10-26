@@ -105,7 +105,7 @@ def test_real_timetable_dept_year(client):
 
 def test_permissions_and_bad_input(client):
     sec = STORE.college.sections[0]
-    assert find(client, "club-DMC", dept=sec.dept, year=sec.year).status_code == 403
+    assert find(client, "club-DMC", dept=sec.dept, year=sec.year).status_code == 200  # clubs plan batch events too
     student = next(u for u in STORE.users.values() if u.role == "student")
     assert find(client, student.id, dept=sec.dept, year=sec.year).status_code == 403
     assert find(client, duration=2).status_code == 400  # no audience

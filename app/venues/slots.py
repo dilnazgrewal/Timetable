@@ -94,6 +94,21 @@ def by_section(clash: dict[str, list[str]]) -> list[dict]:
     return sorted(rows, key=lambda r: -len(r["groups"]))
 
 
+def check_groups(groups: list[str]) -> list[str]:
+    known = {g for s in store().college.sections for g in s.batches}
+    unknown = [g for g in groups if g not in known]
+    if unknown:
+        raise HTTPException(400, f"Unknown group {', '.join(unknown)}")
+    return list(dict.fromkeys(groups))
+
+
+def groups_label(groups: list[str]) -> str:
+    """'D4 CS A, D4 CS B (B1, B2)': whole sections by name, otherwise the groups' short names."""
+    rows = by_section({g: [] for g in groups})
+    return ", ".join(r["section"] if r["whole"] else f"{r['section']} ({', '.join(g.rsplit('-', 1)[-1] for g in r['groups'])})"
+                     for r in rows)
+
+
 def find(aud: dict, duration: int, start: str, end: str, attendees: int | None, needs: list[str]) -> dict:
     if not 1 <= duration <= len(PERIODS):
         raise HTTPException(400, f"Duration must be 1 to {len(PERIODS)} periods.")
