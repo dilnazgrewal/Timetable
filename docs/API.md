@@ -97,20 +97,22 @@ Owned by the Dashboards session. Built and tested in `tests/test_dashboards_api.
 - `group` (one lab group, e.g. `D3-CS-A-A1`): whole-section classes + that group's labs + electives it is in.
 - `section`: every class with at least one of the section's groups.
 - `dept` + `year`: all sections of that year. `dept` alone: the whole department. A department with no sections (e.g. Applied Sciences) shows what its teachers teach.
-- `teacher`, `room`.
+- `teacher` (main teacher or co-teacher, so co-taught labs show up), `room`.
 - Dates: none = base weekly timetable (`mode: "week"`). `on=YYYY-MM-DD` = that date via `effective()` (`mode: "date"`). `week_of=YYYY-MM-DD` = Mon–Fri of that date's week (a weekend means the coming week), each via `effective()` (`mode: "week_of"`, `dates` lists the 5 days).
-- Each item is an `Occupancy` plus `date`, `code`, `name`, `lesson_kind` (`theory`/`lab`/`booking`), `dept`, `section`, `teacher_name`, `until` (end time). Bookings come back with `kind: "booking"` and their title.
+- Each item is an `Occupancy` plus `date`, `code`, `name`, `lesson_kind` (`theory`/`lab`/`booking`), `dept`, `section`, `teacher_name`, `co_teacher_names`, `regular_teacher_name` (set when `status` is `substituted`: whose class the substitute took), `until` (end time). Bookings come back with `kind: "booking"` and their title.
 
-**`/teacher/{id}/free`** → `{teacher, name, dept, date, day, weekend, periods, free}`. Each period has `period, label, start, end, state, what`, where `state` is `teaching`, `unavailable` (`Teacher.unavailable`), `meeting` (an accepted meeting) or `free`. Substitutions on that date count.
+**`/teacher/{id}/free`** → `{teacher, name, dept, date, day, weekend, periods, free}`. Each period has `period, label, start, end, state, what`, where `state` is `leave` (a leave override that date), `teaching` (main or co-teacher), `unavailable` (`Teacher.unavailable`), `meeting` (an accepted meeting) or `free`. Substitutions on that date count.
 
 **Meetings:**
 - A request must be for a weekday, today or later, in a period the teacher is `free`; otherwise 400 or 409. Asking twice for the same slot is 409.
 - Requests notify every account of that teacher (`t-<id>`, and `hod-<dept>` if they are HOD), linking to `/#meetings`. Replies notify the student, linking to `/#teacher`.
 - Meeting views add `teacher_name`, `student_name`, `day` and `slot {period, label, start, end}`.
 
-**`/now`**: `period` is the current period index (`-1` before the day starts, `len(periods)` after it ends). Students get their group's day, teachers and HODs their own. Returns `{date, day, who: group|teacher|null, weekend, now, next, free: {period, label, start, until, periods, now}, meetings, today}`. Accepted meetings count as busy.
+**`/now`**: `period` is the current period index (`-1` before the day starts, `len(periods)` after it ends). Students get their group's day, teachers and HODs their own. Returns `{date, day, who: group|teacher|null, weekend, now, next, free: {period, label, start, until, periods, now}, meetings, leave, today}`. Accepted meetings and leave count as busy; `leave` lists the periods the teacher is on leave, and classes inside their leave are left out of `now` / `next`.
 
-**Page deep links** (`/`, index.html): `#teacher`, `#rooms`, `#meetings`, `#load`, `#ask`.
+**Page deep links** (`/`, index.html): `#teacher`, `#rooms`, `#meetings`, `#subs` (HOD/admin), `#load`, `#ask`.
+
+**Leave and substitutions UI** uses the Core endpoints (`POST /api/leave`, `GET /api/leave?on=`, `POST /api/substitutions`): teachers get a "Mark leave" button; HODs and admin get the Substitutions tab with the next 6 school days, each absent teacher's classes, state chips, ranked candidates with reasons, Assign and Cancel class.
 
 ## Lane C: Venues and events (`app/api/venues.py`, prefix `/api/venues`)
 Owned by the Venues session. Logic lives in `app/venues/` (`ranking.py`, `requests.py`, `slots.py`, `common.py`); the page is `/venues.html` with tabs `#book`, `#requests`, `#inbox`, `#slots`.

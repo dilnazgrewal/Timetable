@@ -43,10 +43,13 @@ def item_view(o: Occupancy, on: date | None = None) -> dict:
     c = STORE.college
     l = c.lesson_by_id.get(o.lesson or "")
     t = c.teacher_by_id.get(o.teacher or "")
+    regular = c.teacher_by_id.get(l.teacher) if l and o.status == "substituted" else None
     return {**asdict(o), "date": on.isoformat() if on else None,
             "code": l.code if l else "EVENT", "name": l.name if l else o.title,
             "lesson_kind": l.kind if l else "booking", "dept": l.dept if l else "",
             "section": l.section if l else "", "teacher_name": t.name if t else "",
+            "co_teacher_names": [c.teacher_by_id[x].name for x in o.co_teachers if x in c.teacher_by_id],
+            "regular_teacher_name": regular.name if regular else "",  # set when a substitute takes the class
             "until": PERIODS[o.start + o.duration - 1][2]}
 
 
@@ -66,7 +69,7 @@ def matcher(dept: str, year: int | None, section: str, group: str, teacher: str,
     teaching_dept = dept if groups == set() and not (year or section or group) else ""
 
     def ok(o: Occupancy) -> bool:
-        if teacher and o.teacher != teacher:
+        if teacher and not teaches(o, teacher):
             return False
         if room and o.room != room:
             return False
@@ -78,12 +81,23 @@ def matcher(dept: str, year: int | None, section: str, group: str, teacher: str,
     return ok
 
 
+def teaches(o: Occupancy, teacher_id: str) -> bool:
+    """Main teacher or co-teacher (labs have 2–3 teachers in the room)."""
+    return o.teacher == teacher_id or teacher_id in o.co_teachers
+
+
 def teacher_busy(teacher_id: str, occ: list[Occupancy]) -> dict[int, Occupancy]:
-    return {p: o for o in occ if o.teacher == teacher_id for p in o.slots}
+    return {p: o for o in occ if teaches(o, teacher_id) for p in o.slots}
+
+
+def leave_periods(teacher_id: str, d: date) -> set[int]:
+    """Periods a teacher is on leave that date (a leave override with no periods means the whole day)."""
+    return {p for ov in STORE.overrides if ov.kind == "leave" and ov.teacher == teacher_id and ov.date == d.isoformat()
+            for p in (ov.periods or range(len(PERIODS)))}
 
 
 def teacher_free(teacher_id: str, d: date) -> dict:
-    """A teacher's periods on a real date, split into teaching, unavailable, meeting and free."""
+    """A teacher's periods on a real date: leave, teaching (incl. co-taught labs), unavailable, meeting or free."""
     t = STORE.college.teacher_by_id.get(teacher_id)
     if t is None:
         raise HTTPException(404, f"No teacher '{teacher_id}'")
@@ -94,10 +108,13 @@ def teacher_free(teacher_id: str, d: date) -> dict:
         return {**base, "weekend": True, "free": []}
     busy = teacher_busy(t.id, STORE.effective(d))
     off = {p for day, p in t.unavailable if day == wd}
+    leave = leave_periods(t.id, d)
     met = {m.period for m in STORE.meetings if m.teacher == t.id and m.date == d.isoformat() and m.status == "accepted"}
     periods = []
     for p in range(len(PERIODS)):
-        if p in busy:
+        if p in leave:
+            state, what = "leave", "On leave"
+        elif p in busy:
             o = busy[p]
             l = STORE.college.lesson_by_id.get(o.lesson or "")
             state, what = "teaching", f"{l.code} · {l.section} · {o.room}" if l else o.title
@@ -238,16 +255,20 @@ def now_card(on: str = "", period: int = -1, user: User = Depends(current_user))
     wd = d.weekday()
     who = "group" if user.group else "teacher" if user.teacher_id else None
     out = {"date": d.isoformat(), "day": DAYS[wd] if wd < len(DAYS) else "", "who": who, "period": period,
-           "now": None, "next": None, "free": None, "today": [], "weekend": wd >= len(DAYS)}
+           "now": None, "next": None, "free": None, "today": [], "leave": [], "meetings": [],
+           "weekend": wd >= len(DAYS)}
     if who is None or out["weekend"]:
         return out
     if who == "group":
         mine = [o for o in STORE.effective(d) if user.group in o.batches]
         off: set[int] = set()
     else:
-        mine = [o for o in STORE.effective(d) if o.teacher == user.teacher_id]
+        leave = leave_periods(user.teacher_id or "", d)
+        # classes they actually take: co-taught labs count, classes during their leave don't
+        mine = [o for o in STORE.effective(d) if teaches(o, user.teacher_id or "") and not set(o.slots) <= leave]
         t = STORE.college.teacher_by_id.get(user.teacher_id or "")
-        off = {p for day, p in (t.unavailable if t else []) if day == wd}
+        off = {p for day, p in (t.unavailable if t else []) if day == wd} | leave
+        out["leave"] = [period_view(p) for p in sorted(leave)]
     mine.sort(key=lambda o: o.start)
     out["today"] = [item_view(o, d) for o in mine]
     now = next((o for o in mine if period in o.slots), None)

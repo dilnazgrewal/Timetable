@@ -1,5 +1,5 @@
 // Lane B (Dashboards UI): the Alpine component behind index.html (role home, timetable views,
-// find a teacher + meetings, now / next, free rooms, teacher load, ask). Every request goes
+// find a teacher + meetings, now / next, leave + substitutions, free rooms, teacher load, ask). Every request goes
 // through TW.api() so the demo account (X-User) is sent.
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -7,6 +7,10 @@ const isoDate = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, 
 const toMin = s => +s.slice(0, 2) * 60 + +s.slice(3);
 const shortName = n => (n || '').replace(/^(Dr\.|Prof\.|Er\.) /, '');
 const FEATURE_ICON = { projector: '📽', ac: '❄️', sound: '🔊', computers: '💻', smart_board: '🖊', stage: '🎤' };
+// today if it's a weekday, else the coming Monday (no classes at the weekend)
+const schoolDay = (d = new Date()) => { d = new Date(d); while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1); return isoDate(d); };
+const STATE_CHIP = { open: ['Needs cover', 'bg-red-100 text-red-700'], covered: ['Covered by co-teacher', 'bg-sky-100 text-sky-800'],
+                     substituted: ['Substitute', 'bg-emerald-100 text-emerald-800'], cancelled: ['Cancelled', 'bg-slate-200 text-slate-600'] };
 const VIEW_BY = [['group', 'Group'], ['section', 'Section'], ['year', 'Year'], ['dept', 'Department'], ['teacher', 'Teacher'], ['room', 'Room']];
 
 function dash() {
@@ -29,6 +33,10 @@ function dash() {
     // free rooms
     fr: { on: isoDate(new Date()), period: 0, sittable: true, kind: '', near: '', res: null },
 
+    // leave (teacher marks own; HOD/admin mark anyone in their department) and the substitutions board
+    leave: { open: false, teacher: '', on: schoolDay(), whole: true, periods: [], reason: '', busy: false, result: null },
+    subs: { on: schoolDay(), days: [], board: null, busy: '', openCount: 0 },
+
     chat: { msgs: [], input: '', busy: false },
     suggestions: ['Find me an empty classroom right now'],
 
@@ -41,7 +49,7 @@ function dash() {
       this.fr.period = Math.max(0, Math.min(this.periodAt(this.clock.time), this.meta.periods.length - 1));
       this.myView();
       this.suggestions = this.askSuggestions();
-      await Promise.all([this.load(), this.loadView(), this.loadNow(), this.loadMeetings()]);
+      await Promise.all([this.load(), this.loadView(), this.loadNow(), this.loadMeetings(), this.loadSubDays()]);
       const openHash = () => {
         const h = location.hash.slice(1);
         this.go(this.tabs().some(t => t.id === h) ? h : 'timetable', false);
@@ -55,10 +63,12 @@ function dash() {
     get isTeacher() { return !!this.user?.teacher_id; },
     get canGenerate() { return this.role === 'admin' || this.role === 'hod'; },
     get hasCard() { return this.isStudent || this.isTeacher; },
+    get canSubs() { return this.role === 'admin' || this.role === 'hod'; },
     tabs() {
       const t = [{ id: 'timetable', label: this.isStudent ? 'My timetable' : this.role === 'teacher' ? 'My schedule' : 'Timetable' },
                  { id: 'teacher', label: 'Find a teacher' }, { id: 'rooms', label: 'Free rooms' }];
       if (this.isStudent || this.isTeacher) t.push({ id: 'meetings', label: 'Meetings', badge: this.meetings.pending });
+      if (this.canSubs) t.push({ id: 'subs', label: 'Substitutions', badge: this.subs.openCount });
       if (this.canGenerate) t.push({ id: 'load', label: 'Teacher load' });
       t.push({ id: 'ask', label: 'Ask ✨' });
       return t;
@@ -69,6 +79,7 @@ function dash() {
       if (id === 'rooms') this.findRooms();
       if (id === 'meetings') this.loadMeetings();
       if (id === 'teacher' && this.ft.id) this.loadTeacher();
+      if (id === 'subs') this.loadSubDays(true);
     },
     greeting() {
       if (!this.user) return '';
@@ -210,9 +221,11 @@ function dash() {
       else sub = `${e.section} · ${e.room}`;
       const batch = lab && (by === 'group' || by === 'section')
         ? `<span class="ml-1 text-[10px] px-1 rounded bg-white/70 border">${esc(e.batches[0].split('-').pop())}</span>` : '';
-      const flag = e.status === 'substituted' ? `<div class="text-[10px] font-semibold text-amber-700">↺ substitute: ${esc(shortName(e.teacher_name))}</div>`
+      const flag = e.status === 'substituted'
+        ? `<div class="mt-0.5 text-[10px] font-semibold text-amber-800 bg-amber-100 rounded px-1">↺ Substitute: ${esc(e.teacher_name)}${e.regular_teacher_name ? ' (for ' + esc(shortName(e.regular_teacher_name)) + ')' : ''}</div>`
         : e.status === 'room_changed' ? `<div class="text-[10px] font-semibold text-amber-700">⇄ moved to ${esc(e.room)}</div>` : '';
-      return `<div class="chip rounded-md px-2 py-1 leading-tight" style="background:hsl(${h} 85% 95%);border-color:hsl(${h} 60% 50%)">
+      const ring = e.status !== 'normal' ? ' ring-2 ring-amber-400' : '';
+      return `<div class="chip rounded-md px-2 py-1 leading-tight${ring}" style="background:hsl(${h} 85% 95%);border-color:hsl(${h} 60% 50%)">
         <div class="flex justify-between gap-1"><span class="font-semibold text-xs">${esc(e.code)}${batch}</span>${part}</div>
         <div class="text-[11px] text-slate-700 truncate" title="${esc(e.name)}">${esc(e.name)}</div>
         <div class="text-[10px] text-slate-500 truncate">${esc(sub)}</div>${flag}</div>`;
@@ -271,6 +284,7 @@ function dash() {
     },
     stateClass(s) {
       return { free: 'bg-emerald-100 text-emerald-800 border-emerald-200', teaching: 'bg-slate-100 text-slate-500 border-slate-200',
+               leave: 'bg-amber-50 text-amber-700 border-amber-200',
                unavailable: 'bg-red-50 text-red-400 border-red-100', meeting: 'bg-indigo-50 text-indigo-700 border-indigo-200' }[s];
     },
     async requestMeeting() {
@@ -295,6 +309,70 @@ function dash() {
     statusClass(s) { return { pending: 'bg-amber-100 text-amber-800', accepted: 'bg-emerald-100 text-emerald-800', declined: 'bg-red-100 text-red-700' }[s]; },
     isPast(day, end) { return day < this.today || (day === this.today && toMin(end) <= toMin(new Date().toTimeString().slice(0, 5))); },
     niceDate(s) { return s ? new Date(s + 'T12:00').toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' }) : ''; },
+
+    // ---------------------------------------------------------------- leave and substitutions
+    leaveTeachers() {  // whom this account may mark on leave (the server checks leave.mark again)
+      const ts = this.meta?.teachers || [];
+      if (this.role === 'admin') return ts;
+      if (this.role === 'hod') return ts.filter(t => t.dept === this.user.dept);
+      return ts.filter(t => t.id === this.user?.teacher_id);
+    },
+    openLeave(teacherId) {
+      Object.assign(this.leave, { open: true, result: null, whole: true, periods: [], reason: '',
+                                  teacher: teacherId || this.user.teacher_id || this.leaveTeachers()[0]?.id || '',
+                                  on: this.tab === 'subs' ? this.subs.on : schoolDay() });
+    },
+    togglePeriod(i) {
+      const ps = this.leave.periods; ps.includes(i) ? ps.splice(ps.indexOf(i), 1) : ps.push(i);
+    },
+    async submitLeave() {
+      const l = this.leave;
+      if (!l.whole && !l.periods.length) return this.flash('Pick the periods you will miss, or choose Whole day.');
+      l.busy = true;
+      try {
+        l.result = await TW.api('/api/leave', { method: 'POST', body: JSON.stringify({
+          teacher: l.teacher, date: l.on, periods: l.whole ? [] : [...l.periods].sort((a, b) => a - b), reason: l.reason.trim() }) });
+        const open = l.result.classes.filter(c => c.state === 'open').length;
+        this.flash(l.result.classes.length ? `Leave saved. ${open} class${open === 1 ? ' needs' : 'es need'} cover; the HOD has been notified.`
+                                           : 'Leave saved. There are no classes in that time.');
+        if (this.canSubs) { this.subs.on = l.on; await this.loadSubDays(); }
+        this.loadNow(); this.loadView();
+      } catch (e) { this.flash(e.message); }
+      l.busy = false;
+    },
+    // the board shows one date; the strip above it shows the next school days and how many classes need cover
+    async loadSubDays(pickBusy = false) {
+      if (!this.canSubs) return;
+      const days = [], d = new Date(schoolDay() + 'T12:00');
+      while (days.length < 6) { if (d.getDay() % 6) days.push(isoDate(d)); d.setDate(d.getDate() + 1); }
+      if (!days.includes(this.subs.on)) days.unshift(this.subs.on);
+      const boards = await Promise.all(days.map(on => TW.api('/api/leave?on=' + on).catch(() => ({ date: on, leaves: [] }))));
+      this.subs.days = boards.map(b => ({ date: b.date, leaves: b.leaves.length,
+                                          open: b.leaves.reduce((n, l) => n + l.classes.filter(c => c.state === 'open').length, 0) }));
+      this.subs.openCount = this.subs.days.reduce((n, d) => n + d.open, 0);
+      const cur = this.subs.days.find(d => d.date === this.subs.on);
+      if (pickBusy && !cur?.leaves) this.subs.on = (this.subs.days.find(d => d.leaves) || cur || this.subs.days[0]).date;
+      this.subs.board = boards.find(b => b.date === this.subs.on) || await TW.api('/api/leave?on=' + this.subs.on);
+    },
+    async loadSubs() {
+      try { this.subs.board = await TW.api('/api/leave?on=' + this.subs.on); } catch (e) { this.flash(e.message); }
+    },
+    async decide(c, teacher) {
+      this.subs.busy = c.key;
+      const body = teacher ? { date: this.subs.on, entry_key: c.key, teacher } : { date: this.subs.on, entry_key: c.key, cancel: true };
+      try {
+        const r = await TW.api('/api/substitutions', { method: 'POST', body: JSON.stringify(body) });
+        this.flash(r.message);
+      } catch (e) { this.flash(e.message); }  // 409: that teacher is no longer free
+      this.subs.busy = '';
+      await this.loadSubDays(); this.loadView();
+    },
+    stateChip(c) {
+      const [label, cls] = STATE_CHIP[c.state] || [c.state, 'bg-slate-100'];
+      const who = c.by_name && c.state !== 'cancelled' ? (c.state === 'covered' ? ': ' : ': ') + c.by_name : '';
+      return { text: label + who, cls };
+    },
+    dayChip(d) { return new Date(d + 'T12:00').toLocaleDateString(undefined, { weekday: 'short', day: 'numeric' }); },
 
     // ---------------------------------------------------------------- free rooms
     roomsNow() {

@@ -11,6 +11,7 @@ import app.api.dashboards as dash
 import app.store as store_mod
 from app.auth import demo_people
 from app.main import app
+from app.models import Override
 from app.seed import build_college
 from app.solver import solve
 from app.store import Store
@@ -165,3 +166,37 @@ def test_now_card(client, store):
     before = client.get(f"/api/dash/now?on={monday}&period=-1", headers=as_(s.id)).json()
     assert before["now"] is None and before["next"]["key"] == first.key
     assert client.get("/api/dash/now", headers=as_("admin")).json()["who"] is None
+
+
+def co_taught(store):
+    """A co-teacher, one class they co-teach (not as the main teacher), and a date it happens on."""
+    o = next(o for o in store.week() if o.co_teachers)
+    return o.co_teachers[0], o, next_weekday(o.day)
+
+
+def test_co_taught_labs_count_as_busy(client, store):
+    co, o, on = co_taught(store)
+    assert any(i["key"] == o.key for i in client.get(f"/api/dash/views?teacher={co}").json()["items"])
+    day = client.get(f"/api/dash/teacher/{co}/free?on={on}").json()
+    assert all(day["periods"][p]["state"] == "teaching" for p in o.slots)
+
+
+def test_leave_blocks_free_slots_and_now_card(client, store):
+    co, o, on = co_taught(store)
+    store.add_override(Override("lv1", on, "leave", teacher=co))  # no periods = the whole day
+    day = client.get(f"/api/dash/teacher/{co}/free?on={on}").json()
+    assert {p["state"] for p in day["periods"]} == {"leave"} and day["free"] == []
+    user = next(u for u in store.users.values() if u.teacher_id == co)
+    card = client.get(f"/api/dash/now?on={on}&period={o.start}", headers=as_(user.id)).json()
+    assert len(card["leave"]) == len(day["periods"]) and card["now"] is None and card["free"] is None
+
+
+def test_substituted_class_names_both_teachers(client, store):
+    s = a_student(store)
+    on = next_weekday(0)
+    o = next(o for o in store.effective(on) if s.group in o.batches and o.teacher)
+    sub = next(t.id for t in store.college.teachers if t.id != o.teacher)
+    store.add_override(Override("sub1", on, "substitute", entry_key=o.key, teacher=sub))
+    item = next(i for i in client.get(f"/api/dash/views?group={s.group}&on={on}").json()["items"] if i["key"] == o.key)
+    assert item["status"] == "substituted" and item["teacher"] == sub
+    assert item["regular_teacher_name"] == store.college.teacher_by_id[o.teacher].name

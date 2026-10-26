@@ -6,7 +6,7 @@
 <title>TimeWeave</title>
 <script src="https://cdn.tailwindcss.com/3.4.16"></script>
 <script src="/static/js/shell.js"></script>
-<script src="/static/js/dashboards.js"></script>
+<script src="/static/js/dashboards.js?v=2026-10-26"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
 <style>
   [x-cloak] { display: none !important; }
@@ -39,12 +39,87 @@
   <div x-show="toast" x-transition class="no-print fixed bottom-4 left-1/2 -translate-x-1/2 z-50 max-w-[calc(100vw-2rem)] rounded-xl bg-slate-900 text-white text-sm px-4 py-2 shadow-lg" x-text="toast"></div>
 
   <!-- greeting -->
-  <div class="no-print flex flex-wrap items-baseline justify-between gap-2 mb-3">
+  <div class="no-print flex flex-wrap items-center justify-between gap-2 mb-3">
     <h1 class="text-lg font-semibold" x-text="greeting()"></h1>
-    <span x-show="tt.ready" class="text-xs px-2 py-1 rounded-full"
-          :class="tt.issues.length ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-800'"
-          x-text="tt.issues.length ? '✖ ' + tt.issues.length + ' timetable issues' : '✔ Timetable verified: 0 clashes'"></span>
+    <div class="flex items-center gap-2">
+      <button x-show="isTeacher && !leave.open" @click="openLeave(user.teacher_id)"
+              class="text-sm px-3 py-1.5 rounded-lg border border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100">🗓 Mark leave</button>
+      <span x-show="tt.ready" class="text-xs px-2 py-1 rounded-full"
+            :class="tt.issues.length ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-800'"
+            x-text="tt.issues.length ? '✖ ' + tt.issues.length + ' timetable issues' : '✔ Timetable verified: 0 clashes'"></span>
+    </div>
   </div>
+
+  <!-- mark leave: teachers for themselves, HOD/admin for anyone in their department (POST /api/leave) -->
+  <template x-if="leave.open">
+  <section class="no-print rounded-2xl border border-amber-200 bg-amber-50/60 p-4 mb-4">
+    <div class="flex justify-between items-start gap-2 mb-3">
+      <div>
+        <h2 class="font-semibold">Mark leave</h2>
+        <p class="text-xs text-slate-600">Your HOD is notified and finds cover for each class. Students see the substitute in their timetable.</p>
+      </div>
+      <button @click="leave.open = false" class="text-slate-500 hover:text-slate-800 px-2 text-lg leading-none" aria-label="Close">✕</button>
+    </div>
+    <template x-if="!leave.result">
+      <form @submit.prevent="submitLeave()" class="space-y-3">
+        <div class="flex flex-wrap gap-2 items-end">
+          <div x-show="leaveTeachers().length > 1">
+            <label class="block text-xs text-slate-500 mb-1">Teacher</label>
+            <select x-model="leave.teacher" class="border rounded-lg px-2 py-1.5 bg-white text-sm max-w-[16rem]">
+              <template x-for="t in leaveTeachers()" :key="t.id"><option :value="t.id" x-text="t.name" :selected="t.id === leave.teacher"></option></template>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs text-slate-500 mb-1">Date</label>
+            <input type="date" x-model="leave.on" :min="today" class="border rounded-lg px-2 py-1 text-sm bg-white">
+          </div>
+          <div class="flex-1 min-w-[12rem]">
+            <label class="block text-xs text-slate-500 mb-1">Reason (optional)</label>
+            <input x-model="leave.reason" maxlength="120" placeholder="e.g. Conference, medical" class="w-full border rounded-lg px-3 py-1.5 text-sm bg-white">
+          </div>
+        </div>
+        <div class="flex flex-wrap items-center gap-1.5">
+          <div class="flex rounded-lg border bg-white overflow-hidden text-sm mr-1">
+            <button type="button" @click="leave.whole = true" class="px-3 py-1.5" :class="leave.whole ? 'bg-amber-600 text-white' : 'hover:bg-slate-50'">Whole day</button>
+            <button type="button" @click="leave.whole = false" class="px-3 py-1.5" :class="!leave.whole ? 'bg-amber-600 text-white' : 'hover:bg-slate-50'">Some periods</button>
+          </div>
+          <template x-if="!leave.whole">
+            <div class="flex flex-wrap gap-1">
+              <template x-for="(p, i) in meta.periods" :key="i">
+                <button type="button" @click="togglePeriod(i)" class="text-xs px-2 py-1 rounded-md border"
+                        :class="leave.periods.includes(i) ? 'bg-amber-600 text-white border-amber-600' : 'bg-white hover:bg-amber-50'"
+                        x-text="p.label + ' ' + p.start"></button>
+              </template>
+            </div>
+          </template>
+        </div>
+        <button :disabled="leave.busy" class="px-4 py-2 rounded-lg bg-amber-600 text-white text-sm font-semibold hover:bg-amber-700 disabled:opacity-60"
+                x-text="leave.busy ? 'Saving…' : 'Save leave'"></button>
+      </form>
+    </template>
+    <template x-if="leave.result">
+      <div>
+        <div class="text-sm mb-2">
+          Leave saved for <b x-text="niceDate(leave.result.leave.date)"></b>.
+          <span x-text="leave.result.classes.length ? 'Classes in that time:' : 'There are no classes in that time.'"></span>
+        </div>
+        <div class="space-y-1.5">
+          <template x-for="c in leave.result.classes" :key="c.key">
+            <div class="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-white border px-3 py-2 text-sm">
+              <div><b x-text="c.time"></b> · <span x-text="c.code + ' · ' + c.section + ' · ' + c.room"></span></div>
+              <span class="text-xs px-2 py-0.5 rounded-full" :class="stateChip(c).cls" x-text="stateChip(c).text"></span>
+            </div>
+          </template>
+        </div>
+        <div class="flex flex-wrap gap-2 mt-3">
+          <button x-show="canSubs" @click="leave.open = false; go('subs')" class="px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-sm font-semibold">Find substitutes →</button>
+          <button @click="openLeave(leave.teacher)" class="px-3 py-1.5 rounded-lg border bg-white text-sm">Mark another day</button>
+          <button @click="leave.open = false" class="px-3 py-1.5 rounded-lg border bg-white text-sm">Done</button>
+        </div>
+      </div>
+    </template>
+  </section>
+  </template>
 
   <!-- now / next (students and teachers) -->
   <!-- x-if, not x-show: Alpine's nested x-show hiding can leave this card stuck on screen -->
@@ -61,6 +136,9 @@
         <button x-show="!clock.live" @click="resetClock()" class="px-2 py-1 rounded-lg border hover:bg-slate-50">Now</button>
       </div>
     </div>
+    <div x-show="nowCard?.leave?.length" class="mb-3 rounded-lg bg-amber-100 text-amber-900 text-sm px-3 py-2"
+         x-text="nowCard?.leave?.length >= (meta?.periods.length || 0) ? '🗓 You are on leave this day. Your HOD arranges cover for your classes.'
+                 : '🗓 On leave: ' + (nowCard?.leave || []).map(p => p.label + ' ' + p.start).join(', ')"></div>
     <div x-show="nowCard?.weekend" class="text-sm text-slate-500">No classes today. Enjoy the weekend, or pick a weekday above.</div>
     <div x-show="!nowCard?.weekend" class="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
       <div class="rounded-xl p-3" :class="nowCard?.now ? 'bg-indigo-50 border border-indigo-200' : 'bg-slate-50 border'">
@@ -69,7 +147,9 @@
           <div><div class="font-semibold" x-text="nowLine(nowCard.now)"></div>
                <div class="text-xs text-slate-600" x-text="nowSub(nowCard.now)"></div>
                <div x-show="nowCard.now.status !== 'normal'" class="text-xs text-amber-700 font-semibold mt-0.5"
-                    x-text="nowCard.now.status === 'substituted' ? 'Substitute teacher today' : 'Room changed today'"></div></div>
+                    x-text="nowCard.now.status !== 'substituted' ? 'Room changed today'
+                            : isStudent ? '↺ Substitute today: ' + nowCard.now.teacher_name
+                            : '↺ You are substituting' + (nowCard.now.regular_teacher_name ? ' for ' + nowCard.now.regular_teacher_name : '')"></div></div>
         </template>
         <div x-show="!nowCard?.now" class="font-semibold text-slate-500"
              x-text="nowCard?.period < 0 ? 'Day has not started' : nowCard?.period >= (meta?.periods.length || 8) ? 'Done for the day 🎉' : 'Free period'"></div>
@@ -133,6 +213,32 @@
       <div class="text-xs text-slate-500" x-show="tt.ready">OR-Tools CP-SAT · <span x-text="tt.seconds"></span> s</div>
     </div>
   </section>
+
+  <!-- real (imported) vs generated quality: both are clash-free, the difference is lunch and long days -->
+  <template x-if="tab === 'timetable' && canGenerate && tt.compare">
+  <section class="no-print rounded-xl border bg-white p-4 mb-4">
+    <h2 class="font-semibold">GNDEC's real CSE timetable vs TimeWeave's generated timetables</h2>
+    <p class="text-xs text-slate-500 mb-3">Both pass the validator with 0 clashes. The difference is how the days feel for students and teachers.</p>
+    <div class="overflow-x-auto">
+      <table class="text-sm w-full min-w-[22rem]">
+        <thead><tr class="text-xs text-slate-500 text-left">
+          <th class="py-1 pr-2 font-medium"></th>
+          <th class="py-1 px-2 font-medium">Real CSE (imported from FET)<div class="font-normal" x-text="tt.compare.real.group_days + ' group-days'"></div></th>
+          <th class="py-1 px-2 font-medium">Generated departments<div class="font-normal" x-text="tt.compare.generated.group_days + ' group-days'"></div></th>
+        </tr></thead>
+        <tbody>
+          <template x-for="[k, label] in [['no_lunch_days', 'Days with no lunch break'], ['long_days', 'Days over 6 periods'], ['lonely_days', 'Days with a single lecture'], ['idle_per_day', 'Idle periods per group-day'], ['worst_gap', 'Longest gap (periods)']]" :key="k">
+            <tr class="border-t">
+              <td class="py-1.5 pr-2" x-text="label"></td>
+              <td class="py-1.5 px-2 font-semibold" :class="tt.compare.real[k] > tt.compare.generated[k] ? 'text-red-600' : ''" x-text="tt.compare.real[k]"></td>
+              <td class="py-1.5 px-2 font-semibold" :class="tt.compare.generated[k] < tt.compare.real[k] ? 'text-emerald-700' : ''" x-text="tt.compare.generated[k]"></td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+  </section>
+  </template>
 
   <!-- generate -->
   <div x-show="tab === 'timetable' && canGenerate" class="no-print flex flex-wrap items-center gap-3 mb-4">
@@ -440,6 +546,80 @@
         </div>
       </template>
     </div>
+  </section>
+
+  <!-- ============================== substitutions tab (HOD / admin) ============================== -->
+  <section x-show="tab === 'subs'" class="space-y-3">
+    <div class="rounded-xl border bg-white p-4">
+      <div class="flex flex-wrap justify-between items-start gap-2">
+        <div>
+          <h2 class="font-semibold">Substitutions</h2>
+          <p class="text-sm text-slate-500">Teachers on leave and the classes that need cover. Suggested substitutes are free for the whole class, on campus and under their daily limit, best fit first.</p>
+        </div>
+        <button @click="openLeave(); window.scrollTo({ top: 0, behavior: 'smooth' })" class="px-3 py-1.5 rounded-lg border border-amber-300 bg-amber-50 text-amber-800 text-sm hover:bg-amber-100">+ Mark a teacher on leave</button>
+      </div>
+      <div class="flex flex-wrap items-center gap-1.5 mt-3">
+        <template x-for="d in subs.days" :key="d.date">
+          <button @click="subs.on = d.date; loadSubs()" class="rounded-lg border px-2.5 py-1 text-left"
+                  :class="subs.on === d.date ? 'bg-indigo-600 text-white border-indigo-600' : d.open ? 'bg-red-50 border-red-200' : 'bg-white hover:bg-slate-50'">
+            <div class="text-sm font-medium" x-text="dayChip(d.date)"></div>
+            <div class="text-[10px]" :class="subs.on === d.date ? 'text-indigo-100' : d.open ? 'text-red-700' : 'text-slate-500'"
+                 x-text="d.open ? d.open + ' need cover' : d.leaves ? 'all handled' : 'no leave'"></div>
+          </button>
+        </template>
+        <input type="date" x-model="subs.on" @change="loadSubDays()" class="border rounded-lg px-2 py-1 text-sm" aria-label="Pick a date">
+      </div>
+    </div>
+
+    <div x-show="subs.board && !subs.board.leaves.length" class="rounded-xl border bg-white p-6 text-center text-slate-500">
+      No one is on leave on <span x-text="niceDate(subs.on)"></span>.
+    </div>
+
+    <template x-for="lv in subs.board?.leaves || []" :key="lv.leave.id">
+      <div class="rounded-xl border bg-white p-4">
+        <div class="flex flex-wrap items-baseline justify-between gap-2 mb-1">
+          <div><b x-text="lv.teacher_name"></b> <span class="text-xs text-slate-500" x-text="lv.dept"></span></div>
+          <div class="text-xs text-slate-600">
+            <span x-text="lv.leave.periods.length ? 'On leave ' + lv.leave.periods.map(p => meta.periods[p].label).join(', ') : 'On leave all day'"></span>
+            <span x-show="lv.leave.title" x-text="' · ' + lv.leave.title"></span>
+          </div>
+        </div>
+        <div x-show="!lv.classes.length" class="text-sm text-slate-400 py-2">No classes in that time.</div>
+        <template x-for="c in lv.classes" :key="c.key">
+          <div class="border-t py-3" :class="subs.busy === c.key ? 'opacity-60' : ''">
+            <div class="flex flex-wrap items-start justify-between gap-2">
+              <div class="text-sm">
+                <b x-text="c.time"></b> · <span x-text="c.code"></span> <span class="text-slate-500" x-text="'· ' + c.subject"></span>
+                <div class="text-xs text-slate-500" x-text="c.section + ' · ' + c.room"></div>
+              </div>
+              <span class="text-xs px-2 py-0.5 rounded-full whitespace-nowrap" :class="stateChip(c).cls" x-text="stateChip(c).text"></span>
+            </div>
+            <template x-if="c.state === 'open'">
+              <div class="mt-2 space-y-1.5">
+                <template x-for="(k, ki) in c.candidates || []" :key="k.teacher">
+                  <div class="flex flex-wrap items-center gap-2 rounded-lg border px-2.5 py-1.5" :class="ki === 0 ? 'border-emerald-300 bg-emerald-50/50' : ''">
+                    <div class="min-w-0 flex-1">
+                      <div class="text-sm"><b x-text="k.name"></b> <span class="text-xs text-slate-500" x-text="k.dept"></span>
+                        <span x-show="ki === 0" class="text-[10px] uppercase tracking-wide bg-emerald-600 text-white rounded px-1 ml-1">best fit</span></div>
+                      <div class="flex flex-wrap gap-1 mt-0.5">
+                        <template x-for="r in k.reasons"><span class="text-[11px] px-1.5 rounded bg-slate-100 text-slate-600" x-text="r"></span></template>
+                      </div>
+                    </div>
+                    <span class="text-xs text-slate-500" x-text="'score ' + k.score"></span>
+                    <button @click="decide(c, k.teacher)" :disabled="!!subs.busy" class="px-3 py-1 rounded-lg bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 disabled:opacity-60">Assign</button>
+                  </div>
+                </template>
+                <div x-show="!c.candidates?.length" class="text-sm text-slate-500">Nobody is free for the whole class. You can cancel it so the room frees up.</div>
+                <button @click="decide(c, null)" :disabled="!!subs.busy" class="text-sm px-3 py-1 rounded-lg border text-red-700 hover:bg-red-50">Cancel class</button>
+              </div>
+            </template>
+            <template x-if="c.state === 'substituted'">
+              <button @click="decide(c, null)" :disabled="!!subs.busy" class="mt-2 text-xs px-2.5 py-1 rounded-lg border text-red-700 hover:bg-red-50">Cancel class instead</button>
+            </template>
+          </div>
+        </template>
+      </div>
+    </template>
   </section>
 
   <!-- ============================== free rooms tab ============================== -->
