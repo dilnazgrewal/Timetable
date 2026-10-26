@@ -5,9 +5,9 @@
 > **How it was checked:** every claim comes from the repository (code, docs, git history), the test suite, or a command run on **Mon 26 Oct 2026**. Nothing is from memory. The commands are listed under [Sources](#18-sources). Anything that could not be confirmed yet is listed under [Pending](#19-pending).
 >
 > **State of the repo when this was written:**
-> - Final numbers are from commit `becb48e` (26 Oct 2026; 49 commits up to and including it). That commit adds the rule "a teacher's lab for two groups of one class stays on two days" and re-optimises CSE.
-> - The commit before it, `3acc154`, imported D4's open elective from the FET *groups* page.
-> - **All 88 tests pass** on `becb48e`.
+> - Final numbers are from commit `32f1b45` (26 Oct 2026; 51 commits up to and including it). That commit adds **College rules** (each college's own timetable habits, written down, obeyed by the optimiser and checked independently) and re-optimises CSE.
+> - Before it: `becb48e` added the lab-pair rule, and `3acc154` imported D4's open elective from the FET *groups* page.
+> - **All 95 tests pass** on `32f1b45`.
 
 ---
 
@@ -44,6 +44,7 @@ What it does:
 |---|---|
 | **Clash-free timetables** | Generates timetables with Google OR-Tools **CP-SAT**. Every timetable (generated, imported, optimised or edited) is checked by an **independent validator** that shares no code with the solver. |
 | **Optimised real timetable** | Re-optimises GNDEC's own CSE timetable. It keeps the same lessons, teachers, groups and rooms, changes only the times, and is never worse than the college's version on any measure. The department proposes it and the timetable office publishes it. |
+| **College rules** | Each college writes down its own timetable habits (e.g. "a teacher's lab for two groups goes on two days", "nothing after JPAL", "a real class every working day") in a JSON file. The optimiser obeys them, an independent checker counts every break, and publishing is refused if a rule is broken more often than in the college's own timetable. |
 | **Real students** | Models students as real **combinations of choices** ("student types", built from the department's elective distribution lists), so no real student ever gets two classes at once. |
 | **Everyday campus problems** | Free rooms to sit in (by building and floor), find a teacher's free slots and request a meeting, Now/Next card, leave with ranked substitutes, venue booking with approvals, an event slot finder for a whole batch. |
 | **Roles** | 8 roles with sign-in, a server-side permission table (deny by default) and an audit log. |
@@ -55,7 +56,7 @@ What it does:
 - **State:** in memory, persisted to JSON files.
 - **Chatbot:** Anthropic SDK, model `claude-opus-5-5` at low effort.
 
-**Tests:** **88 automated tests, all 88 pass** (commit `becb48e`; see [11](#11-testing-every-test-and-the-edge-case-it-covers)).
+**Tests:** **95 automated tests, all 95 pass** (commit `32f1b45`; see [11](#11-testing-every-test-and-the-edge-case-it-covers)).
 
 ---
 
@@ -93,6 +94,8 @@ FastAPI app (app/main.py, signed session cookie "tw_session")
    app/solver.py    CP-SAT generator (seeded departments) + plain-English prechecks
    app/validator.py independent checker (no OR-Tools import) + quality metrics
    app/optimise.py  re-optimises the REAL CSE timetable (never worse, large-neighbourhood search)
+   app/rules.py     college rules (data/gndec/rules.json): who stays put, labs apart, nothing after JPAL,
+                    a real class daily; counts every break (no solver code), also turned into optimiser constraints
    app/importers/   fet.py (FET HTML → model), gndec_students.py (distribution lists → student types)
    app/substitutions.py  leave → ranked substitutes
    app/venues/      ranking.py, requests.py (approval chain), slots.py (slot finder), common.py
@@ -112,6 +115,7 @@ Seed data ──────────► other departments (IT, ECE, ME, CE, 
               CP-SAT solver places the seeded departments around the fixed CSE classes
                          │
               INDEPENDENT VALIDATOR ──► "0 clashes" + quality notes + metrics
+              COLLEGE RULES CHECK (app/rules.py) ──► how often each of the college's own rules is broken
                          │
               base weekly timetable ⊕ date overrides (cancel / substitute / room change / booking / leave)
                          │
@@ -145,6 +149,7 @@ Seed data ──────────► other departments (IT, ECE, ME, CE, 
 - **Override:** a one-date change: cancel, substitute, room change, booking or leave.
 - **Requests and people:** `User`, `Club`, `BookingRequest` + `ApprovalStep`, `MeetingRequest`, `Notification`.
 - **Occupancy:** what happens in a room for a block of periods on one day. This is what `week()` and `effective()` return.
+- **College.rules:** the college's own timetable rules, loaded from `data/gndec/rules.json` by `app/rules.py` (see [6.3b](#63b-college-rules-apprulespy-datagndecrulesjson)).
 
 ---
 
@@ -236,7 +241,7 @@ Seed data ──────────► other departments (IT, ECE, ME, CE, 
 ---
 
 ## 5. Feature list (everything built)
-Status as of commit `becb48e`. ✅ built and committed · ⬜ designed, not built.
+Status as of commit `32f1b45`. ✅ built and committed · ⬜ designed, not built.
 
 ### 5.1 Core and data (Lane A)
 | # | Feature | Status |
@@ -254,6 +259,7 @@ Status as of commit `becb48e`. ✅ built and committed · ⬜ designed, not buil
 | A10 | Leave and ranked substitutes, with notifications to the substitute, the absent teacher and the students | ✅ |
 | A11 | Optimiser for the real CSE timetable: same lessons, never worse, large-neighbourhood search | ✅ |
 | A11b | Rule: a teacher's lab for two groups of one class stays on two different days (e.g. SC Lab A1 / A2); `lab_same_day` metric; card on the compare page | ✅ |
+| A11c | **College rules:** 6 GNDEC rules in `data/gndec/rules.json` (5 rule types, must/prefer); the optimiser obeys them; an independent checker counts breaks; "GNDEC's timetable rules" section on the compare page; publishing refused if a rule is broken more often than in the college's timetable | ✅ |
 | A12 | Propose (department) → publish / unpublish (timetable office), re-validated on publish | ✅ |
 | A13 | Sign-in (session cookie, demo accounts), 8 roles, PERMISSIONS table, capabilities, audit log | ✅ |
 | A14 | In-app notifications (🔔 in the shared top bar) | ✅ |
@@ -362,23 +368,23 @@ One free period in the lunch window is the lunch break, not idle time.
 
 **What changes:** only *when* each session happens, and which room of the right kind it uses. Rooms come only from those the college already uses for these classes, so the comparison is fair.
 
-**Pinned (never moved):**
-- M.Tech and PhD classes
+**Pinned (never moved):** since `32f1b45` this comes from the college's `keep_as_published` rules (see 6.3b), not hard-coded checks:
 - mentoring (MC)
-- classes with an unknown teacher (`TBA-…`)
-- classes in another department's rooms
+- M.Tech and PhD classes
+- classes run with other departments (teacher `TBA-…`: open electives, JPAL)
+- classes in rooms that aren't CSE's own
 
 Pinned sessions occupy teachers, groups and rooms as constants.
 
 **Lab pairs on different days** (commit `becb48e`; a student reported it):
 - **The problem:** in an earlier optimised run, Soft Computing lab A1 and A2 were both on Friday with the same teacher.
 - **Lab pairs:** `College.lab_pairs()` in `app/models.py` finds pairs of labs one teacher gives to two groups of the same class, e.g. "SC Lab A1" / "SC Lab A2", or D2 CS B's OOP Lab for B1 and for B2. There are 86 pairs in the college, 54 of them in CSE.
-- **The rule:** wherever the college already keeps a pair on different days, the optimiser forbids putting both on one day (a hard constraint).
+- **The rule:** wherever the college already keeps a pair on different days, the optimiser forbids putting both on one day (a hard constraint). Since `32f1b45` this is the college rule `labs-on-different-days`.
 - **Existing same-day pairs:** the college itself has 12 same-day pairs (mostly 2nd year, e.g. D2 CS B's OOP lab with both groups on Friday). Those may stay, so the college's own timetable is still a valid starting point.
-- **Result:**
-  - SC Lab A1 Thu 10:30 and A2 Fri 10:30 (teacher DN)
-  - ACC Lab A1 Mon 2:30 and A2 Tue 12:30
-  - same-day pairs 12 → 10
+- **Result** (final run, `32f1b45`):
+  - SC Lab A1 Fri 2:30 and A2 Thu 10:30 (teacher DN): two different days
+  - ACC Lab A1 Mon 12:30 and A2 Tue 12:30
+  - same-day pairs 12 → 9
 
 **Never worse:** the college's own numbers are hard ceilings for:
 - days with no free midday hour (students and teachers)
@@ -388,12 +394,14 @@ Pinned sessions occupy teachers, groups and rooms as constants.
 - days over 6 periods
 - single-lecture days
 - the same lab for two groups on one day (`lab_same_day`), via the rule above
+- every college rule (6.3b): never broken more often than in the college's timetable
 
 Within the ceilings it minimises (weighted):
 
 | Goal | Weight |
 |---|---|
 | No-lunch days (students) | 100 |
+| Each break of a "prefer" college rule | 30 |
 | No-lunch days (teachers) | 20 |
 | Waiting gaps | 10 |
 | Use of spare rooms | 8 |
@@ -410,9 +418,59 @@ Within the ceilings it minimises (weighted):
 
 Theory rooms are then assigned per day with a small exact model that prefers the room the class had before.
 
-**Output:** `data/gndec/cse_optimised.json` with before/after metrics and clash counts. It is re-validated by tests. A department can re-run it from the page (`POST /api/compare/cse/run`, background thread, 60–1800 s).
+**Output:** `data/gndec/cse_optimised.json` with before/after metrics, clash counts and college-rule break counts. It is re-validated by tests. A department can re-run it from the page (`POST /api/compare/cse/run`, background thread, 60–1800 s).
 
 **New pins:** `add_new_pins()` puts newly imported pinned classes (e.g. OE-II) into the saved optimised timetable and re-measures it, without re-solving. The final result (§10.3) comes from a full 15-minute re-run with these classes pinned.
+
+### 6.3b College rules (`app/rules.py`, `data/gndec/rules.json`)
+**Why** (from the project owner): every college has timetable habits an algorithm can't know, for example:
+- teachers don't take a lab for two groups on one day
+- nothing after JPAL
+- "students must have real classes every working day"
+
+So TimeWeave lets each college **write its rules down**. The optimiser obeys them and an independent checker counts every break.
+
+**How it works:**
+- **One file per college:** `data/<college>/rules.json`. `app/rules.py` loads it into `College.rules`.
+- **No solver code in `app/rules.py`:** it only reads timetables, so its break counts are independent of the optimiser. `app/optimise.py` turns the same rules into CP-SAT constraints.
+- **What a rule has:**
+  - an id, a type, plain-English `text` and `why`
+  - a strength
+  - a `match` that selects lessons by department, subject code prefix, year or teacher prefix
+- **Strength:**
+  - **must:** never broken wherever the college's own timetable keeps it
+  - **prefer:** penalised (weight 30 per break), and never broken more often than the college does
+
+**The 5 rule types:**
+
+| Type | Means |
+|---|---|
+| `keep_as_published` | these lessons never move |
+| `labs_apart` | a teacher's lab for two groups of one class is on two different days |
+| `nothing_after` | no class for the whole section after this one on its day |
+| `real_class_daily` | every weekday has at least `min` real classes, not counting e.g. open elective or project |
+| `allowed_times` | these lessons only start in given periods (type available; GNDEC doesn't use it) |
+
+**The 6 GNDEC rules:**
+
+| Rule | Strength | Means | Breaks: college → optimised |
+|---|---|---|---|
+| `keep-mentoring` | must | Mentoring stays exactly where the college has it | 0 → 0 |
+| `keep-postgraduate` | must | M.Tech and PhD classes stay put | 0 → 0 |
+| `keep-other-departments` | must | Classes run with other departments (open electives, JPAL) stay where they are | 0 → 0 |
+| `labs-on-different-days` | must | A teacher's lab for two groups of one class is on two different days | 12 → **9** |
+| `nothing-after-jpal` | prefer | No class for the whole section after JPAL that day. Only about 20 of 150 D4 students take JPAL, so a class after it makes everyone else wait. | 1 → 1 (the college's own D4 CS C mentoring, Wed 3:30, which is pinned) |
+| `real-class-every-day` | must | Every weekday has at least one real lecture or lab for D2–D4, not just the open elective, major project, mentoring or JPAL | 0 → **0** |
+
+**Notes on the rules:**
+- **real-class-every-day** was the project owner's own example. The previous optimised timetable (`becb48e`) broke it **6 times**: D4 student types whose Friday had only the major project and the open elective (verified here with `rules.breaks()`). The new run breaks it 0 times.
+- **D1 is excluded** from real-class-every-day, because 1st-year subjects are taught by Applied Sciences and are not in CSE's timetable.
+- **Only confirmed rules are added.** A guessed rule ("project only in the morning") was dropped, because the college itself has a project hour at Mon 3:30.
+
+**Where the rules are used:**
+- `rules.report()` gives each rule with its break counts for the college and the optimised timetable, plus up to 5 examples. It is shown on the compare page ("GNDEC's timetable rules") and saved in `cse_optimised.json`.
+- **Publishing is refused (409)** if any rule is broken more often than in the college's own timetable.
+- **To add a habit:** add a JSON rule. A new rule *type* needs a check in `rules.breaks()` and a constraint in `optimise.py`.
 
 ### 6.4 Shared store and date overrides (`app/store.py`)
 - `STORE.week()` is the base weekly timetable.
@@ -560,6 +618,7 @@ It has **no write tools**.
 1. The CSE HOD or coordinator opens `/compare.html`, compares the two timetables and presses **Propose to the timetable office**. Status → `proposed`; admins are notified.
 2. The admin presses **Publish to everyone**:
    - It is refused (409) unless the optimised file has 0 clashes.
+   - It is refused (409) if it breaks any college rule more often than the college's own timetable does; the message names the rule.
    - After installing it, the **independent validator re-checks** the whole college; if it finds any clash, publishing is undone (409).
    - Every CSE student and teacher is notified.
 3. **Go back to the college's version** (unpublish) returns to `draft` and notifies everyone again.
@@ -581,7 +640,7 @@ It has **no write tools**.
 | `/login.html` | everyone | Demo sign-in: pick an account by role |
 | `/` (`index.html`, Lane B) | everyone signed in | **Timetable** tab: views and filters, week / dated week, the real-vs-generated panel (insights), **Regenerate** (admin), Print / Save PDF. **Find a teacher** (`#teacher`): day view, Request meeting. **Free rooms** (`#rooms`): Right now, building/floor, near me. **Meetings** (`#meetings`). **Substitutions** (`#subs`): leave board, candidates, Assign, Cancel class. **Teacher load** (`#load`). **Ask** (`#ask`, chatbot). **Mark leave**. **Now/Next** card. Phone layout with day tabs. |
 | `/venues.html` (Lane C) | staff, clubs, orgs (by capability) | `#book` Book a venue (requirement form → ranked venues → request), `#requests` My requests with timeline, `#inbox` Approvals (endorse/approve/reject), `#slots` Event slot finder ("Find common free time", "Nearly free", "Book this") |
-| `/compare.html` (Lane A) | CSE HOD/coordinator, Dean, admin | College vs optimised CSE timetable by section, student (group and electives) or teacher; before/after numbers; Propose / Publish / Go back |
+| `/compare.html` (Lane A) | CSE HOD/coordinator, Dean, admin | College vs optimised CSE timetable by section, student (group and electives) or teacher; before/after numbers (incl. "Same lab for two groups on one day"); **"GNDEC's timetable rules"**: each rule in plain words, must/prefer, and how often each version breaks it; Propose / Publish / Go back |
 | `/audit.html` (Lane A) | admin, Dean | Audit log, newest first |
 | Shared top bar (`shell.js`) | every page | Logo, navigation (hides what you can't use), account menu, 🔔 notifications |
 
@@ -631,31 +690,34 @@ Generated part, first feasible solution ("baseline") vs optimised:
 | Classes in the 4:30–5:30 slot | 7 | 0 |
 
 ### 10.3 Optimised CSE timetable (same lessons, better times)
-**Final result** (commit `becb48e`, `data/gndec/cse_optimised.json`):
-- a 15-minute run (900.7 s) with the open elective and the two-room mentoring class pinned, and the lab-pair rule on
+**Final result** (commit `32f1b45`, `data/gndec/cse_optimised.json`):
+- a 15-minute run (896 s) with all 6 GNDEC college rules on
+- the open elective and the two-room mentoring class pinned
 - status IMPROVED
-- **307 sessions moved, 69 pinned**
+- **347 sessions moved, 69 pinned**
 - 537 sessions in total
 
 | Measure (CSE only, per real student type) | College (published) | TimeWeave optimised |
 |---|---|---|
 | Clashes (independent validator) | 0 | **0** |
-| Student waiting periods per week | 181 | **81** (−55%) |
-| Waiting periods per student day | 0.29 | **0.13** |
+| Student waiting periods per week | 181 | **75** (−59%) |
+| Waiting periods per student day | 0.29 | **0.12** |
 | Student-type days with **no free hour 11:30–2:30** | 44 | **0** |
-| Single-lecture days | 11 | **9** |
-| Student-type days over 6 periods | 280 | **263** |
-| Teacher waiting periods | 314 | **109** (−65%) |
+| Single-lecture days | 11 | **10** |
+| Student-type days over 6 periods | 280 | **253** |
+| Teacher waiting periods | 314 | **100** (−68%) |
 | Teacher days with 4+ lectures in a row | 5 | **1** |
-| Teacher days with no free hour 11:30–2:30 | 5 | **1** |
-| Same lab for two groups on one day (`lab_same_day`) | 12 | **10** |
+| Teacher days with no free hour 11:30–2:30 | 5 | **3** |
+| Same lab for two groups on one day (`lab_same_day`) | 12 | **9** |
 | Classes after 4:30 (4:30–5:30 slot) | 7 | 7 (pinned mentoring) |
 | Worst gap | 4 | 4 |
 | Room use (classrooms / labs) | 17.8% / 29.9% | 17.8% / 29.9% (same rooms) |
+| **College rules** (6.3b): breaks of `labs-on-different-days` / `nothing-after-jpal` / `real-class-every-day` / the 3 keep rules | 12 / 1 / 0 / 0 | **9 / 1 / 0 / 0** |
 
 **Why the numbers changed between runs:**
-- **The `aac5df1` run** showed waiting periods 181 → **16**. That was measured **without** the open elective. Three 8:30 classes a week for all of D4 (OE-II, which can't be moved) make some longer waits unavoidable, so **81 is the honest number**. The college column changed slightly too, because the open elective is now counted.
-- **The `3acc154` run** had teacher waiting periods 314 → 91, but it put SC Lab A1 and A2 on the same day (reported by a student). The lab-pair rule fixes that. It restricts which days labs can go on, so teacher waiting periods are now **109**: a small, deliberate trade.
+- **The `aac5df1` run** showed waiting periods 181 → 16. That was measured **without** the open elective. Three 8:30 classes a week for all of D4 (OE-II, which can't be moved) make some longer waits unavoidable. The college column changed slightly too, because the open elective is now counted.
+- **The `3acc154` run** put SC Lab A1 and A2 on the same day (reported by a student). The lab-pair rule (`becb48e`) fixed that: waiting periods 81, teacher waiting periods 109.
+- **The `becb48e` run** left 6 D4 Fridays with only the major project and the open elective. The college rules (`32f1b45`) fixed that (real-class-every-day: 6 → 0 breaks) and also give the final, better numbers above.
 
 **Publishing is guarded.** While the re-run was going on, the saved optimised file briefly had 1 clash (a moved class overlapping the newly pinned OE-II), and publishing was correctly refused with 409.
 
@@ -668,7 +730,8 @@ Commands: `.venv/Scripts/python -m pytest -q -rA` and `pytest --collect-only -q`
 
 | Code state | Tests | Passed | Failed | Time |
 |---|---|---|---|---|
-| **Final: commit `becb48e`** | 88 | **88** | **0** | 67 s |
+| **Final: commit `32f1b45`** | 95 | **95** | **0** | 58 s |
+| Earlier: commit `becb48e` (before the 7 college-rules tests) | 88 | 88 | 0 | 67 s |
 | Earlier: commit `3acc154` (before the lab-pair test) | 87 | 87 | 0 | 28 s |
 | Earlier: commit `aac5df1` (before the 3 groups-page tests) | 84 | 84 | 0 | 64 s |
 
@@ -681,13 +744,14 @@ Commands: `.venv/Scripts/python -m pytest -q -rA` and `pytest --collect-only -q`
 | `tests/test_core_store.py` | A | 4 | 4 |
 | `tests/test_core_substitutions.py` | A | 4 | 4 |
 | `tests/test_core_optimise.py` | A | 3 (1 added in `becb48e`) | 3 |
-| **Lane A total** | | **53** | **53** |
+| `tests/test_core_rules.py` | A | 7 (added in `32f1b45`) | 7 |
+| **Lane A total** | | **60** | **60** |
 | `tests/test_dashboards_api.py` | B | **14** | 14 |
 | `tests/test_venues_approvals.py` | C | 7 | 7 |
 | `tests/test_venues_ranking.py` | C | 8 (incl. 4 parametrised) | 8 |
 | `tests/test_venues_slots.py` | C | 6 | 6 |
 | **Lane C total** | | **21** | 21 |
-| **Overall** | | **88** | **88** |
+| **Overall** | | **95** | **95** |
 
 **Note:** while the optimiser re-run was in progress, 2 tests failed as expected:
 - `test_core_optimise.py::test_no_clashes_and_never_worse`
@@ -782,6 +846,17 @@ These are "testing the tester": mutation tests inject each kind of mistake and c
 
 (All three skip cleanly if no optimised timetable has been saved yet.)
 
+### 11.8b `tests/test_core_rules.py`: college rules (7, added in `32f1b45`)
+| Test | What it checks · edge case |
+|---|---|
+| `test_rules_load_and_match` | All 6 GNDEC rules load with a known type and plain-English text; selectors work by **code** (JPAL matches nothing-after-jpal), **teacher** (JPAL has no CSE teacher, so it's "run with another department") and **year** (an M.Tech class is postgraduate; CV is not) |
+| `test_what_stays_where_the_college_put_it` | Mentoring, `TBA-` (other-department) and M.Tech/PhD lessons are never movable; an ordinary elective (CV) is |
+| `test_college_timetable_against_its_rules` | The college's own timetable: real-class-every-day **0** breaks; nothing-after-jpal **exactly 1** (D4 CS C mentoring, Wed 15:30); lab pairs on one day **12** |
+| `test_a_day_with_only_open_elective_and_project_is_caught` | The project owner's example: remove D4 CS A's real Friday classes, leaving only open elective/project/mentoring/JPAL, and the checker flags "no real class on Fri" for D4 CS A |
+| `test_a_class_after_jpal_is_caught` | Moving CV to Thu 15:30, right after JPAL, is flagged as a class after JPAL |
+| `test_optimised_timetable_obeys_the_rules` | For every rule, the optimised timetable breaks it **no more often than the college**; a **must** rule the college keeps (0 breaks) stays at 0; **the break counts saved in the file are honest** (equal a fresh count) |
+| `test_publish_refuses_a_timetable_that_breaks_the_rules` | A clash-free timetable with a class after JPAL is **refused with 409** ("JPAL" in the message) and is not published. Edge case: clash-free is not enough; it must also respect the college's rules (state is written to a temp file) |
+
 ### 11.9 `tests/test_dashboards_api.py`: Lane B (14)
 Runs against a freshly solved seed college, with state in a temp file.
 
@@ -841,7 +916,7 @@ Runs against a freshly solved seed college, with state in a temp file.
 ---
 
 ## 12. Timeline: how it was built
-From `git log` (49 commits up to `becb48e`, including 2 commits of this report). Commits per day: 21 Oct 15 · 22 Oct 14 · 26 Oct 20.
+From `git log` (51 commits up to `32f1b45`, including 3 commits of this report). Commits per day: 21 Oct 15 · 22 Oct 14 · 26 Oct 22.
 
 ### Day 1: Wed 21 Oct, prototype (v0.1), demo at 4 PM
 - Scaffold, `CLAUDE.md`, plan.
@@ -880,7 +955,7 @@ From `git log` (49 commits up to `becb48e`, including 2 commits of this report).
   - clubs get the slot finder
   - events booked for a batch notify its students
   - `TW.can` and sign-in
-- **Lane A, last:** the FET groups page (open elective OE-II, the two-room mentoring class; fixes ERP missing from students' timetables) and a 15-minute re-optimisation around it (`3acc154`). Then the lab-pair rule (SC Lab A1 / A2 stay on two days, reported by a student) and another 15-minute re-optimisation (`becb48e`). This report was committed alongside.
+- **Lane A, last:** the FET groups page (open elective OE-II, the two-room mentoring class; fixes ERP missing from students' timetables) and a 15-minute re-optimisation around it (`3acc154`). Then the lab-pair rule (SC Lab A1 / A2 stay on two days, reported by a student) and another 15-minute re-optimisation (`becb48e`). Last, **College rules**: 6 GNDEC rules written down in JSON, obeyed by the optimiser, counted by an independent checker, enforced on publish, plus 7 tests and a final 15-minute re-optimisation (`32f1b45`). This report was committed alongside.
 
 ### Cross-lane requests (`docs/REQUESTS.md`)
 11 entries:
@@ -896,7 +971,7 @@ From `git log` (49 commits up to `becb48e`, including 2 commits of this report).
 
 | Lane | Owns | Dev server port |
 |---|---|---|
-| **A. Core and data** | models, store, auth, solver, validator, optimiser, importers, substitutions, chat, core API, shell.js, login/compare/audit pages, shared docs | 8001 |
+| **A. Core and data** | models, store, auth, solver, validator, optimiser, college rules, importers, substitutions, chat, core API, shell.js, login/compare/audit pages, shared docs | 8001 |
 | **B. Dashboards UI** | `index.html`, `dashboards.js`, `/api/dash` | 8011 |
 | **C. Venues and events** | `venues.html`, `venues.js`, `app/venues/*`, `/api/venues` | 8012 |
 
@@ -951,10 +1026,11 @@ Suggested, about 5 minutes. Built only from features listed above.
 6. **Event slot finder as T&P:** D4 CS for a 2-hour talk: slots where every group is free, venues attached, lunch protected, and "nearly free" times showing who would miss which class. **Book this** notifies the batch.
 7. **Optimised CSE timetable** (`/compare.html`, as the CSE HOD): college vs optimised, side by side.
    - Same lessons, times only.
-   - Student waiting periods 181 → 81, no-lunch days 44 → 0, teacher waiting periods 314 → 109, 0 clashes.
-   - Show the "Same lab for two groups on one day" card: SC Lab A1 Thursday, A2 Friday.
+   - Student waiting periods 181 → 75, no-lunch days 44 → 0, teacher waiting periods 314 → 100, 0 clashes.
+   - Scroll to **"GNDEC's timetable rules"**: each college habit in plain words, and how often each version breaks it. Tell the story: the previous optimised timetable left 6 D4 Fridays with only project + open elective; writing the rule down fixed it (6 → 0).
+   - Point out that publishing is refused if a rule is broken more often than in the college's own timetable.
    - **Propose**, then as the admin **Publish**; the validator re-checks it.
-8. **Trust:** the independent validator, 88 automated tests, and the audit log (`/audit.html` as the Dean) showing a refused action.
+8. **Trust:** the independent validator, the independent college-rules check, 95 automated tests, and the audit log (`/audit.html` as the Dean) showing a refused action.
 9. **Ask TimeWeave** (optional, uses API credit): "Will G17 be free at 12:30 on Friday?"
 
 ---
@@ -984,9 +1060,16 @@ Suggested, about 5 minutes. Built only from features listed above.
 **Optimiser:**
 - Built for CSE (the `/api/compare/cse` routes are CSE-specific).
 - 7 classes in the 4:30–5:30 slot stay (pinned mentoring).
-- Days over 6 periods improve only partly (280 → 263), because D3 groups have 36 periods a week.
-- 10 lab pairs stay on one day, because the college itself schedules them that way (12 in the college's version), mostly in 2nd year. The rule only keeps apart pairs the college already splits.
-- Three fixed 8:30 open-elective classes a week for all of D4 limit how far waiting periods can drop (181 → 81).
+- Days over 6 periods improve only partly (280 → 253), because D3 groups have 36 periods a week.
+- 9 lab pairs stay on one day, because the college itself schedules them that way (12 in the college's version), mostly in 2nd year. The rule only keeps apart pairs the college already splits.
+- Three fixed 8:30 open-elective classes a week for all of D4 limit how far waiting periods can drop (181 → 75).
+- Teacher days with no midday hour: 5 → 3. The optimiser removes most, but not all.
+- One class after JPAL remains: the college's own pinned D4 CS C mentoring, Wed 3:30.
+
+**College rules:**
+- Only rules the college has confirmed are written down. A guessed rule ("project only in the morning") was dropped, because the college itself has a project hour at Mon 3:30.
+- `real-class-every-day` excludes D1, because 1st-year subjects are in Applied Sciences' timetable, not CSE's.
+- A new rule *type* needs code: a check in `rules.breaks()` and a constraint in `optimise.py`. New rules of the 5 existing types need only JSON.
 
 **Open cross-lane request:** a `leave_board` capability for the Dean.
 
@@ -1008,14 +1091,16 @@ Suggested, about 5 minutes. Built only from features listed above.
 | **340 / 57** | D3 students / real elective combinations modelled |
 | **164** | student types, so every real student's timetable is exact |
 | **44 → 0** | CSE student-days with no midday break: college vs optimised |
-| **181 → 81** | CSE student waiting periods per week (−55%), same lessons, 0 clashes |
-| **314 → 109** | CSE teacher waiting periods per week (−65%) |
+| **181 → 75** | CSE student waiting periods per week (−59%), same lessons, 0 clashes |
+| **314 → 100** | CSE teacher waiting periods per week (−68%) |
 | **5 → 1** | CSE teacher-days with 4+ lectures in a row |
+| **6** | GNDEC timetable rules written down; every one kept at least as well as the college does |
+| **6 → 0** | D4 Fridays with only project + open elective (previous run vs final), fixed by writing the rule down |
 | **1.34 → 0.00** | idle periods per day in generated departments (first feasible vs optimised) |
 | **8** | roles, with a deny-by-default permission table and an audit log |
 | **35** | API routes |
-| **88 / 88** | automated tests passing |
-| **3** | parallel build lanes, 49 commits |
+| **95 / 95** | automated tests passing |
+| **3** | parallel build lanes, 51 commits |
 
 ---
 
@@ -1031,15 +1116,18 @@ Suggested, about 5 minutes. Built only from features listed above.
 - every file in `tests/`
 
 **Data:**
-- `data/gndec/cse.json`, `data/gndec/students.json`, `data/gndec/cse_optimised.json` (working tree and `git show HEAD:`), `data/solution.json` (through `STORE.result`)
+- `data/gndec/cse.json`, `data/gndec/students.json`, `data/gndec/rules.json`, `data/gndec/cse_optimised.json` (current, and earlier versions via `git show <commit>:`), `data/solution.json` (through `STORE.result`)
 - **Not read:** `data/private/`
 
 **Commands (26 Oct 2026):**
-- `pytest -q` on commit `becb48e`: **88 passed** (final)
+- `pytest -q` on commit `32f1b45`: **95 passed** (final)
+- `pytest -q` on commit `becb48e`: 88 passed
+- `rules.breaks()` on the `becb48e` optimised timetable (`git show becb48e:data/gndec/cse_optimised.json`): real-class-every-day broken 6 times
+- read `app/rules.py`, `data/gndec/rules.json`, the rule constraints in `app/optimise.py`, and the `32f1b45` changes to `app/api/core.py` and `CLAUDE.md`
 - `pytest -q` on commit `3acc154`: 87 passed
 - a Python check of `College.lab_pairs()` (86 pairs, 54 in CSE) and of the SC/ACC lab days in the optimised file
 - earlier: `pytest -q -rA` on the working tree before the re-run (85 passed, 2 failed as expected) and on a clean checkout of `aac5df1` (84 passed)
-- `pytest --collect-only -q` (87 tests at `3acc154`; 88 at `becb48e`)
+- `pytest --collect-only -q` (87 tests at `3acc154`; 88 at `becb48e`; 95 at `32f1b45`)
 - a Python check printing college counts, metrics and `compare` from `app.store.STORE`
 - `git log`, `git log --stat`, `git diff --stat`, `git status`
 
@@ -1050,8 +1138,9 @@ Suggested, about 5 minutes. Built only from features listed above.
 ---
 
 ## 19. Pending
-**Resolved on 26 Oct** (after commit `becb48e`):
-- Final test totals: **88 / 88 pass** (re-run here).
+**Resolved on 26 Oct** (after commit `32f1b45`):
+- Final test totals: **95 / 95 pass** (re-run here; Lane A 60, B 14, C 21).
+- College-rule break counts: checked against `cse_optimised.json` and `rules.report()`.
 - Final optimised CSE numbers (§10.3, §17): checked against the committed `data/gndec/cse_optimised.json`.
 - College counts (§4, §7.1): these were measured on data that already included the open-elective import. They match the committed `data/gndec/cse.json` (41 rooms, 62 teachers, 26 sections, 318 lessons, 537 sessions).
 - The 3 groups-page tests are committed.
