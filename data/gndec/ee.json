@@ -851,6 +851,32 @@
  ],
  "sections": [
   {
+   "id": "D1-EE-A",
+   "dept": "EE",
+   "year": 1,
+   "name": "D1EEA",
+   "size": 60,
+   "home_room": "",
+   "groups": [
+    "D1-EE-A-A1",
+    "D1-EE-A-A2"
+   ],
+   "kind": "section"
+  },
+  {
+   "id": "D1-EE-B",
+   "dept": "EE",
+   "year": 1,
+   "name": "D1EEB",
+   "size": 60,
+   "home_room": "",
+   "groups": [
+    "D1-EE-B-B1",
+    "D1-EE-B-B2"
+   ],
+   "kind": "section"
+  },
+  {
    "id": "D1-EE-XD1CSA",
    "dept": "EE",
    "year": 1,
@@ -1063,78 +1089,6 @@
    "home_room": "",
    "groups": [
     "D1-EE-XD1CSF2-ALL"
-   ],
-   "kind": "elective"
-  },
-  {
-   "id": "D1-EE-XD1EEA",
-   "dept": "EE",
-   "year": 1,
-   "name": "D1EEA",
-   "size": 30,
-   "home_room": "",
-   "groups": [
-    "D1-EE-XD1EEA-ALL"
-   ],
-   "kind": "elective"
-  },
-  {
-   "id": "D1-EE-XD1EEA1",
-   "dept": "EE",
-   "year": 1,
-   "name": "D1EEA1",
-   "size": 30,
-   "home_room": "",
-   "groups": [
-    "D1-EE-XD1EEA1-ALL"
-   ],
-   "kind": "elective"
-  },
-  {
-   "id": "D1-EE-XD1EEA2",
-   "dept": "EE",
-   "year": 1,
-   "name": "D1EEA2",
-   "size": 30,
-   "home_room": "",
-   "groups": [
-    "D1-EE-XD1EEA2-ALL"
-   ],
-   "kind": "elective"
-  },
-  {
-   "id": "D1-EE-XD1EEB",
-   "dept": "EE",
-   "year": 1,
-   "name": "D1EEB",
-   "size": 30,
-   "home_room": "",
-   "groups": [
-    "D1-EE-XD1EEB-ALL"
-   ],
-   "kind": "elective"
-  },
-  {
-   "id": "D1-EE-XD1EEB1",
-   "dept": "EE",
-   "year": 1,
-   "name": "D1EEB1",
-   "size": 30,
-   "home_room": "",
-   "groups": [
-    "D1-EE-XD1EEB1-ALL"
-   ],
-   "kind": "elective"
-  },
-  {
-   "id": "D1-EE-XD1EEB2",
-   "dept": "EE",
-   "year": 1,
-   "name": "D1EEB2",
-   "size": 30,
-   "home_room": "",
-   "groups": [
-    "D1-EE-XD1EEB2-ALL"
    ],
    "kind": "elective"
   },
@@ -2244,7 +2198,7 @@
    "teacher": "ECE-GK",
    "section": "D1EEB2",
    "batches": [
-    "D1-EE-XD1EEB2-ALL"
+    "D1-EE-B-B2"
    ],
    "sessions": 1,
    "duration": 2,
@@ -2265,7 +2219,7 @@
    "teacher": "ECE-GK",
    "section": "D1EEA2",
    "batches": [
-    "D1-EE-XD1EEA2-ALL"
+    "D1-EE-A-A2"
    ],
    "sessions": 2,
    "duration": 2,
@@ -2307,7 +2261,7 @@
    "teacher": "ECE-GK",
    "section": "D1EEB1",
    "batches": [
-    "D1-EE-XD1EEB1-ALL"
+    "D1-EE-B-B1"
    ],
    "sessions": 2,
    "duration": 2,
@@ -2351,7 +2305,7 @@
    "teacher": "ECE-HLK",
    "section": "D1EEA1",
    "batches": [
-    "D1-EE-XD1EEA1-ALL"
+    "D1-EE-A-A1"
    ],
    "sessions": 1,
    "duration": 2,
@@ -6203,7 +6157,7 @@
    "teacher": "TBA-EE-OUT1",
    "section": "D1EEA",
    "batches": [
-    "D1-EE-XD1EEA-ALL"
+    "D1-EE-A-A1"
    ],
    "sessions": 1,
    "duration": 1,
@@ -6224,7 +6178,7 @@
    "teacher": "TBA-EE-OUT1",
    "section": "D1EEA",
    "batches": [
-    "D1-EE-XD1EEA-ALL"
+    "D1-EE-A-A2"
    ],
    "sessions": 1,
    "duration": 1,
@@ -6245,7 +6199,7 @@
    "teacher": "TBA-EE-OUT1",
    "section": "D1EEA",
    "batches": [
-    "D1-EE-XD1EEA-ALL"
+    "D1-EE-A-A1"
    ],
    "sessions": 1,
    "duration": 1,
@@ -6266,7 +6220,7 @@
    "teacher": "TBA-EE-OUT1",
    "section": "D1EEA",
    "batches": [
-    "D1-EE-XD1EEA-ALL"
+    "D1-EE-A-A2"
    ],
    "sessions": 1,
    "duration": 1,
@@ -6287,7 +6241,7 @@
    "teacher": "TBA-EE-OUT1",
    "section": "D1EEA",
    "batches": [
-    "D1-EE-XD1EEA-ALL"
+    "D1-EE-A-A1"
    ],
    "sessions": 1,
    "duration": 1,
@@ -6308,7 +6262,7 @@
    "teacher": "TBA-EE-OUT1",
    "section": "D1EEA",
    "batches": [
-    "D1-EE-XD1EEA-ALL"
+    "D1-EE-A-A1"
    ],
    "sessions": 1,
    "duration": 1,
@@ -6329,7 +6283,7 @@
    "teacher": "TBA-EE-OUT1",
    "section": "D1EEB",
    "batches": [
-    "D1-EE-XD1EEB-ALL"
+    "D1-EE-B-B1"
    ],
    "sessions": 1,
    "duration": 1,
@@ -6350,7 +6304,7 @@
    "teacher": "TBA-EE-OUT1",
    "section": "D1EEB",
    "batches": [
-    "D1-EE-XD1EEB-ALL"
+    "D1-EE-B-B1"
    ],
    "sessions": 1,
    "duration": 1,
@@ -6371,7 +6325,7 @@
    "teacher": "TBA-EE-OUT2",
    "section": "D1EEB",
    "batches": [
-    "D1-EE-XD1EEB-ALL"
+    "D1-EE-B-B2"
    ],
    "sessions": 1,
    "duration": 1,
@@ -6392,7 +6346,7 @@
    "teacher": "TBA-EE-OUT1",
    "section": "D1EEB",
    "batches": [
-    "D1-EE-XD1EEB-ALL"
+    "D1-EE-B-B2"
    ],
    "sessions": 1,
    "duration": 1,
@@ -6413,7 +6367,7 @@
    "teacher": "TBA-EE-OUT2",
    "section": "D1EEB",
    "batches": [
-    "D1-EE-XD1EEB-ALL"
+    "D1-EE-B-B2"
    ],
    "sessions": 1,
    "duration": 1,
@@ -6434,7 +6388,7 @@
    "teacher": "TBA-EE-OUT3",
    "section": "D1EEB",
    "batches": [
-    "D1-EE-XD1EEB-ALL"
+    "D1-EE-B-B2"
    ],
    "sessions": 1,
    "duration": 1,

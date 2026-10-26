@@ -28,7 +28,7 @@ from __future__ import annotations
 
 import time
 import json
-from collections import defaultdict
+from collections import Counter, defaultdict
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
@@ -514,6 +514,25 @@ OUT = Path(__file__).resolve().parent.parent / "data" / "gndec" / "cse_optimised
 
 def out_path(dept: str) -> Path:
     return OUT.with_name(f"{dept.lower()}_optimised.json")
+
+
+def refresh_pins(college: College, dept: str = "CSE", path: Path | None = None) -> dict | None:
+    """After a re-import changed only classes nobody may move (e.g. a duplicate first-year class removed): keep the
+    saved optimised times of every movable class, take the fixed ones from the college as it is now, and
+    measure again. Returns None (re-run needed) if a movable class changed."""
+    path = path or out_path(dept)
+    if not path.exists():
+        return None
+    saved = json.loads(path.read_text(encoding="utf-8"))
+    L = college.lesson_by_id
+    moving = [Entry(**e) for e in saved["entries"] if e["lesson"] in L and movable(college, L[e["lesson"]], dept)]
+    if Counter(e.lesson for e in moving) != Counter(e.lesson for e in college.fixed_entries
+                                                     if e.lesson in L and movable(college, L[e.lesson], dept)):
+        return None
+    pinned = [e for e in college.fixed_entries if L[e.lesson].dept == dept and not movable(college, L[e.lesson], dept)]
+    res = OptResult(saved["status"], saved["seconds"], moving + pinned, saved["moved"], len(pinned),
+                    score=tuple(saved.get("score", ())))
+    return save(college, res, dept, path)
 
 
 def add_new_pins(college: College, dept: str = "CSE", path: Path | None = None) -> dict | None:

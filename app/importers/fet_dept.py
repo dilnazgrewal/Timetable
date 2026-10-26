@@ -289,7 +289,8 @@ class Groups:
 
     def __init__(self, dept: str, code: str) -> None:
         self.dept = dept
-        self.pat = re.compile(rf"^D(\d){code}([A-H])?(\d?)$" if code else r"^D(\d)([A-H])(\d?)$")
+        # EE writes "D2A" but also "D1EEA" for its own first year
+        self.pat = re.compile(rf"^D(\d){code}([A-H])?(\d?)$" if code else rf"^D(\d)(?:{dept})?([A-H])(\d?)$")
         self.sections: dict[str, dict] = {}  # id -> {"year", "name", "subs": set, "kind"}
 
     def parse(self, token: str) -> tuple[str, str | None]:

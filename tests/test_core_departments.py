@@ -50,6 +50,20 @@ def test_the_whole_college_fits_together(college):
     assert clashes and all(c.startswith("CLASH Teacher") for c in clashes) and len(clashes) <= 32
 
 
+def test_first_year_is_linked_across_departments(college):
+    """'D1CSA2' in ECE's timetable is CSE's D1 CS A, lab group A2: CSE first years see ECE's BEEE classes."""
+    a1 = {college.lesson_by_id[e.lesson].dept for e in college.fixed_entries if "D1-CS-A-A1" in college.lesson_by_id[e.lesson].batches}
+    assert {"CSE", "ECE"} <= a1
+    it = {college.lesson_by_id[e.lesson].dept for e in college.fixed_entries if "D1-IT-A-A1" in college.lesson_by_id[e.lesson].batches}
+    assert {"IT", "EE"} <= it
+    # the other departments' names for them are gone; names without a year ("CSE A" in ME) are left alone
+    assert not any(s.name in ("D1CSA", "D1CSA1", "D1ITA", "D1 CE A1") for s in college.sections)
+    assert any(s.name == "CSE A" for s in college.sections)
+    # no student is ever in two classes at once, also across departments
+    clashes, _ = split_issues(validate(college, college.fixed_entries))
+    assert not [c for c in clashes if c.startswith("CLASH Students")]
+
+
 def test_shared_rooms_are_one_room_labs_are_not(college):
     rooms = college.room_by_id
     assert "S213" in rooms and "S-213" not in rooms  # IT's and CE's "S-213" is CSE's S213

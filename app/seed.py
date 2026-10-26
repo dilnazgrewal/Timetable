@@ -4,6 +4,7 @@ departments, and a visiting teacher available only Tue/Thu."""
 from __future__ import annotations
 
 import re
+from collections import defaultdict
 from dataclasses import replace
 
 from app import rules
@@ -167,6 +168,7 @@ def build_college() -> College:
         sections += x["sections"]
         lessons += kept
         entries += mine
+    sections, lessons, entries = _link_first_year(sections, lessons, entries, rooms)
     # full names: cells often show only initials; each department's teachers page has the names
     names = fet_dept.teacher_names()
     for t in teachers.values():
@@ -195,6 +197,101 @@ def build_college() -> College:
     college.set_student_types(types)
     college.rules = rules.load(ROOT / "data" / "gndec" / "rules.json")
     return college
+
+
+# "D1 CS A" (CSE), "D1IT_A" (IT), "D1 CE A1" (in ME's timetable), "D1CSA1" / "D1ITA" (EE, ECE); ME's "CSE A" names no year
+FIRST_YEAR = re.compile(r"^D1(CSE|CS|IT|ME|CE|ECE|EC|EE)([A-H])(\d?)$")  # only names that say D1
+PROGRAMME = {"CSE": "CSE", "CS": "CSE", "IT": "IT", "ME": "ME", "CE": "CE", "ECE": "ECE", "EC": "ECE", "EE": "EE"}
+
+
+def _link_first_year(sections: list[Section], lessons: list[Lesson], entries: list, rooms: dict) -> tuple:
+    """First year is taught by several departments (workshop and drawing by ME, BEE by EE / ECE, the student's own
+    department), and each timetable names the groups its own way. Link every name to the owning department's
+    section and lab group, so a first-year student sees the whole week. Then drop the "taught elsewhere"
+    placeholders that a linked class now covers."""
+    owner_of = lambda prog, letter: f"D1-CS-{letter}" if prog == "CSE" else f"D1-{prog}-{letter}"
+    by_id = {s.id: s for s in sections}
+    target: dict[str, tuple[str, str]] = {}  # section id -> (owning section, lab group suffix or "")
+    for s in sections:
+        if s.year not in (1, 5) or not (m := FIRST_YEAR.match(fet_dept.norm(s.name))):
+            continue
+        prog, letter, sub = PROGRAMME[m.group(1)], m.group(2), m.group(3)
+        own = owner_of(prog, letter)
+        if own in by_id and own != s.id:
+            target[s.id] = (own, f"{letter}{sub}" if sub else "")
+    if not target:
+        return sections, lessons, entries
+    # each owning section's lab groups: its own and every one another timetable refers to
+    subs: dict[str, set[str]] = {}
+    for own in {o for o, _ in target.values()}:
+        subs[own] = {g.rsplit("-", 1)[1] for g in by_id[own].groups} - {"ALL"}
+    for own, sub in target.values():
+        if sub:
+            subs[own].add(sub)
+    for own, ss in subs.items():
+        if ss:
+            by_id[own].groups = [f"{own}-{x}" for x in sorted(ss)]
+
+    def rewrite(b: str) -> list[str]:
+        sid = b.rsplit("-", 1)[0]
+        if sid in target:
+            own, sub = target[sid]
+            return [f"{own}-{sub}"] if sub else list(by_id[own].groups)
+        if sid in subs and b.endswith("-ALL"):  # the owner's whole-section group became lab groups
+            return list(by_id[sid].groups)
+        return [b]
+    for l in lessons:
+        l.batches = sorted({x for b in l.batches for x in rewrite(b)})
+    sections = [s for s in sections if s.id not in target]
+
+    # one class written in two departments' timetables (same teacher, same students, same time): keep it once
+    L = {l.id: l for l in lessons}
+    sec_dept = {s.id: s.dept for s in sections}
+    seen: dict[tuple, set[str]] = {}
+    once = []
+    for e in entries:
+        l = L[e.lesson]
+        if rooms[e.room].kind != "Other department":
+            keys = [(t, e.day, e.start) for t in (l.teacher, *l.co_teachers) if not t.startswith("TBA-")]
+            if any(set(l.batches) & seen.get(k, set()) for k in keys):
+                continue
+            for k in keys:
+                seen.setdefault(k, set()).update(l.batches)
+        once.append(e)
+    entries = _renumber(once, lessons)
+
+    # placeholders for hours "taught in another department": only the students' own department's count, and
+    # not where a linked class now shows what actually happens
+    real = defaultdict(set)
+    for e in entries:
+        if rooms[e.room].kind != "Other department":
+            for b in L[e.lesson].batches:
+                for q in e.slots:
+                    real[b, e.day, q].add(e.lesson)
+    keep = []
+    for e in entries:
+        l = L[e.lesson]
+        if rooms[e.room].kind == "Other department" and l.code.startswith("Outside:"):
+            left = [b for b in l.batches if sec_dept.get(b.rsplit("-", 1)[0]) == l.dept
+                    and not any(real[b, e.day, q] for q in e.slots)]
+            if not left:
+                continue
+            l.batches = left
+        keep.append(e)
+    used = {e.lesson for e in keep}
+    return sections, [l for l in lessons if l.id in used], keep
+
+
+def _renumber(entries: list, lessons: list[Lesson]) -> list:
+    """After dropping duplicate sessions: number each lesson's sessions 0..n-1 again and set its count."""
+    count: dict[str, int] = {}
+    out = []
+    for e in entries:
+        out.append(replace(e, session=count.get(e.lesson, 0)))
+        count[e.lesson] = count.get(e.lesson, 0) + 1
+    for l in lessons:
+        l.sessions = count.get(l.id, 0)
+    return out
 
 
 def _central() -> College:
