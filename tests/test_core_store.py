@@ -62,7 +62,8 @@ def test_permissions(store, monkeypatch):
     u = store.users
     student = next(x for x in u.values() if x.role == "student")
     assert not authorize(student, "timetable.generate")
-    assert authorize(u["hod-CSE"], "timetable.generate")
+    assert not authorize(u["hod-CSE"], "timetable.generate")  # regenerating: timetable office only
+    assert authorize(u["admin"], "timetable.generate")
     req = BookingRequest("r1", "Talk", "club-DMC", "DMC", 100, ["projector"], FRIDAY, [5], "MBA Seminar Hall")
     advisor = store.clubs["DMC"].advisor
     assert authorize(u[advisor], "booking.endorse", req)

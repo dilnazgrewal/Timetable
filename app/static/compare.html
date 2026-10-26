@@ -43,8 +43,25 @@
       <p class="text-xs text-slate-500 mt-2">
         <b x-text="d.clashes.college === 0 && d.clashes.optimised === 0 ? '✔ 0 clashes in both' : `Clashes: college ${d.clashes.college}, optimised ${d.clashes.optimised}`"></b>
         · <span x-text="d.moved"></span> classes moved to a better time · <span x-text="d.pinned"></span> kept exactly as published (M.Tech, PhD, mentoring)
-        <template x-if="canRun"><button @click="run()" :disabled="d.running" class="ml-2 underline text-indigo-700 disabled:opacity-50" x-text="d.running ? 'optimising…' : 'Re-run optimiser'"></button></template>
+        <template x-if="TW.can.optimised_run"><button @click="run()" :disabled="d.running" class="ml-2 underline text-indigo-700 disabled:opacity-50" x-text="d.running ? 'optimising…' : 'Re-run optimiser'"></button></template>
       </p>
+
+      <!-- who decides: department proposes, timetable office publishes -->
+      <section class="mt-3 flex flex-wrap items-center gap-2 rounded-xl border bg-white p-3 text-sm">
+        <span class="text-xs px-2 py-0.5 rounded-full font-semibold" :class="pubClass()" x-text="pubLabel()"></span>
+        <span class="text-slate-600" x-text="pubText()"></span>
+        <span class="ml-auto flex gap-2">
+          <template x-if="TW.can.optimised_propose && pub().status === 'draft'">
+            <button @click="act('propose')" class="rounded-lg bg-indigo-600 text-white px-3 py-1.5">Propose to the timetable office</button>
+          </template>
+          <template x-if="TW.can.publish && pub().status !== 'published'">
+            <button @click="act('publish')" class="rounded-lg bg-emerald-600 text-white px-3 py-1.5">Publish to everyone</button>
+          </template>
+          <template x-if="TW.can.publish && pub().status === 'published'">
+            <button @click="act('unpublish')" class="rounded-lg border px-3 py-1.5">Go back to the college's version</button>
+          </template>
+        </span>
+      </section>
 
       <!-- what to look at -->
       <section class="mt-4 flex flex-wrap items-end gap-3 rounded-xl border bg-white p-3">
@@ -152,9 +169,26 @@ function compareApp() {
       this.days = this.meta.days; this.periods = this.meta.periods; this.lunch = this.meta.lunch.window;
       await this.load();
     },
-    get canRun() { return this.user && (this.user.role === 'admin' || (this.user.role === 'hod' && this.user.dept === 'CSE')); },
+    pub() { return this.d.publication || { status: 'draft' }; },
+    pubLabel() { return { draft: 'Draft', proposed: 'Proposed', published: 'Published' }[this.pub().status]; },
+    pubClass() { return { draft: 'bg-slate-100 text-slate-700', proposed: 'bg-amber-100 text-amber-800', published: 'bg-emerald-100 text-emerald-800' }[this.pub().status]; },
+    pubText() {
+      const p = this.pub();
+      if (p.status === 'published') return `Everyone now sees this timetable (published by ${p.published_by}, ${p.published_at.replace('T', ' ')}).`;
+      if (p.status === 'proposed') return `${p.proposed_by} proposed it on ${p.proposed_at.replace('T', ' ')}. Waiting for the timetable office to publish.`;
+      return 'Only the department and the Dean can see this. Students and teachers still follow the college’s version.';
+    },
+    async act(what) {
+      const ask = { propose: 'Send this timetable to the timetable office for publishing?',
+        publish: 'Publish this timetable? Every CSE student and teacher will see the new times and be notified.',
+        unpublish: 'Go back to the college’s original CSE timetable for everyone?' }[what];
+      if (!confirm(ask)) return;
+      try { this.d.publication = (await TW.api(`/api/compare/cse/${what}`, { method: 'POST' })).publication; }
+      catch (e) { alert(e.message); }
+    },
     async load() {
-      this.d = await TW.api('/api/compare/cse');
+      try { this.d = await TW.api('/api/compare/cse'); }
+      catch (e) { this.d = { available: false, error: e.message }; return; }
       if (!this.d.available) { if (this.d.running) setTimeout(() => this.load(), 10000); return; }
       this.collegeKeys = new Set(this.d.college.map(e => `${e.lesson}|${e.day}|${e.start}`));
       const names = {};

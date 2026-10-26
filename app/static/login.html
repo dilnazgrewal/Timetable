@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TimeWeave · Sign in</title>
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+<style>
+  [x-cloak] { display: none !important; }
+  body { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+</style>
+</head>
+<!-- Lane A owns this page: sign-in. Demo mode = choose any account without a password. -->
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+<main x-data="loginApp()" x-init="init()" x-cloak class="max-w-3xl mx-auto px-4 py-8">
+  <div class="flex items-center gap-3 mb-6">
+    <span class="h-11 w-11 rounded-xl bg-indigo-600 text-white grid place-items-center font-bold text-lg">TW</span>
+    <div>
+      <h1 class="text-2xl font-bold leading-tight">Sign in to TimeWeave</h1>
+      <p class="text-sm text-slate-500">GNDEC Ludhiana · timetables, free rooms, venues and substitutions</p>
+    </div>
+  </div>
+
+  <button disabled class="w-full rounded-xl border bg-white px-4 py-3 text-left text-slate-400 cursor-not-allowed">
+    <b>Sign in with your college Google account</b> <span class="text-xs">(@gndec.ac.in, coming soon)</span>
+  </button>
+
+  <template x-if="demo">
+    <section class="mt-6 rounded-xl border bg-white p-4">
+      <div class="flex items-center gap-2 mb-1">
+        <h2 class="font-semibold">Demo sign-in</h2>
+        <span class="text-xs px-2 py-0.5 rounded bg-amber-100 text-amber-800">no password, for judging</span>
+      </div>
+      <p class="text-sm text-slate-500 mb-3">Choose who you are. Each role sees only what it is allowed to use.</p>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <template x-for="r in roleOrder.filter(r => accounts.roles[r])" :key="r">
+          <button @click="pick(r)" class="rounded-lg border px-2 py-2 text-left text-sm"
+                  :class="role === r ? 'border-indigo-500 bg-indigo-50' : 'bg-white hover:bg-slate-50'">
+            <div class="font-semibold" x-text="accounts.role_names[r]"></div>
+            <div class="text-[11px] text-slate-500 leading-tight" x-text="about[r]"></div>
+          </button>
+        </template>
+      </div>
+
+      <div x-show="role" class="mt-4">
+        <template x-if="role === 'student'">
+          <div class="flex flex-wrap gap-2 mb-2">
+            <select x-model="dept" @change="section = ''" class="border rounded-lg px-2 py-1.5 bg-white text-sm">
+              <option value="">Department…</option>
+              <template x-for="d in depts()" :key="d"><option :value="d" x-text="d"></option></template>
+            </select>
+            <select x-model="section" class="border rounded-lg px-2 py-1.5 bg-white text-sm" :disabled="!dept">
+              <option value="">Section…</option>
+              <template x-for="s in sections()" :key="s"><option :value="s" x-text="s.replaceAll('-', ' ')"></option></template>
+            </select>
+          </div>
+        </template>
+        <input x-show="role !== 'student'" x-model="q" placeholder="Search by name or department" class="w-full border rounded-lg px-3 py-2 text-sm mb-2">
+        <div class="max-h-80 overflow-y-auto divide-y rounded-lg border">
+          <template x-for="u in list()" :key="u.id">
+            <button @click="signIn(u.id)" class="w-full text-left px-3 py-2 text-sm hover:bg-indigo-50">
+              <span x-text="label(u)"></span>
+              <span x-show="u.dept && role !== 'student'" class="text-xs text-slate-400" x-text="' · ' + u.dept"></span>
+            </button>
+          </template>
+          <div x-show="!list().length" class="px-3 py-3 text-sm text-slate-400"
+               x-text="role === 'student' ? 'Pick your department and section.' : 'No match.'"></div>
+        </div>
+      </div>
+      <p x-show="error" class="mt-2 text-sm text-red-700" x-text="error"></p>
+    </section>
+  </template>
+  <p x-show="!demo && loaded" class="mt-6 text-sm text-slate-500">Demo sign-in is switched off on this server.</p>
+</main>
+<script>
+function loginApp() {
+  return {
+    demo: false, loaded: false, accounts: { roles: {}, role_names: {} }, role: '', q: '', dept: '', section: '', error: '',
+    roleOrder: ['student', 'teacher', 'coordinator', 'hod', 'dean', 'club', 'org', 'admin'],
+    about: {
+      student: 'Your own timetable, free rooms, meet a teacher', teacher: 'Your schedule, leave, meetings, venues',
+      coordinator: 'Department timetable and substitutions', hod: 'Department, substitutions, venue approvals',
+      dean: 'Read-only: all departments, insights, audit', club: 'Book venues, find a time for a batch',
+      org: 'Find a time when a batch is free, request a venue', admin: 'Generate, publish, central halls, everything',
+    },
+    next() { const n = new URLSearchParams(location.search).get('next'); return n && n.startsWith('/') && !n.startsWith('//') ? n : '/'; },
+    async init() {
+      const me = await fetch('/api/me', { credentials: 'same-origin' });
+      if (me.ok) { location.href = this.next(); return; }
+      const r = await fetch('/api/auth/demo-accounts');
+      this.demo = r.ok; this.loaded = true;
+      if (r.ok) this.accounts = await r.json();
+    },
+    pick(r) { this.role = r; this.q = ''; this.error = ''; },
+    students() { return this.accounts.roles.student || []; },
+    depts() { return [...new Set(this.students().map(u => u.dept))].sort(); },
+    sections() { return [...new Set(this.students().filter(u => u.dept === this.dept).map(u => this.sectionOf(u)))].sort(); },
+    sectionOf(u) { return u.section || ''; },
+    label(u) { return this.role === 'student' ? u.name.replace(/^Student · /, '').replace(/^[^·]+· /, '') : u.name; },
+    list() {
+      const all = this.accounts.roles[this.role] || [];
+      if (this.role === 'student') return this.section ? all.filter(u => this.sectionOf(u) === this.section) : [];
+      const q = this.q.toLowerCase();
+      return all.filter(u => !q || u.name.toLowerCase().includes(q) || (u.dept || '').toLowerCase().includes(q)).slice(0, 200);
+    },
+    async signIn(id) {
+      this.error = '';
+      const r = await fetch('/api/auth/demo-login', { method: 'POST', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user: id }) });
+      if (!r.ok) { this.error = (await r.json().catch(() => ({}))).detail || 'Could not sign in.'; return; }
+      try { localStorage.setItem('tw-user', id); } catch {}
+      location.href = this.next();
+    },
+  };
+}
+</script>
+</body>
+</html>

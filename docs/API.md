@@ -4,9 +4,10 @@ Every lane codes against this file. **Lane A owns the "Core" and "Shared buildin
 
 ## Conventions
 - **JSON everywhere.** Errors come back as `{"detail": "plain-English message"}` with status 400, 401, 403, 404 or 409.
-- **Who is calling:** every request sends the demo account id in the `X-User` header. `TW.api()` in `static/js/shell.js` does this for you. With no header, the caller is `admin`.
+- **Who is calling:** a signed session cookie (`tw_session`), set by `/login.html`. `TW.api()` in `static/js/shell.js` sends it and goes to `/login.html` on 401. Every `/api/*` route except `/api/auth/*` returns **401** when nobody is signed in; there is no default account. In demo mode (`TIMEWEAVE_DEMO=1`, the default) API clients and tests may instead send `X-User: <account id>`.
+- **Roles:** `student`, `teacher`, `coordinator` (department timetable coordinator), `hod`, `dean` (read-only), `club`, `org` (visitor / T&P), `admin` (timetable office).
 - **Days and periods:** `day` is 0–4 (Mon–Fri). `period` is an index into `/api/meta.periods`. Real dates are ISO strings (`2026-10-23`).
-- **Permissions:** checked on the server with `app.auth.require(user, action, resource)`. Hiding things in the UI is cosmetic only.
+- **Permissions:** checked on the server with `app.auth.require(user, action, resource)`; every rule is a row in `app.auth.PERMISSIONS` (deny by default, admin may do everything). Privileged actions are written to the audit log, allowed or refused. The UI shows and hides things from `TW.can` (`/api/me.can`); that is cosmetic only.
 
 ## Shared building blocks (Python, owned by Lane A)
 | Thing | Where | Use it for |
@@ -48,8 +49,12 @@ Every lane codes against this file. **Lane A owns the "Core" and "Shared buildin
 | Method + path | Returns |
 |---|---|
 | `GET /api/meta` | days, periods, lunch window, departments, **buildings**, **features**, sections (with batches), teachers, rooms, counts |
-| `GET /api/me` | the calling `User` |
-| `GET /api/users` | `{roles: {role: [{id, name, dept}]}, clubs: [...]}` for the account switcher |
+| `GET /api/auth/demo-accounts` | demo mode only, no sign-in needed: `{roles: {role: [{id, name, dept}]}, role_names, clubs}` |
+| `POST /api/auth/demo-login {user}` | demo mode only: sign in as that account (sets the session cookie) |
+| `POST /api/auth/logout` | sign out |
+| `GET /api/me` | the signed-in `User` + `role_name`, `demo`, and `can`: `{view_timetables, my_timetable, free_rooms, find_teacher, request_meeting, reply_meetings, mark_own_leave, mark_dept_leave, substitutions, request_venue, endorse_venues, approve_venues, slot_finder, optimised_view, optimised_run, optimised_propose, publish, generate, insights, audit, accounts, demo_reset, chat}` |
+| `GET /api/users` | all accounts (admin only) |
+| `GET /api/audit?limit=200` | audit log, newest first: `{items: [{at, user, name, role, action, on, allowed}]}` (admin, Dean) |
 | `GET /api/timetable` | base timetable: `{ready, status, seconds, issues, notes, metrics, compare, baseline, source, entries:[entry view]}`. `issues` = hard clashes (must be empty); `notes` = quality notes (`NO LUNCH …`, `LONG DAY …`) that only imported data may have; `compare` = `{real, generated}` metrics |
 | `GET /api/effective?on=YYYY-MM-DD` | `{date, weekday, items:[occupancy view]}` |
 | `POST /api/generate?time_limit=30` | regenerate (needs `timetable.generate`) |
@@ -62,8 +67,11 @@ Every lane codes against this file. **Lane A owns the "Core" and "Shared buildin
 | `GET /api/leave?on=YYYY-MM-DD&dept=` | `{date, leaves:[{leave, teacher_name, dept, classes}]}`. HODs see their department, teachers see themselves, admin sees all |
 | `POST /api/substitutions` | `{date, entry_key, teacher}` or `{date, entry_key, cancel:true}` (needs `override.create` for the class's department). Re-checks that the substitute is free (409 if not), replaces any earlier decision, and notifies the substitute, the absent teacher and the students. Returns `{override, message}` |
 
-| `GET /api/compare/cse` | GNDEC's published CSE timetable vs TimeWeave's optimised version of the same lessons: `{available, running, status, moved, pinned, metrics:{college, optimised}, clashes:{college, optimised}, sections, teachers, college:[entry], optimised:[entry]}` (each entry has `code, name, section, batches, teachers, teacher_names, room, day, start, duration`) |
-| `POST /api/compare/cse/run?seconds=300` | re-run the optimiser in the background (CSE HOD or admin); poll `GET /api/compare/cse` |
+| `GET /api/compare/cse` | (CSE HOD / coordinator, Dean, admin) GNDEC's published CSE timetable vs TimeWeave's optimised version of the same lessons: `{available, publication: {status: draft|proposed|published, ...}, running, status, moved, pinned, metrics:{college, optimised}, clashes:{college, optimised}, sections, teachers, college:[entry], optimised:[entry]}` (each entry has `code, name, section, batches, teachers, teacher_names, room, day, start, duration`) |
+| `POST /api/compare/cse/run?seconds=300` | re-run the optimiser in the background (CSE HOD / coordinator, admin); poll `GET /api/compare/cse` |
+| `POST /api/compare/cse/propose` | CSE HOD / coordinator propose the optimised timetable; admins are notified. `publication.status` → `proposed` |
+| `POST /api/compare/cse/publish` | admin only: the optimised timetable becomes everyone's CSE timetable (must be clash-free; the validator re-checks it); CSE students and teachers are notified. → `published` |
+| `POST /api/compare/cse/unpublish` | admin only: back to the college's original timetable. → `draft` |
 
 | `GET /api/students/types?section=&dept=&year=` | student types `{id, section, name, count, details}`: real combinations (section + actual group + electives + lab groups) |
 | `GET /api/students/{type_id}/timetable?on=` | exactly the classes students of that type attend: the week, or a real date with that day's changes |
@@ -134,6 +142,11 @@ Owned by the Dashboards session. Built and tested in `tests/test_dashboards_api.
 ## Lane C: Venues and events (`app/api/venues.py`, prefix `/api/venues`)
 Owned by the Venues session. Logic lives in `app/venues/` (`ranking.py`, `requests.py`, `slots.py`, `common.py`); the page is `/venues.html` with tabs `#book`, `#requests`, `#inbox`, `#slots`.
 
+**Sign-in and roles:** every route needs a signed-in user (401 otherwise). The server decides with `require()`; the page only picks tabs from `TW.can`:
+- **Book a venue:** `request_venue`. Club leads, organisations and staff (teachers, HODs, coordinators) can request. Coordinators book like teachers (no advisor step) but can't approve.
+- **Approvals inbox:** `approve_venues` or `endorse_venues`. Endorsing is for the club's faculty advisor; approving is for the HOD who owns the room, or admin for central halls.
+- **Event slot finder:** `slot_finder`. Clubs, organisations, staff and the dean (read-only otherwise) can use it.
+
 **Common rules**
 - `date` is `YYYY-MM-DD`, Mon–Fri only, not in the past (400 otherwise). `periods` are indexes into `/api/meta.periods` and must be back to back (e.g. `[4, 5]` = P5–P6).
 - `needs` is a subset of `/api/meta.features` (400 for unknown ones).
@@ -141,10 +154,10 @@ Owned by the Venues session. Logic lives in `app/venues/` (`ranking.py`, `reques
 
 | Method + path | Who | Body / query | Returns |
 |---|---|---|---|
-| `GET /api/venues` | anyone | | `{venues: [venue]}`, every bookable room, biggest first |
-| `POST /api/venues/rank` | anyone | `{date, periods, attendees, needs}` | `{date, periods, attendees, needs, venues: [venue + fit], near_misses: [venue + miss]}` |
+| `GET /api/venues` | any signed-in user | | `{venues: [venue]}`, every bookable room, biggest first |
+| `POST /api/venues/rank` | any signed-in user | `{date, periods, attendees, needs}` | `{date, periods, attendees, needs, venues: [venue + fit], near_misses: [venue + miss]}` |
 | `POST /api/venues/requests` | `booking.request` | `{title, purpose?, club?, attendees, needs, date, periods, room, audience?}` | `{request: request view, warnings: [str]}`. 409 if the room is already taken then. |
-| `GET /api/venues/requests` | anyone | `?mine=1` (default) · `?inbox=1` · `?all=1` (admin) | `{items: [request view]}`, newest first |
+| `GET /api/venues/requests` | any signed-in user | `?mine=1` (default) · `?inbox=1` · `?all=1` (admin) | `{items: [request view]}`, newest first |
 | `POST /api/venues/requests/{id}/decide` | the current step's approver | `{decision: "approved"\|"rejected", note}` | `{request: request view}`. 403 wrong approver, 400 reject without a note, 409 already decided or room no longer free |
 | `POST /api/venues/requests/{id}/cancel` | the requester (`booking.cancel`) | | `{request: request view}`; removes the booking override, so the room is free again |
 | `POST /api/venues/slot-finder` | `slotfinder.use` (org, HOD, teacher, club, admin) | `{dept+year \| sections \| groups, duration, from?, to?, attendees?, needs}` | see below |

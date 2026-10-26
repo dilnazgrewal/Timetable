@@ -61,7 +61,8 @@ def test_validator_catches_a_clash_between_two_electives_one_student_takes(colle
 
 
 def test_student_timetable_api():
-    client = TestClient(app)
+    client = TestClient(app, headers={"X-User": f"s-{MY_TYPE}"})
+    assert TestClient(app).get(f"/api/students/{MY_TYPE}/timetable").status_code == 401  # signed-in users only
     r = client.get(f"/api/students/{MY_TYPE}/timetable")
     assert r.status_code == 200
     codes = {i["code"] for i in r.json()["items"]}

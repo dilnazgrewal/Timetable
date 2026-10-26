@@ -8,19 +8,21 @@ from dataclasses import asdict
 from datetime import date
 
 import anthropic
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 
-from app.auth import current_user, require
+from app.auth import DEMO_MODE, ROLES, authorize, capabilities, current_user, require
 from app.chat import Assistant
 from app.models import DAYS, FEATURES, LUNCH_WINDOW, PERIODS, Entry, User
 from app.solver import solve
 from app import optimise
 from app import substitutions as subs
-from app.store import STORE, Occupancy
+from app.store import STORE, Occupancy, now_iso
 from app.validator import metrics
 
-router = APIRouter(prefix="/api", tags=["core"])
+# every core endpoint needs a signed-in user; sign-in itself lives on auth_router
+router = APIRouter(prefix="/api", tags=["core"], dependencies=[Depends(current_user)])
+auth_router = APIRouter(prefix="/api/auth", tags=["auth"])
 _solve_lock = threading.Lock()
 
 
@@ -67,16 +69,61 @@ def meta() -> dict:
 
 @router.get("/me")
 def me(user: User = Depends(current_user)) -> dict:
-    return user_view(user)
+    """The signed-in person and what they may do (the UI builds navigation, tabs and buttons from `can`)."""
+    return {**user_view(user), "role_name": ROLES.get(user.role, user.role), "can": capabilities(user),
+            "demo": DEMO_MODE}
+
+
+def _accounts() -> dict:
+    groups: dict[str, list[dict]] = {}
+    for u in STORE.users.values():
+        groups.setdefault(u.role, []).append({"id": u.id, "name": u.name, "dept": u.dept, "section": u.section})
+    return {"roles": groups, "role_names": ROLES, "clubs": [asdict(c) for c in STORE.clubs.values()]}
 
 
 @router.get("/users")
-def users() -> dict:
-    """Demo accounts for the account switcher, grouped by role."""
-    groups: dict[str, list[dict]] = {}
-    for u in STORE.users.values():
-        groups.setdefault(u.role, []).append({"id": u.id, "name": u.name, "dept": u.dept})
-    return {"roles": groups, "clubs": [asdict(c) for c in STORE.clubs.values()]}
+def users(user: User = Depends(current_user)) -> dict:
+    """All accounts (timetable office only). Others use the demo sign-in list."""
+    require(user, "accounts.view")
+    return _accounts()
+
+
+# --- sign-in (no session needed) -------------------------------------------------------------------
+class DemoLogin(BaseModel):
+    user: str
+
+
+@auth_router.get("/demo-accounts")
+def demo_accounts() -> dict:
+    """Demo mode only: the accounts anyone may sign in as, grouped by role."""
+    if not DEMO_MODE:
+        raise HTTPException(404, "Demo sign-in is switched off.")
+    return _accounts()
+
+
+@auth_router.post("/demo-login")
+def demo_login(body: DemoLogin, request: Request) -> dict:
+    """Demo mode only: sign in as a demo account (no password). Real sign-in plugs in next to this."""
+    if not DEMO_MODE:
+        raise HTTPException(404, "Demo sign-in is switched off.")
+    user = STORE.users.get(body.user)
+    if user is None:
+        raise HTTPException(404, f"No account '{body.user}'")
+    request.session["user"] = user.id
+    return {"ok": True, "user": user_view(user), "can": capabilities(user)}
+
+
+@auth_router.post("/logout")
+def logout(request: Request) -> dict:
+    request.session.clear()
+    return {"ok": True}
+
+
+@router.get("/audit")
+def audit(limit: int = 200, user: User = Depends(current_user)) -> dict:
+    """Privileged actions, newest first (who, what, on what, allowed or refused)."""
+    require(user, "audit.view")
+    return {"items": STORE.audit[::-1][:limit]}
 
 
 @router.get("/timetable")
@@ -253,8 +300,8 @@ def leaves(on: str, dept: str = "", user: User = Depends(current_user)) -> dict:
         t = STORE.college.teacher_by_id.get(ov.teacher)
         if t is None or (dept and t.dept != dept):
             continue
-        if user.role != "admin" and not (user.teacher_id == t.id or (user.role == "hod" and user.dept == t.dept)):
-            continue  # HODs see their department, teachers see themselves
+        if not authorize(user, "leave.view", t):
+            continue  # department staff see their department, teachers see themselves
         out.append({"leave": asdict(ov), "teacher_name": t.name, "dept": t.dept,
                     "classes": subs.affected(t.id, d, ov.periods)})
     return {"date": d.isoformat(), "leaves": out}
@@ -319,8 +366,9 @@ def _compare_entry(e: Entry) -> dict:
 
 
 @router.get("/compare/cse")
-def compare_cse() -> dict:
+def compare_cse(user: User = Depends(current_user)) -> dict:
     """GNDEC's published CSE timetable next to TimeWeave's optimised version of exactly the same lessons."""
+    require(user, "optimise.view", "CSE")
     data = _optimised()
     if not data:
         return {"available": False, "running": _opt["running"], "error": _opt["error"]}
@@ -333,13 +381,14 @@ def compare_cse() -> dict:
             "types": [{**_type_view(t), "lessons": t.lessons} for t in c.student_types if t.section.startswith("D")
                       and c.section_by_id[t.section].dept == "CSE"],
             "teachers": sorted({t for l in c.lessons if l.fixed and l.dept == "CSE" for t in (l.teacher, *l.co_teachers)}),
-            "college": [_compare_entry(e) for e in before], "optimised": [_compare_entry(e) for e in after]}
+            "college": [_compare_entry(e) for e in before], "optimised": [_compare_entry(e) for e in after],
+            "publication": STORE.published.get("CSE", {"status": "draft"})}
 
 
 @router.post("/compare/cse/run")
 def compare_cse_run(seconds: float = 300, user: User = Depends(current_user)) -> dict:
     """Re-run the optimiser in the background (takes minutes); the page polls /api/compare/cse."""
-    require(user, "override.create", "CSE")
+    require(user, "optimise.run", "CSE")
     if _opt["running"]:
         raise HTTPException(409, "The optimiser is already running.")
 
@@ -388,3 +437,52 @@ def student_timetable(type_id: str, on: str = "") -> dict:
     items = [occupancy_view(o) for o in occ if STORE.attends(t.id, o)]
     items.sort(key=lambda i: (i["day"], i["start"]))
     return {"type": _type_view(t), "date": on or None, "items": items}
+
+
+
+# --- propose and publish the optimised timetable -----------------------------------------------------
+def _publication_users(dept: str) -> list[str]:
+    c = STORE.college
+    return [u.id for u in STORE.users.values()
+            if (u.section and c.section_by_id.get(u.section) and c.section_by_id[u.section].dept == dept)
+            or (u.teacher_id and any(l.fixed and l.dept == dept and u.teacher_id in (l.teacher, *l.co_teachers)
+                                      for l in c.lessons))]
+
+
+@router.post("/compare/cse/propose")
+def compare_cse_propose(user: User = Depends(current_user)) -> dict:
+    """Department (HOD / timetable coordinator) proposes the optimised timetable to the timetable office."""
+    require(user, "optimise.propose", "CSE")
+    if not _optimised():
+        raise HTTPException(409, "There is no optimised timetable to propose yet.")
+    STORE.set_published("CSE", {"status": "proposed", "proposed_by": user.name, "proposed_at": now_iso()})
+    for u in [u.id for u in STORE.users.values() if u.role == "admin"]:
+        STORE.notify(u, f"{user.name} proposed the optimised CSE timetable for publishing.", "/compare.html")
+    return {"publication": STORE.published["CSE"]}
+
+
+@router.post("/compare/cse/publish")
+def compare_cse_publish(user: User = Depends(current_user)) -> dict:
+    """Timetable office publishes it: it becomes everyone's real CSE timetable (rooms, teachers, students)."""
+    require(user, "timetable.publish")
+    data = _optimised()
+    if not data or data.get("clashes", {}).get("optimised", 1) != 0:
+        raise HTTPException(409, "Only a clash-free optimised timetable can be published.")
+    info = {**STORE.published.get("CSE", {}), "status": "published", "published_by": user.name, "published_at": now_iso()}
+    STORE.set_published("CSE", info)
+    if STORE.result and STORE.result["issues"]:  # the independent validator must still agree
+        STORE.set_published("CSE", None)
+        raise HTTPException(409, "The validator found clashes; publishing was undone.")
+    for u in _publication_users("CSE"):
+        STORE.notify(u, "The CSE timetable has been updated: fewer waiting gaps between classes. Check your week.", "/")
+    return {"publication": info}
+
+
+@router.post("/compare/cse/unpublish")
+def compare_cse_unpublish(user: User = Depends(current_user)) -> dict:
+    """Timetable office goes back to the college's original timetable."""
+    require(user, "timetable.publish")
+    STORE.set_published("CSE", None)
+    for u in _publication_users("CSE"):
+        STORE.notify(u, "The CSE timetable is back to the college's original version.", "/")
+    return {"publication": {"status": "draft"}}

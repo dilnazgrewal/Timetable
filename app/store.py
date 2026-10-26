@@ -24,6 +24,7 @@ from app.validator import metrics, split_issues, validate
 
 ROOT = Path(__file__).resolve().parent.parent
 SOLUTION = ROOT / "data" / "solution.json"
+OPTIMISED = ROOT / "data" / "gndec" / "cse_optimised.json"
 STATE = ROOT / "data" / "state.json"
 
 
@@ -76,6 +77,8 @@ class Store:
         self.notifications: list[Notification] = []
         self.users: dict[str, User] = {}
         self.clubs: dict[str, Club] = {}
+        self.audit: list[dict] = []  # privileged actions, allowed or refused (written by app.auth.require)
+        self.published: dict[str, dict] = {}  # dept -> {status: proposed|published, by, at, ...}
 
     # --- base timetable ----------------------------------------------------------------------
     def publish(self, raw: dict) -> dict:
@@ -85,7 +88,7 @@ class Store:
         with self.lock:
             generated = [Entry(**e) for e in raw["entries"]
                          if (l := self.college.lesson_by_id.get(e["lesson"])) is not None and not l.fixed]
-            entries = generated + list(self.college.fixed_entries)
+            entries = generated + self.imported_entries()
             raw["entries"] = [asdict(e) for e in entries]
             raw["issues"], raw["notes"] = split_issues(validate(self.college, entries))
             raw["metrics"] = metrics(self.college, entries)
@@ -161,9 +164,18 @@ class Store:
                 "bookings": [asdict(b) for b in self.bookings],
                 "meetings": [asdict(m) for m in self.meetings],
                 "notifications": [asdict(n) for n in self.notifications],
+                "audit": self.audit,
+                "published": self.published,
             }, indent=1))
 
     def load(self) -> None:
+        if STATE.exists():  # first: which timetable is published decides what publish() installs
+            try:
+                raw = json.loads(STATE.read_text())
+                self.audit = raw.get("audit", [])
+                self.published = raw.get("published", {})
+            except Exception:
+                pass
         if SOLUTION.exists():
             try:
                 self.publish(json.loads(SOLUTION.read_text()))
@@ -179,6 +191,29 @@ class Store:
                 self.notifications = [Notification(**n) for n in raw.get("notifications", [])]
             except Exception:
                 pass
+
+    # --- which version of an imported timetable is live -----------------------------------------
+    def imported_entries(self) -> list[Entry]:
+        """The college's own (imported) placements, or the optimised version once it is published."""
+        if self.published.get("CSE", {}).get("status") == "published" and OPTIMISED.exists():
+            try:
+                entries = [Entry(**e) for e in json.loads(OPTIMISED.read_text(encoding="utf-8"))["entries"]]
+                if all(e.lesson in self.college.lesson_by_id for e in entries):
+                    return entries
+            except Exception:
+                pass
+        return list(self.college.fixed_entries)
+
+    def set_published(self, dept: str, info: dict | None) -> None:
+        """Propose / publish / withdraw a department's optimised timetable, then re-install the base timetable."""
+        with self.lock:
+            if info is None:
+                self.published.pop(dept, None)
+            else:
+                self.published[dept] = info
+            if self.result:
+                self.publish({k: v for k, v in self.result.items()})
+            self.save()
 
     def reset_state(self) -> None:
         """Demo reset: drop all overrides, requests and notifications (keeps the base timetable)."""

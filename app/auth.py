@@ -1,24 +1,42 @@
-"""Demo accounts and the single place where permissions are decided.
+"""Accounts, sign-in and the single place where permissions are decided.
 
-There are no passwords in the demo: the page sends the chosen account id in the `X-User` header and
-the server checks every action with authorize(). UI hiding is cosmetic; this file is the real gate.
+Sign-in: a signed session cookie (Starlette SessionMiddleware). In demo mode (TIMEWEAVE_DEMO=1, the
+default) anyone may sign in as any demo account without a password, and API clients/tests may also
+send `X-User: <account id>`. With TIMEWEAVE_DEMO=0 only a real session counts (college Google sign-in
+plugs in at /api/auth/*). No session means no access: there is no default account.
+
+Authorization: every action is a row in PERMISSIONS (deny by default). Routers call
+require(user, action, resource); the UI reads capabilities(user) from /api/me and never re-implements
+a rule. Privileged actions are written to the audit log (STORE.audit), allowed or refused.
 """
 from __future__ import annotations
 
-from fastapi import Header, HTTPException
+import os
+from datetime import datetime
+
+from fastapi import Header, HTTPException, Request
 
 from app.models import BookingRequest, Club, College, MeetingRequest, Teacher, User
 
-DEFAULT_USER = "admin"
+DEMO_MODE = os.getenv("TIMEWEAVE_DEMO", "1") != "0"
+ROLES = {
+    "student": "Student", "teacher": "Teacher", "club": "Club lead", "org": "Visitor / T&P",
+    "coordinator": "Timetable coordinator", "hod": "HOD", "dean": "Dean (read-only)", "admin": "Timetable office (admin)",
+}
+DEPT_STAFF = ("hod", "coordinator")  # manage their own department's timetable
 
 
+# --- accounts ------------------------------------------------------------------------------------
 def demo_people(college: College) -> tuple[dict[str, User], dict[str, Club]]:
-    users: list[User] = [User("admin", "Timetable Office (Admin)", "admin")]
-    depts = [d.code for d in college.departments]
-    for d in depts:
+    users: list[User] = [User("admin", "Timetable Office (Admin)", "admin"),
+                         User("dean", "Dean Academics (read-only)", "dean")]
+    for d in [d.code for d in college.departments]:
         teachers = [t for t in college.teachers if t.dept == d]
         if teachers:
             users.append(User(f"hod-{d}", f"HOD {d} ({teachers[0].name})", "hod", d, teacher_id=teachers[0].id))
+        if len(teachers) > 1 and any(s.dept == d for s in college.sections):
+            users.append(User(f"coord-{d}", f"Timetable coordinator {d} ({teachers[1].name})", "coordinator", d,
+                              teacher_id=teachers[1].id))
     for t in college.teachers:
         users.append(User(f"t-{t.id}", t.name, "teacher", t.dept, teacher_id=t.id))
     # one demo student per real combination of choices (student type); see app/importers/gndec_students.py
@@ -47,64 +65,139 @@ def demo_people(college: College) -> tuple[dict[str, User], dict[str, Club]]:
     return {u.id: u for u in users}, {c.id: c for c in clubs}
 
 
-def current_user(x_user: str | None = Header(default=None)) -> User:
-    """FastAPI dependency: `user: User = Depends(current_user)`."""
+def current_user(request: Request, x_user: str | None = Header(default=None)) -> User:
+    """FastAPI dependency: `user: User = Depends(current_user)`. 401 when nobody is signed in."""
     from app.store import STORE
 
-    user = STORE.users.get(x_user or DEFAULT_USER)
+    uid = request.session.get("user") if "session" in request.scope else None
+    if uid is None and DEMO_MODE and x_user:
+        uid = x_user
+    if uid is None:
+        raise HTTPException(401, "Please sign in.")
+    user = STORE.users.get(uid)
     if user is None:
-        raise HTTPException(401, f"Unknown demo account '{x_user}'")
+        raise HTTPException(401, f"Unknown account '{uid}'. Please sign in again.")
     return user
 
 
-def authorize(user: User, action: str, resource: object = None) -> bool:
-    """Every permission rule lives here. Actions are dotted strings; add new ones here, not in routers."""
+# --- the permission table --------------------------------------------------------------------------
+def _dept_staff(user: User, dept: object) -> bool:
+    return user.role in DEPT_STAFF and (dept is None or dept == user.dept)
+
+
+def _teacher_dept(resource: object) -> str | None:
+    return resource.dept if isinstance(resource, Teacher) else None
+
+
+def _endorse(user: User, req: object) -> bool:
     from app.store import STORE
 
-    r = user.role
-    if r == "admin":
-        return True
-    if action in ("timetable.view", "rooms.view", "chat.ask"):
-        return True
-    if action == "timetable.generate":
-        return r == "hod"
-    if action == "override.create":  # substitutions / cancellations for a department
-        return r == "hod" and (resource is None or resource == user.dept)
-    if action == "booking.request":
-        return r in ("club", "teacher", "hod", "org")
-    if action == "booking.cancel" and isinstance(resource, BookingRequest):
-        return resource.requester == user.id
-    if action == "booking.endorse" and isinstance(resource, BookingRequest):
-        club = STORE.clubs.get(resource.club or "")
-        return club is not None and club.advisor == user.id
-    if action == "booking.approve" and isinstance(resource, BookingRequest):
-        room = STORE.college.room_by_id.get(resource.room)
-        # department rooms: that department's HOD; central rooms: admin only (handled above)
-        return r == "hod" and room is not None and room.dept == user.dept
-    if action == "slotfinder.use":
-        return r in ("org", "hod", "teacher", "club")
-    if action == "leave.mark" and isinstance(resource, Teacher):  # mark a teacher absent for a date
-        return user.teacher_id == resource.id or (r == "hod" and user.dept == resource.dept)
-    if action == "leave.view" and isinstance(resource, Teacher):
-        return user.teacher_id == resource.id or r == "hod"
-    if action == "meeting.request":
-        return r == "student"
-    if action == "meeting.reply" and isinstance(resource, MeetingRequest):
-        return user.teacher_id == resource.teacher
-    return False
+    club = STORE.clubs.get(getattr(req, "club", None) or "")
+    return isinstance(req, BookingRequest) and club is not None and club.advisor == user.id
 
 
-ACTION_TEXT = {
-    "timetable.generate": "regenerate the timetable", "override.create": "change this department's classes",
-    "booking.request": "request venues", "booking.cancel": "cancel this booking",
-    "booking.endorse": "endorse this request (only the club's faculty advisor can)",
-    "booking.approve": "approve this booking (only the HOD who owns the room can)",
-    "slotfinder.use": "use the event slot finder", "meeting.request": "request meetings",
-    "meeting.reply": "reply to this meeting request", "leave.mark": "mark this teacher on leave",
-    "leave.view": "see this teacher's leave", "demo.reset": "reset the demo",
+def _approve(user: User, req: object) -> bool:
+    from app.store import STORE
+
+    if not isinstance(req, BookingRequest):
+        return False
+    room = STORE.college.room_by_id.get(req.room)
+    return user.role == "hod" and room is not None and room.dept == user.dept  # central halls: admin only
+
+
+# action -> (what it allows, in words, for refusals; rule(user, resource) -> bool). Admin may do everything.
+PERMISSIONS: dict[str, tuple[str, object]] = {
+    # everyone who is signed in
+    "timetable.view": ("view timetables", lambda u, r: True),
+    "rooms.view": ("see free rooms", lambda u, r: True),
+    "chat.ask": ("use the assistant", lambda u, r: True),
+    # students and teachers
+    "meeting.request": ("request meetings (students only)", lambda u, r: u.role == "student"),
+    "meeting.reply": ("reply to this meeting request",
+                      lambda u, r: isinstance(r, MeetingRequest) and u.teacher_id == r.teacher),
+    "leave.mark": ("mark this teacher on leave",
+                   lambda u, r: isinstance(r, Teacher) and (u.teacher_id == r.id or _dept_staff(u, r.dept))),
+    "leave.view": ("see this teacher's leave",
+                   lambda u, r: isinstance(r, Teacher) and (u.teacher_id == r.id or _dept_staff(u, r.dept) or u.role == "dean")),
+    # department timetable work (HOD and timetable coordinator of that department)
+    "override.create": ("change this department's classes", lambda u, r: _dept_staff(u, r)),
+    "optimise.view": ("see this department's optimised timetable", lambda u, r: _dept_staff(u, r) or u.role == "dean"),
+    "optimise.run": ("re-run the optimiser for this department", lambda u, r: _dept_staff(u, r)),
+    "optimise.propose": ("propose the optimised timetable", lambda u, r: _dept_staff(u, r)),
+    "insights.view": ("see this department's insights", lambda u, r: _dept_staff(u, r) or u.role == "dean"),
+    # venues and events
+    "booking.request": ("request venues", lambda u, r: u.role in ("club", "org") or u.teacher_id is not None),
+    "booking.cancel": ("cancel this booking", lambda u, r: isinstance(r, BookingRequest) and r.requester == u.id),
+    "booking.endorse": ("endorse this request (only the club's faculty advisor can)", _endorse),
+    "booking.approve": ("approve this booking (only the HOD who owns the room can; central halls: the timetable office)", _approve),
+    "slotfinder.use": ("use the event slot finder", lambda u, r: u.role in ("club", "org", "dean") or u.teacher_id is not None),
+    # college-wide (admin; the Dean may look)
+    "timetable.generate": ("regenerate the college timetable (timetable office only)", lambda u, r: False),
+    "timetable.publish": ("publish a timetable (timetable office only)", lambda u, r: False),
+    "audit.view": ("see the audit log", lambda u, r: u.role == "dean"),
+    "accounts.view": ("see all accounts", lambda u, r: False),
+    "demo.reset": ("reset the demo", lambda u, r: False),
 }
+READ_ONLY = {"timetable.view", "rooms.view", "chat.ask", "leave.view", "optimise.view", "insights.view", "audit.view",
+             "accounts.view"}
+
+
+def authorize(user: User, action: str, resource: object = None) -> bool:
+    """Every permission rule lives in PERMISSIONS. Unknown actions are refused."""
+    if action not in PERMISSIONS:
+        return False
+    if user.role == "admin":
+        return True
+    return bool(PERMISSIONS[action][1](user, resource))
 
 
 def require(user: User, action: str, resource: object = None) -> None:
-    if not authorize(user, action, resource):
-        raise HTTPException(403, f"{user.name} is not allowed to {ACTION_TEXT.get(action, action.replace('.', ' '))}.")
+    allowed = authorize(user, action, resource)
+    if action not in READ_ONLY:
+        _audit(user, action, resource, allowed)
+    if not allowed:
+        what = PERMISSIONS.get(action, (action.replace(".", " "),))[0]
+        raise HTTPException(403, f"{user.name} is not allowed to {what}.")
+
+
+def _audit(user: User, action: str, resource: object, allowed: bool) -> None:
+    from app.store import STORE
+
+    label = getattr(resource, "id", None) or (resource if isinstance(resource, str) else "")
+    STORE.audit.append({"at": datetime.now().isoformat(timespec="seconds"), "user": user.id, "name": user.name,
+                        "role": user.role, "action": action, "on": str(label or ""), "allowed": allowed})
+    del STORE.audit[:-2000]  # keep the latest entries
+
+
+def capabilities(user: User) -> dict[str, bool]:
+    """What the signed-in person can do, for the UI (navigation, tabs, buttons). Same rules as above."""
+    from app.store import STORE
+
+    a = lambda action, res=None: authorize(user, action, res)
+    dept = user.dept
+    teacher = STORE.college.teacher_by_id.get(user.teacher_id or "")
+    return {
+        "view_timetables": a("timetable.view"),
+        "my_timetable": bool(user.student_type or user.teacher_id),
+        "free_rooms": a("rooms.view"),
+        "find_teacher": a("timetable.view"),
+        "request_meeting": a("meeting.request"),
+        "reply_meetings": user.teacher_id is not None,
+        "mark_own_leave": teacher is not None and a("leave.mark", teacher),
+        "mark_dept_leave": user.role in DEPT_STAFF or user.role == "admin",
+        "substitutions": a("override.create", dept) if user.role != "admin" else True,
+        "request_venue": a("booking.request"),
+        "endorse_venues": user.role == "admin" or any(c.advisor == user.id for c in STORE.clubs.values()),
+        "approve_venues": user.role in ("hod", "admin"),
+        "slot_finder": a("slotfinder.use"),
+        "optimised_view": a("optimise.view", "CSE"),
+        "optimised_run": a("optimise.run", "CSE"),
+        "optimised_propose": a("optimise.propose", "CSE"),
+        "publish": a("timetable.publish"),
+        "generate": a("timetable.generate"),
+        "insights": user.role in ("dean", "admin") or a("insights.view", dept),
+        "audit": a("audit.view"),
+        "accounts": a("accounts.view"),
+        "demo_reset": a("demo.reset"),
+        "chat": a("chat.ask"),
+    }

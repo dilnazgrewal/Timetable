@@ -24,7 +24,8 @@ It is built to be adaptable to any college: a college profile plus importers, wi
 - **Frontend:** plain HTML pages with Tailwind (CDN) and Alpine.js (CDN), no build step, mobile-first.
   - `static/index.html`: timetable and dashboards
   - `static/venues.html`: venues and events
-  - `static/js/shell.js`: shared top bar and `TW.api()`
+  - `static/login.html`: sign-in; `static/compare.html`: optimised CSE; `static/audit.html`: audit log
+  - `static/js/shell.js`: shared top bar, `TW.api()` and `TW.can`
 - **State:** `app/store.py` `STORE`, in memory.
   - `data/solution.json` holds the base timetable (committed).
   - `data/state.json` holds overrides, requests and notifications (runtime only, git-ignored).
@@ -41,7 +42,10 @@ python -m venv .venv && .venv/Scripts/python -m pip install -r requirements.txt 
 ## Architecture rules (do not break these)
 1. **The validator is independent of the solver.** `app/validator.py` must never import OR-Tools or solver code. Every generated, imported or edited timetable is checked by it, and "0 clashes" claims come from the validator only.
 2. **One shared state.** Read and write only through `app.store.STORE`. What anyone sees for a real date comes from `STORE.effective(date)`, which is the base weekly timetable ⊕ that date's overrides (cancel, substitute, room_change, booking). Never keep your own copies of the timetable.
-3. **Authorization lives in `app/auth.py`.** Routers call `require(user, action, resource)`, and every rule is in `authorize()`. The UI only hides things for convenience; the server is the gate.
+3. **Authorization lives in `app/auth.py`.** Routers call `require(user, action, resource)`, and every rule is a row in `PERMISSIONS` (deny by default). The UI hides things using `TW.can` from `/api/me` and never re-implements a rule; the server is the gate.
+   - **Sign-in:** session cookie from `/login.html` (demo mode: pick any account, no password; Google sign-in later). No sign-in → 401. Tests send `X-User: <id>` (demo mode only).
+   - **Roles:** student, teacher, coordinator (department timetable), HOD, Dean (read-only), club lead, org (visitor / T&P), admin (timetable office: generate, publish, central halls).
+   - **Optimised timetable:** the department proposes, the timetable office publishes. Privileged actions go to the audit log (`/audit.html`).
 4. **The chatbot never applies changes.** It has read tools and, later, *propose* tools. Applying happens through a UI Confirm button calling the API as the signed-in user.
 5. **One write path for timetable edits** (editor, substitution, chatbot, import): propose → validate → preview → apply.
 
@@ -50,7 +54,7 @@ Each lane **only edits the files it owns**. Shared files are owned by Lane A.
 
 | Lane | Owns |
 |---|---|
-| **A. Core and data** | `app/models.py`, `app/store.py`, `app/auth.py`, `app/substitutions.py`, `app/optimise.py`, `app/static/compare.html`, `app/main.py`, `app/seed.py`, `app/solver.py`, `app/validator.py`, `app/chat.py`, `app/importers/*`, `data/gndec/*`, `app/api/core.py`, `app/static/js/shell.js`, `.claude/launch.json`, `docs/API.md` (Core and Shared sections), `PLAN.md`, `CLAUDE.md`, `README.md`, `tests/test_core_*`, `tests/test_validator.py` |
+| **A. Core and data** | `app/models.py`, `app/store.py`, `app/auth.py`, `app/substitutions.py`, `app/optimise.py`, `app/static/compare.html`, `app/static/login.html`, `app/static/audit.html`, `app/main.py`, `app/seed.py`, `app/solver.py`, `app/validator.py`, `app/chat.py`, `app/importers/*`, `data/gndec/*`, `app/api/core.py`, `app/static/js/shell.js`, `.claude/launch.json`, `docs/API.md` (Core and Shared sections), `PLAN.md`, `CLAUDE.md`, `README.md`, `tests/test_core_*`, `tests/test_validator.py` |
 | **B. Dashboards UI** | `app/static/index.html`, `app/static/js/dashboards.js`, `app/static/css/*`, `app/api/dashboards.py`, `docs/API.md` (Lane B section), `tests/test_dashboards_*` |
 | **C. Venues and events** | `app/static/venues.html`, `app/static/js/venues.js`, `app/venues/*`, `app/api/venues.py`, `docs/API.md` (Lane C section), `tests/test_venues_*` |
 
@@ -59,7 +63,7 @@ Rules for every lane:
 - **Commits:** stage **only your own paths** (`git add <your files>`), never `git add -A`. Commit after each working step, and **never push** (the user pushes).
 - **Your own dev server:** Lane A uses port 8001, Lane B port 8011 (`timeweave-dashboards`), Lane C port 8012 (`timeweave-venues`) in `.claude/launch.json`.
 - **Keep it runnable:** `pytest -q` stays green, and the app imports cleanly. A broken import in your router breaks everyone's server.
-- **Front end:** use `TW.api()` from `shell.js` for every request, so the demo account is sent. Keep the `#tw-shell` div outside any Alpine `x-data` root.
+- **Front end:** use `TW.api()` from `shell.js` for every request (session cookie, redirect to sign-in on 401), and `TW.can.<capability>` for what to show. Keep the `#tw-shell` div outside any Alpine `x-data` root.
 
 ## Domain glossary
 - **Period model:** 8 periods a day, 60 minutes each, 8:30–4:30 (P1 8:30 … P8 3:30). GNDEC's real timetable has a 9th slot, 4:30–5:30, mostly used for mentoring. **Lunch is flexible:** every batch and teacher gets at least one free period in the lunch window P4–P6 (11:30–2:30). The solver picks which, and that free period is not counted as idle time.
