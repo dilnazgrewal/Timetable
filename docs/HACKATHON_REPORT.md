@@ -353,7 +353,7 @@ Status as of commit `53e1f7f`. ✅ built and committed · ⬜ designed, not buil
 | A11b | Rule: a teacher's lab for two groups of one class stays on two different days (e.g. SC Lab A1 / A2); `lab_same_day` metric; card on the compare page | ✅ |
 | A11c | **College rules:** 10 GNDEC rules in `data/gndec/rules.json` (5 rule types, must/prefer); the optimiser obeys them; an independent checker counts breaks; "GNDEC's timetable rules" section on the compare page; publishing refused if a rule is broken more often than in the college's timetable | ✅ |
 | A12 | Propose (department) → publish / unpublish (timetable office), **per department**; publishing re-validates the whole college and is refused if it adds a clash | ✅ |
-| A13 | Sign-in (session cookie, demo accounts in 4 groups: Student, Teacher, HOD, Admin, with club lead / coordinator / Dean / T&P shown as extra duties), 8 roles, PERMISSIONS table, capabilities, audit log | ✅ |
+| A13 | Sign-in (session cookie; demo sign-in with **four roles**: Student, Teacher, HOD, Timetable office, with club lead / coordinator / Dean / T&P / visitor as extra duties inside them; students choose department → year → section → their group and subjects, `84f400e`), 8 permission roles, PERMISSIONS table, capabilities, audit log | ✅ |
 | A14 | In-app notifications (🔔 in the shared top bar) | ✅ |
 | A15 | Read-only Claude assistant with 5 date-aware tools | ✅ |
 | A16 | Pages: sign-in, compare (college vs optimised, with a **department picker**: HODs see their own department, the Dean sees all), audit log; shared top bar | ✅ |
@@ -710,16 +710,29 @@ It has **no write tools**.
   - anyone can sign in as any demo account without a password
   - API clients and tests may send `X-User: <account id>`
 - **No sign-in → 401** on every `/api/*` route except `/api/auth/*`. There is no default account.
-- **The sign-in page groups people into 4 kinds** (`39212e3`):
+- **The sign-in page shows four roles** (first grouped in `39212e3`, redesigned at the project owner's request in `84f400e`):
 
-| Group | Who | Extra duties shown next to the name |
+| Role on the sign-in page | Who | Extra duties inside it |
 |---|---|---|
-| Student | students | club lead |
+| Student | students | club lead (quick links under the student form) |
 | Teacher | teachers | timetable coordinator |
 | HOD | HODs | |
-| Admin | timetable office | Dean, T&P / visitor |
+| Timetable office | the timetable office (admin) | the Dean, the T&P cell, visiting organisations |
 
-  Students first pick their department and section, then their class. Permissions are unchanged; this only changes the page.
+  - **Permissions are unchanged:** the 8 roles of §7.2 still exist in `app/auth.py`. The page only groups them.
+  - **The top bar's account switcher** uses the same four groups.
+  - **Teachers, HODs and the timetable office** search a list by name or department.
+- **Student sign-in flow** (`84f400e`):
+  1. Choose **department → year** (1st–4th, M.Tech, PhD) **→ section**.
+  2. "Your group and subjects" appear as dropdowns:
+     - **for CSE D4 sections:** actual group, Elective-III, Elective-IV (with its lab group) and Technical Aptitude lab
+     - **for sections without distribution lists:** just the lab group
+  3. The dropdowns are **pre-filled with the most common combination** in that section.
+  4. Each dropdown offers **only choices that really exist together with the ones above it**. Changing one keeps the others valid, again preferring the most common combination.
+  5. **"Show my timetable"** signs in as that student type and opens its exact timetable.
+
+  Example (checked in the browser by Lane A): CSE → 4th year → D4 CS A → A2, CV, SC (A1 group), TA A3 signs in as `D4-CS-A:A2:CV:SCA1:TA3`.
+- **API:** `GET /api/auth/demo-accounts` now also gives each student account its `year`, `section_name`, `details` (their choices) and `count` (how many students share that combination).
 - **Demo accounts (545):**
 
 | Role | Accounts | Notes |
@@ -734,7 +747,7 @@ It has **no write tools**.
 | dean | 1 | |
 
 ### 7.2 The 8 roles and what they can do
-(From `PERMISSIONS` and `capabilities()` in `app/auth.py`. The admin may do everything; anything not listed is denied.)
+(From `PERMISSIONS` and `capabilities()` in `app/auth.py`. The admin may do everything; anything not listed is denied. On the sign-in page these 8 appear as four roles with extra duties; see 7.1.)
 
 | Role | Can | Cannot |
 |---|---|---|
@@ -773,7 +786,7 @@ It has **no write tools**.
 ## 8. Pages and screens
 | Page | Who | What's on it |
 |---|---|---|
-| `/login.html` | everyone | Demo sign-in in 4 groups (Student, Teacher, HOD, Admin); students pick department and section first; extra duties (club lead, coordinator, Dean, T&P) shown next to names |
+| `/login.html` | everyone | Demo sign-in ("no password, for judging") with four roles: Student, Teacher, HOD, Timetable office. Extra duties (club lead, coordinator, Dean, T&P, visitor) are shown next to names. Students choose department → year → section → group and subjects (pre-filled, only real combinations) → **Show my timetable**; club leads have quick links. Others search by name or department. |
 | `/` (`index.html`, Lane B) | everyone signed in | **Timetable** tab: views and filters, week / dated week, Print / Save PDF. When every department is imported (today), it shows the data source and **"See the optimised timetables →"** instead of the real-vs-generated panel and the **Regenerate** button (`cabdf9e`); both appear only for a college with generated departments. **Find a teacher** (`#teacher`): day view, Request meeting. **Free rooms** (`#rooms`): Right now, building/floor, near me. **Meetings** (`#meetings`). **Substitutions** (`#subs`): leave board, candidates, Assign, Cancel class. **Teacher load** (`#load`). **Ask** (`#ask`, chatbot). **Mark leave**. **Now/Next** card. Phone layout with day tabs. |
 | `/venues.html` (Lane C) | staff, clubs, orgs (by capability) | `#book` Book a venue (requirement form → ranked venues → request), `#requests` My requests with timeline, `#inbox` Approvals (endorse/approve/reject), `#slots` Event slot finder ("Find common free time", "Nearly free", "Book this") |
 | `/compare.html` (Lane A; "Optimised timetables" in the top bar) | each department's HOD/coordinator (their own department), Dean and admin (all six) | **Department picker**; college vs optimised timetable by section, student (group and electives) or teacher; before/after numbers (incl. "Same lab for two groups on one day"); **"GNDEC's timetable rules"**: each rule in plain words, must/prefer, and how often each version breaks it; Propose / Publish / Go back |
@@ -787,7 +800,7 @@ Full contract: `docs/API.md`. The app has **40 API routes**:
 
 | Group | Routes | Paths |
 |---|---|---|
-| Auth (`/api/auth/*`) | 3 | demo-accounts, demo-login, logout |
+| Auth (`/api/auth/*`) | 3 | demo-accounts (students with year, section name, choices and count), demo-login, logout |
 | Core (`/api/*`) | 23 | meta, me, users, audit, timetable, effective, generate, free-rooms, notifications (+read), demo/reset, chat, leave (POST/GET), substitutions, **compare** (departments I may compare), **compare/{dept}** (+run, propose, publish, unpublish), students/types, students/{type}/timetable |
 | Dashboards (`/api/dash/*`) | 7 | ping, views, teacher/{id}/free, meetings (POST/GET), meetings/{id}/reply, now |
 | Venues (`/api/venues/*`) | 7 | list, rank, requests (POST/GET), requests/{id}/decide, requests/{id}/cancel, slot-finder |
@@ -1114,7 +1127,7 @@ Runs against a fresh `build_college()` store (since `39212e3`, the real six-depa
 ---
 
 ## 12. Timeline: how it was built
-From `git log` (62 commits by the end of 26 Oct, the last code commit being `cabdf9e`; 6 of them are this report). Commits per day: 21 Oct 15 · 22 Oct 14 · 26 Oct 33.
+From `git log` (64 commits by the end of 26 Oct, the last code commit being `84f400e`; 7 of them are this report). Commits per day: 21 Oct 15 · 22 Oct 14 · 26 Oct 35.
 
 ### Day 1: Wed 21 Oct, prototype (v0.1), demo at 4 PM
 - Scaffold, `CLAUDE.md`, plan.
@@ -1159,7 +1172,7 @@ From `git log` (62 commits by the end of 26 Oct, the last code commit being `cab
   - one merged college
   - 4 new safety rules for departments without elective lists
   - the per-department compare/propose/publish API and page
-  - sign-in in 4 groups
+  - sign-in in four groups (redesigned in `84f400e`: four roles, and a student flow of department → year → section → group and subjects)
   - all six departments re-optimised, and 18 new tests (`39212e3`)
 - **Lane A, after that:**
   - **first year linked across departments** (`53e1f7f`): 94 sessions from ME, ECE and EE now in first-year timetables; teacher clashes in the published data 32 → 12
@@ -1241,7 +1254,9 @@ Suggested, about 5 minutes. Built only from features listed above.
    - about 1,000 teacher waiting periods a week
    - 44 CSE student-days with no midday break
    - 12 teacher double-bookings when put together
-2. **Sign in as a student** (`/login.html`): pick a D4 CS A student type (e.g. "A2 · CV · SC A1 group · TA A3").
+2. **Sign in as a student** (`/login.html`):
+   - Point out the four roles (Student, Teacher, HOD, Timetable office).
+   - Choose **Student → CSE → 4th year → D4 CS A**. The group and subjects are pre-filled with the most common combination; set **A2, CV, SC (A1 group), TA A3** and press **Show my timetable**.
    - My timetable shows only *their* electives and *their* lab group.
    - Explain the FET re-used-group problem and student types.
    - **For a first-year student** (e.g. CSE D1 A, group A1), show that the week now includes ECE's BEEE lectures and lab: 11 hours instead of 5, because first year is linked across departments.
@@ -1336,7 +1351,7 @@ Suggested, about 5 minutes. Built only from features listed above.
 | **8** | roles, with a deny-by-default permission table and an audit log |
 | **40** | API routes |
 | **117 / 117** | automated tests passing |
-| **3** | parallel build lanes, 62 commits |
+| **3** | parallel build lanes, 64 commits |
 
 ---
 
@@ -1399,4 +1414,4 @@ All numbers were checked here against the committed data files.
 - Merged college counts (§4.4, §7.1): measured with `app.store.STORE`.
 
 **Still not verified:**
-- UI behaviour was described from page source (labels, tabs, `x-show` rules), not from clicking through every screen in a browser. This includes the new department picker and the 4-group sign-in.
+- UI behaviour was described from page source (labels, tabs, `x-show` rules), not from clicking through every screen in a browser. This includes the new department picker and the four-role sign-in (its student flow was checked in the browser by Lane A, not here).
