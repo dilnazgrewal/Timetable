@@ -91,10 +91,19 @@ class Store:
             entries = generated + self.imported_entries()
             raw["entries"] = [asdict(e) for e in entries]
             raw["issues"], raw["notes"] = split_issues(validate(self.college, entries))
+            # clashes already in the college's own published timetables are listed apart: TimeWeave can't fix
+            # them and didn't cause them ("issues" are the ones it would have caused, and must stay empty)
+            published = set(split_issues(validate(self.college, self.college.fixed_entries))[0]) if self.college.fixed_entries else set()
+            key = lambda c: (c.split(": ", 1)[0], frozenset(c.split(": ", 1)[-1].split(", ")))
+            as_published = {key(c) for c in published}
+            raw["published_issues"] = [c for c in raw["issues"] if key(c) in as_published]
+            raw["issues"] = [c for c in raw["issues"] if key(c) not in as_published]
             raw["metrics"] = metrics(self.college, entries)
             if not any(not l.fixed for l in self.college.lessons):  # every department is real (imported)
                 raw["source"] = "Real timetables of every GNDEC department (imported from the FET pages they publish)"
-                raw.pop("compare", None)
+                raw["status"] = "IMPORTED"
+                for stale in ("compare", "baseline", "objective", "seconds"):  # from generating the old demo college
+                    raw.pop(stale, None)
             elif any(l.fixed for l in self.college.lessons):  # real (imported) vs generated departments
                 raw["compare"] = {k: {m: v for m, v in metrics(self.college, entries, fixed=f).items() if m != "teacher_load"}
                                   for k, f in (("real", True), ("generated", False))}

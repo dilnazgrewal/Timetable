@@ -177,13 +177,14 @@ def build_college() -> College:
     # one person, two records (CSE's page names an ME teacher in full, ME's own page by initials): merge
     same: dict[str, str] = {}
     first: dict[tuple[str, str], str] = {}
+    own_list = re.compile(r"^[A-Z]+-[A-Z0-9]+$")  # 'ECE-HK': initials from the department's own teacher list
     for t in sorted(teachers.values(), key=lambda t: (len(t.id), t.id)):  # keep the department's own short id
         key = (t.dept, re.sub(r"^(Dr|Pf|Er|Prof|Mr|Ms)\.?\s+", "", t.name).lower())
         if " teacher (" in t.name or t.id.startswith("TBA-"):
             continue
-        if key in first:
+        if key in first and not (own_list.match(t.id) and own_list.match(first[key])):  # two on one list: two people
             same[t.id] = first[key]
-        else:
+        elif key not in first:
             first[key] = t.id
     for l in lessons:
         l.teacher = same.get(l.teacher, l.teacher)
