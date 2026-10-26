@@ -6,7 +6,7 @@
 <title>TimeWeave</title>
 <script src="https://cdn.tailwindcss.com/3.4.16"></script>
 <script src="/static/js/shell.js"></script>
-<script src="/static/js/dashboards.js?v=2026-10-26b"></script>
+<script src="/static/js/dashboards.js?v=2026-10-26c"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
 <style>
   [x-cloak] { display: none !important; }
@@ -288,16 +288,19 @@
             <template x-for="y in yearOptions()" :key="y"><option :value="y" x-text="yearLabel(y)" :selected="String(y) === String(f.year)"></option></template>
           </select>
         </div>
-        <div x-show="f.by === 'section' || f.by === 'group'">
+        <div x-show="f.by === 'section' || f.by === 'student'">
           <label class="block text-xs text-slate-500 mb-1">Section</label>
           <select x-model="f.section" @change="changed()" class="border rounded-lg px-2 py-1.5 bg-white text-sm">
             <template x-for="s in sectionOptions()" :key="s.id"><option :value="s.id" x-text="s.name" :selected="s.id === f.section"></option></template>
           </select>
         </div>
-        <div x-show="f.by === 'group'">
-          <label class="block text-xs text-slate-500 mb-1">Lab group</label>
-          <select x-model="f.group" @change="changed()" class="border rounded-lg px-2 py-1.5 bg-white text-sm">
-            <template x-for="g in groupOptions()" :key="g"><option :value="g" x-text="g" :selected="g === f.group"></option></template>
+        <div x-show="f.by === 'student'">
+          <label class="block text-xs text-slate-500 mb-1">Group and electives</label>
+          <select x-model="f.student" @change="changed()" class="border rounded-lg px-2 py-1.5 bg-white text-sm max-w-[18rem]"
+                  :title="typeTitle(studentType(f.student))">
+            <template x-for="t in studentOptions()" :key="t.id">
+              <option :value="t.id" x-text="typeLabel(t) + (t.count ? ' (' + t.count + ')' : '')" :selected="t.id === f.student" :title="typeTitle(t)"></option>
+            </template>
           </select>
         </div>
         <div x-show="f.by === 'teacher'">

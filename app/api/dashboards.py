@@ -62,8 +62,9 @@ def groups_of(dept: str = "", year: int | None = None, section: str = "") -> set
     return {b for s in secs for b in s.batches}
 
 
-def matcher(dept: str, year: int | None, section: str, group: str, teacher: str, room: str):
-    """Return a predicate over Occupancy for the chosen filters (all filters combine with AND)."""
+def matcher(dept: str, year: int | None, section: str, group: str, teacher: str, room: str, student: str = ""):
+    """Return a predicate over Occupancy for the chosen filters (all filters combine with AND).
+    `student` is a student type (a real combination of group + electives): exactly the classes they attend."""
     groups = {group} if group else groups_of(dept, year, section)
     c = STORE.college
     teaching_dept = dept if groups == set() and not (year or section or group) else ""
@@ -73,6 +74,8 @@ def matcher(dept: str, year: int | None, section: str, group: str, teacher: str,
             return False
         if room and o.room != room:
             return False
+        if student:
+            return STORE.attends(student, o)
         if teaching_dept:  # a department with no sections of its own (e.g. Applied Sciences): what its teachers teach
             t = c.teacher_by_id.get(o.teacher or "")
             return bool(t and t.dept == teaching_dept)
@@ -148,12 +151,15 @@ def ping(user: User = Depends(current_user)) -> dict:
 
 
 @router.get("/views")
-def views(dept: str = "", year: int | None = None, section: str = "", group: str = "", teacher: str = "",
-          room: str = "", on: str = "", week_of: str = "", user: User = Depends(current_user)) -> dict:
+def views(dept: str = "", year: int | None = None, section: str = "", group: str = "", student: str = "",
+          teacher: str = "", room: str = "", on: str = "", week_of: str = "",
+          user: User = Depends(current_user)) -> dict:
     """Filtered timetable. No date: the base weekly timetable. `on`: one real date. `week_of`: Mon–Fri
     of that date's week with every date's changes (substitutions, cancellations, bookings)."""
     require(user, "timetable.view")
-    ok = matcher(dept, year, section, group, teacher, room)
+    if student and student not in STORE.college.type_by_id:
+        raise HTTPException(404, f"No student type '{student}'")
+    ok = matcher(dept, year, section, group, teacher, room, student)
     if on:
         d = parse_date(on)
         items = [item_view(o, d) for o in STORE.effective(d) if ok(o)]
@@ -169,7 +175,7 @@ def views(dept: str = "", year: int | None = None, section: str = "", group: str
         dates, mode = [], "week"
     items.sort(key=lambda i: (i["day"], i["start"], i["section"], i["room"]))
     return {"mode": mode, "dates": dates, "items": items,
-            "filters": {"dept": dept, "year": year, "section": section, "group": group, "teacher": teacher, "room": room}}
+            "filters": {"dept": dept, "year": year, "section": section, "group": group, "student": student, "teacher": teacher, "room": room}}
 
 
 @router.get("/teacher/{teacher_id}/free")
@@ -253,14 +259,16 @@ def now_card(on: str = "", period: int = -1, user: User = Depends(current_user))
     `period` is the current period index; -1 = before the day starts, len(periods) = after it ends."""
     d = parse_date(on) if on else date.today()
     wd = d.weekday()
-    who = "group" if user.group else "teacher" if user.teacher_id else None
+    who = "group" if (user.student_type or user.group) else "teacher" if user.teacher_id else None
     out = {"date": d.isoformat(), "day": DAYS[wd] if wd < len(DAYS) else "", "who": who, "period": period,
            "now": None, "next": None, "free": None, "today": [], "leave": [], "meetings": [],
            "weekend": wd >= len(DAYS)}
     if who is None or out["weekend"]:
         return out
     if who == "group":
-        mine = [o for o in STORE.effective(d) if user.group in o.batches]
+        # a student type attends exactly its own classes (FET group numbers are re-used across electives)
+        mine = [o for o in STORE.effective(d)
+                if (STORE.attends(user.student_type, o) if user.student_type else user.group in o.batches)]
         off: set[int] = set()
     else:
         leave = leave_periods(user.teacher_id or "", d)

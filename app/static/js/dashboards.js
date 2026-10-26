@@ -11,7 +11,9 @@ const FEATURE_ICON = { projector: '📽', ac: '❄️', sound: '🔊', computers
 const schoolDay = (d = new Date()) => { d = new Date(d); while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1); return isoDate(d); };
 const STATE_CHIP = { open: ['Needs cover', 'bg-red-100 text-red-700'], covered: ['Covered by co-teacher', 'bg-sky-100 text-sky-800'],
                      substituted: ['Substitute', 'bg-emerald-100 text-emerald-800'], cancelled: ['Cancelled', 'bg-slate-200 text-slate-600'] };
-const VIEW_BY = [['group', 'Group'], ['section', 'Section'], ['year', 'Year'], ['dept', 'Department'], ['teacher', 'Teacher'], ['room', 'Room']];
+// 'student' = one student type: a real combination of group + electives (FET group numbers alone are
+// re-used across electives in 3rd/4th year, so a group is not a set of people)
+const VIEW_BY = [['student', 'Student'], ['section', 'Section'], ['year', 'Year'], ['dept', 'Department'], ['teacher', 'Teacher'], ['room', 'Room']];
 
 function dash() {
   return {
@@ -20,7 +22,7 @@ function dash() {
     VIEW_BY,
 
     // timetable view: what to show (f) and which week
-    f: { by: 'dept', dept: 'CSE', year: '', section: '', group: '', teacher: '', room: '' },
+    f: { by: 'dept', dept: 'CSE', year: '', section: '', student: '', teacher: '', room: '' },
     weekMode: 'dated', weekOf: isoDate(new Date()), view: { items: [], dates: [] }, mobileDay: 0, loadingView: false,
 
     // now / next card (demo date + time can be changed)
@@ -91,9 +93,9 @@ function dash() {
     },
     myView() {
       const u = this.user;
-      if (u.group) {
-        const s = this.meta.sections.find(s => s.batches.includes(u.group));
-        Object.assign(this.f, { by: 'group', dept: s?.dept || u.dept, year: s?.year ?? '', section: s?.id || '', group: u.group });
+      if (u.role === 'student') {
+        const s = this.meta.sections.find(s => s.id === u.section);
+        Object.assign(this.f, { by: 'student', dept: s?.dept || u.dept, year: s?.year ?? '', section: s?.id || '', student: u.student_type });
       } else if (u.role === 'teacher' && u.teacher_id) {
         const t = this.meta.teachers.find(t => t.id === u.teacher_id);
         Object.assign(this.f, { by: 'teacher', dept: t?.dept || u.dept, teacher: u.teacher_id });
@@ -104,7 +106,7 @@ function dash() {
     },
     isMine() {
       const u = this.user || {};
-      if (u.group) return this.f.by === 'group' && this.f.group === u.group;
+      if (u.role === 'student') return this.f.by === 'student' && this.f.student === u.student_type;
       if (u.role === 'teacher') return this.f.by === 'teacher' && this.f.teacher === u.teacher_id;
       return this.f.by === 'dept' && this.f.dept === (u.dept || this.meta?.departments[0].code);
     },
@@ -118,34 +120,37 @@ function dash() {
     deptOptions() {
       if (!this.meta) return [];
       const withSections = new Set(this.meta.sections.map(s => s.dept));
-      if (['group', 'section', 'year'].includes(this.f.by)) return this.meta.departments.filter(d => withSections.has(d.code));
+      if (['student', 'section', 'year'].includes(this.f.by)) return this.meta.departments.filter(d => withSections.has(d.code));
       if (this.f.by === 'room') return [...this.meta.departments.filter(d => this.meta.rooms.some(r => r.dept === d.code)),
                                         { code: 'CENTRAL', name: 'Shared / central' }];
       return this.meta.departments;
     },
     yearOptions() { return [...new Set((this.meta?.sections || []).filter(s => s.dept === this.f.dept).map(s => s.year))].sort(); },
     sectionOptions() {
-      return (this.meta?.sections || []).filter(s => s.dept === this.f.dept && (this.f.by === 'section' || this.f.by === 'group' ? true : String(s.year) === String(this.f.year)));
+      return (this.meta?.sections || []).filter(s => s.dept === this.f.dept && (this.f.by === 'section' || this.f.by === 'student' ? true : String(s.year) === String(this.f.year)));
     },
-    groupOptions() { return this.meta?.sections.find(s => s.id === this.f.section)?.batches || []; },
+    studentOptions() { return (this.meta?.student_types || []).filter(t => t.section === this.f.section); },
     teacherOptions() { return (this.meta?.teachers || []).filter(t => t.dept === this.f.dept); },
     roomOptions() { return (this.meta?.rooms || []).filter(r => (this.f.dept === 'CENTRAL' ? !r.dept : r.dept === this.f.dept)); },
     yearLabel(y) { return { 1: '1st year', 2: '2nd year', 3: '3rd year', 4: '4th year' }[y] || `Year ${y}`; },
-    groupLabel(g) { const s = this.meta?.sections.find(s => s.batches.includes(g)); return s ? `${s.name} · ${g.slice(s.id.length).replace(/^-/, '')}` : g; },
+    // "D4 CS A · A2 · CV · SC A1 group · TA A3" -> "A2 · CV · SC A1 group · TA A3"
+    typeLabel(t) { return t ? t.name.split(' · ').slice(1).join(' · ') || t.name : ''; },
+    typeTitle(t) { return t ? Object.entries(t.details || {}).map(([k, v]) => `${k}: ${v}`).join('\n') : ''; },
+    studentType(id) { return (this.meta?.student_types || []).find(t => t.id === id); },
     // keep every lower filter valid after a higher one changes, then reload
     cascade() {
       const pick = (list, cur, key = x => x) => list.some(x => String(key(x)) === String(cur)) ? cur : (list.length ? key(list[0]) : '');
       this.f.dept = pick(this.deptOptions(), this.f.dept, d => d.code);
       this.f.year = pick(this.yearOptions(), this.f.year);
       this.f.section = pick(this.sectionOptions(), this.f.section, s => s.id);
-      this.f.group = pick(this.groupOptions(), this.f.group);
+      this.f.student = pick(this.studentOptions(), this.f.student, t => t.id);
       this.f.teacher = pick(this.teacherOptions(), this.f.teacher, t => t.id);
       this.f.room = pick(this.roomOptions(), this.f.room, r => r.id);
     },
     changed() { this.cascade(); this.loadView(); },
     viewQuery() {
       const f = this.f, q = new URLSearchParams();
-      if (f.by === 'group') q.set('group', f.group);
+      if (f.by === 'student') q.set('student', f.student);
       if (f.by === 'section') q.set('section', f.section);
       if (f.by === 'year') { q.set('dept', f.dept); q.set('year', f.year); }
       if (f.by === 'dept') q.set('dept', f.dept);
@@ -168,7 +173,10 @@ function dash() {
     viewTitle() {
       const f = this.f, m = this.meta; if (!m) return '';
       const dept = m.departments.find(d => d.code === f.dept);
-      if (f.by === 'group') return `Group timetable: ${this.groupLabel(f.group)}`;
+      if (f.by === 'student') {
+        const t = this.studentType(f.student);
+        return `Student timetable: ${t ? t.name : f.student}`;
+      }
       if (f.by === 'section') return `Class timetable: ${m.sections.find(s => s.id === f.section)?.name || f.section}`;
       if (f.by === 'year') return `${f.dept} ${this.yearLabel(+f.year)}: all sections`;
       if (f.by === 'dept') return `Department: ${dept ? dept.name : f.dept}`;
@@ -210,9 +218,9 @@ function dash() {
       let sub;
       if (by === 'teacher') sub = `${e.section} · ${e.room}`;
       else if (by === 'room') sub = `${e.section} · ${shortName(e.teacher_name)}`;
-      else if (by === 'group' || by === 'section') sub = `${shortName(e.teacher_name)} · ${e.room}`;
+      else if (by === 'student' || by === 'section') sub = `${shortName(e.teacher_name)} · ${e.room}`;
       else sub = `${e.section} · ${e.room}`;
-      const batch = lab && (by === 'group' || by === 'section')
+      const batch = lab && (by === 'student' || by === 'section')
         ? `<span class="ml-1 text-[10px] px-1 rounded bg-white/70 border">${esc(e.batches[0].split('-').pop())}</span>` : '';
       const flag = e.status === 'substituted'
         ? `<div class="mt-0.5 text-[10px] font-semibold text-amber-800 bg-amber-100 rounded px-1">↺ Substitute: ${esc(e.teacher_name)}${e.regular_teacher_name ? ' (for ' + esc(shortName(e.regular_teacher_name)) + ')' : ''}</div>`
@@ -422,7 +430,7 @@ function dash() {
     askSuggestions() {
       const m = this.meta, out = [];
       const lab = m.rooms.find(r => !r.sittable), teacher = m.teachers.find(t => t.id === this.user?.teacher_id) || m.teachers[0];
-      const sec = m.sections.find(s => s.batches.includes(this.user?.group)) || m.sections.find(s => s.dept === this.f.dept) || m.sections[0];
+      const sec = m.sections.find(s => s.id === this.user?.section) || m.sections.find(s => s.dept === this.f.dept) || m.sections[0];
       if (lab) out.push(`Is ${lab.id} free after lunch on Friday?`);
       if (teacher) out.push(`When is ${shortName(teacher.name)} free on Wednesday?`);
       if (sec) out.push(`What does ${sec.name} have on Monday?`);

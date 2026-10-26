@@ -54,11 +54,11 @@ def as_(user: str) -> dict:
 
 
 def a_student(store):
-    """A student whose group has both whole-section classes and its own labs on Mondays."""
-    def ok(g):
-        mine = [o for o in store.week() if g in o.batches and o.day == 0]
+    """A student (one student type) with both whole-section classes and single-group classes on Mondays."""
+    def ok(t):
+        mine = [o for o in store.week() if o.day == 0 and store.attends(t, o)]
         return any(len(o.batches) > 1 for o in mine) and any(len(o.batches) == 1 for o in mine)
-    return next(u for u in store.users.values() if u.role == "student" and ok(u.group))
+    return next(u for u in store.users.values() if u.role == "student" and ok(u.student_type))
 
 
 def busy_teacher(store):
@@ -67,19 +67,34 @@ def busy_teacher(store):
     return t, next_weekday(0)
 
 
-def test_group_view_shows_only_that_groups_classes(client, store):
+def test_student_view_shows_exactly_their_classes(client, store):
     s = a_student(store)
-    items = client.get(f"/api/dash/views?group={s.group}", headers=as_(s.id)).json()["items"]
-    assert items and all(s.group in i["batches"] for i in items)
-    # whole-section classes and this group's own labs are in, the other group's labs are not
+    items = client.get(f"/api/dash/views?student={s.student_type}", headers=as_(s.id)).json()["items"]
+    expected = {o.key for o in store.week() if store.attends(s.student_type, o)}
+    assert items and {i["key"] for i in items} == expected
+    # whole-section classes and their own lab / elective groups are in
     assert any(len(i["batches"]) > 1 for i in items)
     assert any(len(i["batches"]) == 1 for i in items)
+    assert client.get("/api/dash/views?student=NOPE").status_code == 404
+
+
+def test_types_sharing_a_group_number_can_differ(client, store):
+    """FET group numbers are re-used across electives: two types in one section see different weeks."""
+    by_section: dict[str, list[str]] = {}
+    for t in store.college.student_types:
+        by_section.setdefault(t.section, []).append(t.id)
+    weeks = [{i["key"] for i in client.get(f"/api/dash/views?student={t}").json()["items"]}
+             for ts in by_section.values() if len(ts) > 1 for t in ts[:2]]
+    if not weeks:
+        pytest.skip("no section with more than one student type in this data")
+    assert weeks[0] != weeks[1]
 
 
 def test_section_year_and_dept_views_nest(client, store):
     sec = store.college.sections[0]
     get = lambda q: client.get("/api/dash/views?" + q).json()["items"]
-    group = {i["key"] for i in get(f"group={sec.batches[0]}")}
+    student = next(t.id for t in store.college.student_types if t.section == sec.id)
+    group = {i["key"] for i in get(f"student={student}")}
     section = {i["key"] for i in get(f"section={sec.id}")}
     year = {i["key"] for i in get(f"dept={sec.dept}&year={sec.year}")}
     dept = {i["key"] for i in get(f"dept={sec.dept}")}
@@ -158,7 +173,7 @@ def test_meeting_round_trip_and_permissions(client, store):
 def test_now_card(client, store):
     s = a_student(store)
     monday = next_weekday(0)
-    mine = sorted((o for o in store.effective(monday) if s.group in o.batches), key=lambda o: o.start)
+    mine = sorted((o for o in store.effective(monday) if store.attends(s.student_type, o)), key=lambda o: o.start)
     first = mine[0]
     r = client.get(f"/api/dash/now?on={monday}&period={first.start}", headers=as_(s.id)).json()
     assert r["now"]["key"] == first.key
@@ -194,9 +209,9 @@ def test_leave_blocks_free_slots_and_now_card(client, store):
 def test_substituted_class_names_both_teachers(client, store):
     s = a_student(store)
     on = next_weekday(0)
-    o = next(o for o in store.effective(on) if s.group in o.batches and o.teacher)
+    o = next(o for o in store.effective(on) if store.attends(s.student_type, o) and o.teacher)
     sub = next(t.id for t in store.college.teachers if t.id != o.teacher)
     store.add_override(Override("sub1", on, "substitute", entry_key=o.key, teacher=sub))
-    item = next(i for i in client.get(f"/api/dash/views?group={s.group}&on={on}").json()["items"] if i["key"] == o.key)
+    item = next(i for i in client.get(f"/api/dash/views?student={s.student_type}&on={on}").json()["items"] if i["key"] == o.key)
     assert item["status"] == "substituted" and item["teacher"] == sub
     assert item["regular_teacher_name"] == store.college.teacher_by_id[o.teacher].name

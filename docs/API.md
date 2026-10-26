@@ -103,7 +103,8 @@ Owned by the Dashboards session. Built and tested in `tests/test_dashboards_api.
 | `GET /api/dash/now?on=&period=` | the caller's now / next / next-free card |
 
 **`/views` filters** (combine with AND; leave all empty for everything):
-- `group` (one lab group, e.g. `D3-CS-A-A1`): whole-section classes + that group's labs + electives it is in.
+- `student` (a student type, e.g. `D4-CS-A:A2:CV:SCA1:TA3`): exactly the classes students with that combination of group + electives attend (`STORE.attends`). This is what "My timetable" uses; 404 for an unknown type.
+- `group` (one FET group, e.g. `D3-CS-A-A1`): every class that lists that group. Kept for compatibility only: in 3rd/4th year the group numbers are re-used across electives, so this is not one set of students.
 - `section`: every class with at least one of the section's groups.
 - `dept` + `year`: all sections of that year. `dept` alone: the whole department. A department with no sections (e.g. Applied Sciences) shows what its teachers teach.
 - `teacher` (main teacher or co-teacher, so co-taught labs show up), `room`.
@@ -117,7 +118,7 @@ Owned by the Dashboards session. Built and tested in `tests/test_dashboards_api.
 - Requests notify every account of that teacher (`t-<id>`, and `hod-<dept>` if they are HOD), linking to `/#meetings`. Replies notify the student, linking to `/#teacher`.
 - Meeting views add `teacher_name`, `student_name`, `day` and `slot {period, label, start, end}`.
 
-**`/now`**: `period` is the current period index (`-1` before the day starts, `len(periods)` after it ends). Students get their group's day, teachers and HODs their own. Returns `{date, day, who: group|teacher|null, weekend, now, next, free: {period, label, start, until, periods, now}, meetings, leave, today}`. Accepted meetings and leave count as busy; `leave` lists the periods the teacher is on leave, and classes inside their leave are left out of `now` / `next`.
+**`/now`**: `period` is the current period index (`-1` before the day starts, `len(periods)` after it ends). Students get their student type's day (`STORE.attends`), teachers and HODs their own. Returns `{date, day, who: group|teacher|null, weekend, now, next, free: {period, label, start, until, periods, now}, meetings, leave, today}`. Accepted meetings and leave count as busy; `leave` lists the periods the teacher is on leave, and classes inside their leave are left out of `now` / `next`.
 
 **Page deep links** (`/`, index.html): `#teacher`, `#rooms`, `#meetings`, `#subs` (HOD/admin), `#load`, `#ask`.
 
