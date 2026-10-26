@@ -122,17 +122,18 @@ function dash() {
       try { this.tt = await TW.api('/api/timetable'); } catch { this.tt = { ready: false }; }
       if (!this.tt.ready) this.tt = { ready: false, issues: [], entries: [] };
     },
-    // header badge (staff see issues; the published data can list one combined class in two departments)
-    teacherClashes() { return (this.tt.issues || []).filter(i => i.startsWith('CLASH Teacher')).length; },
-    issuesLabel() {
-      const n = (this.tt.issues || []).length;
-      if (!n) return '✔ Timetable verified: 0 clashes';
-      return n === this.teacherClashes() ? `⚠ ${n} teacher double-booking${n === 1 ? '' : 's'}, as published` : `✖ ${n} timetable issues`;
+    // `issues`: clashes TimeWeave itself would cause (should be none). `published_issues`: clashes already in the
+    // college's own published timetables (e.g. a combined class two departments both list). Staff only.
+    ownIssues() { return this.tt.issues || []; },
+    publishedIssues() { return this.tt.published_issues || []; },
+    publishedLabel() {
+      const p = this.publishedIssues(), n = p.length;
+      const teachers = p.every(i => i.startsWith('CLASH Teacher'));
+      return `⚠ ${n} ${teachers ? 'teacher double-booking' + (n === 1 ? '' : 's') : 'clash' + (n === 1 ? '' : 'es')} in the college's published timetables`;
     },
-    issuesHelp() {
-      const n = this.teacherClashes();
-      return n ? `${n} place${n === 1 ? '' : 's'} where a teacher appears in two departments' timetables at once (combined classes, as published).` : '';
-    },
+    get isImported() { return this.tt.status === 'IMPORTED'; },
+    // departments with real class sections (elective audiences don't count)
+    realDepartments() { return new Set((this.meta?.sections || []).filter(s => s.kind !== 'elective').map(s => s.dept)).size; },
     flash(msg) { this.toast = msg; clearTimeout(this._t); this._t = setTimeout(() => this.toast = '', 3500); },
 
     // ---------------------------------------------------------------- timetable filters

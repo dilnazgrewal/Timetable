@@ -6,7 +6,7 @@
 <title>TimeWeave</title>
 <script src="https://cdn.tailwindcss.com/3.4.16"></script>
 <script src="/static/js/shell.js"></script>
-<script src="/static/js/dashboards.js?v=2026-10-26g"></script>
+<script src="/static/js/dashboards.js?v=2026-10-26h"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
 <style>
   [x-cloak] { display: none !important; }
@@ -44,10 +44,12 @@
     <div class="flex items-center gap-2">
       <button x-show="can.mark_own_leave && !leave.open" @click="openLeave(user.teacher_id)"
               class="text-sm px-3 py-1.5 rounded-lg border border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100">🗓 Mark leave</button>
-      <!-- issues are for staff only: they come from the published data and are not about a student's own week -->
-      <span x-show="tt.ready && (showInsights || !tt.issues.length)" class="text-xs px-2 py-1 rounded-full"
-            :class="tt.issues.length ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-800'"
-            :title="issuesHelp()" x-text="issuesLabel()"></span>
+      <!-- problems are for staff only; the published ones are the college's own, not about a student's week -->
+      <span x-show="tt.ready && !ownIssues().length" class="text-xs px-2 py-1 rounded-full bg-emerald-100 text-emerald-800">✔ Timetable verified: 0 clashes</span>
+      <span x-show="tt.ready && showInsights && ownIssues().length" class="text-xs px-2 py-1 rounded-full bg-red-100 text-red-700"
+            x-text="'✖ ' + ownIssues().length + ' timetable issues'"></span>
+      <span x-show="tt.ready && showInsights && publishedIssues().length" class="text-xs px-2 py-1 rounded-full bg-amber-100 text-amber-800"
+            :title="publishedIssues().join('\n')" x-text="publishedLabel()"></span>
     </div>
   </div>
 
@@ -182,13 +184,15 @@
   <!-- metrics (timetable office and HODs) -->
   <section x-show="tab === 'timetable' && showInsights" class="no-print grid grid-cols-2 lg:grid-cols-5 gap-3 mb-4">
     <div class="rounded-xl p-3 border col-span-2 lg:col-span-1"
-         :class="!tt.ready ? 'bg-white' : (tt.issues.length ? 'bg-red-50 border-red-200' : 'bg-emerald-50 border-emerald-200')">
+         :class="!tt.ready ? 'bg-white' : (ownIssues().length ? 'bg-red-50 border-red-200' : 'bg-emerald-50 border-emerald-200')">
       <div class="text-xs text-slate-500">Independent validator</div>
       <template x-if="tt.ready">
         <div>
-          <div class="text-lg font-bold" :class="tt.issues.length ? 'text-red-700' : 'text-emerald-700'"
-               x-text="tt.issues.length ? '✖ ' + tt.issues.length + ' issues' : '✔ 0 clashes'"></div>
+          <div class="text-lg font-bold" :class="ownIssues().length ? 'text-red-700' : 'text-emerald-700'"
+               x-text="ownIssues().length ? '✖ ' + ownIssues().length + ' issues' : '✔ 0 clashes'"></div>
           <div class="text-xs text-slate-500">teachers · students · rooms · labs · lunch</div>
+          <div x-show="publishedIssues().length" class="text-xs text-amber-700 mt-0.5"
+               x-text="'+ ' + publishedIssues().length + ' already in the published timetables'"></div>
         </div>
       </template>
       <div x-show="!tt.ready" class="text-lg font-bold text-slate-400">not generated</div>
@@ -208,11 +212,20 @@
       <div class="text-lg font-bold" x-text="tt.ready ? tt.metrics.lonely_days : '–'"></div>
       <div class="text-xs text-slate-500" x-show="tt.baseline">without optimising: <b class="text-red-600" x-text="tt.baseline?.lonely_days"></b></div>
     </div>
-    <div class="rounded-xl p-3 border bg-white">
-      <div class="text-xs text-slate-500">Solver</div>
-      <div class="text-lg font-bold" x-text="tt.ready ? tt.status : '–'"></div>
-      <div class="text-xs text-slate-500" x-show="tt.ready">OR-Tools CP-SAT · <span x-text="tt.seconds"></span> s</div>
-    </div>
+    <template x-if="!isImported">
+      <div class="rounded-xl p-3 border bg-white">
+        <div class="text-xs text-slate-500">Solver</div>
+        <div class="text-lg font-bold" x-text="tt.ready ? tt.status : '–'"></div>
+        <div class="text-xs text-slate-500" x-show="tt.ready && tt.seconds">OR-Tools CP-SAT · <span x-text="tt.seconds"></span> s</div>
+      </div>
+    </template>
+    <template x-if="isImported">
+      <div class="rounded-xl p-3 border bg-white">
+        <div class="text-xs text-slate-500">Data</div>
+        <div class="text-lg font-bold leading-tight" x-text="'Real GNDEC timetables (' + realDepartments() + ' departments)'"></div>
+        <a x-show="can.optimised_view" href="/compare.html" class="text-xs text-indigo-700 font-semibold hover:underline">Optimised timetables →</a>
+      </div>
+    </template>
   </section>
 
   <!-- real (imported) vs generated quality: both are clash-free, the difference is lunch and long days -->
@@ -243,7 +256,7 @@
 
   <!-- generate -->
   <!-- every department imported from the college (no `compare`): nothing to generate, point to the optimised timetables -->
-  <div x-show="tab === 'timetable' && tt.ready && !tt.compare && (can.optimised_view || canGenerate)"
+  <div x-show="tab === 'timetable' && tt.ready && !tt.compare && !showInsights && (can.optimised_view || canGenerate)"
        class="no-print flex flex-wrap items-center gap-x-3 gap-y-1 mb-4 text-sm">
     <span class="text-slate-600" x-text="tt.source || 'Every department\'s timetable is imported from the college.'"></span>
     <a x-show="can.optimised_view" href="/compare.html" class="text-indigo-700 font-semibold hover:underline">See the optimised timetables →</a>
@@ -350,7 +363,7 @@
       <button @click="window.print()" class="px-3 py-1.5 rounded-lg border bg-white text-sm text-slate-700 hover:bg-slate-50">🖨 Print / Save PDF</button>
     </div>
 
-    <div x-show="!tt.ready" class="rounded-xl border bg-white p-8 text-center text-slate-500">
+    <div x-show="!tt.ready && !view.items.length && !loadingView" class="rounded-xl border bg-white p-8 text-center text-slate-500">
       No timetable yet. Switch to <b>Timetable office</b> and press <b>Generate</b>.
     </div>
 
@@ -363,13 +376,13 @@
         </div>
         <div style="font-size:11px; color:#475569; text-align:right">
           TimeWeave · printed <span x-text="new Date().toLocaleDateString()"></span><br>
-          <span x-text="tt.ready && !tt.issues.length ? '✔ Verified: 0 clashes' : ''"></span>
+          <span x-text="tt.ready && !ownIssues().length ? '✔ Verified: 0 clashes' : ''"></span>
         </div>
       </div>
     </div>
 
     <!-- mobile: one day at a time -->
-    <div x-show="tt.ready" class="no-print sm:hidden">
+    <div x-show="tt.ready || view.items.length" class="no-print sm:hidden">
       <div class="flex gap-1 mb-3">
         <template x-for="(d, i) in meta?.days">
           <button @click="mobileDay = i" class="flex-1 py-1.5 rounded-lg text-sm relative"
@@ -393,7 +406,7 @@
     </div>
 
     <!-- desktop grid -->
-    <div x-show="tt.ready" class="print-grid hidden sm:block overflow-x-auto rounded-xl border bg-white" :class="loadingView ? 'opacity-60' : ''">
+    <div x-show="tt.ready || view.items.length" class="print-grid hidden sm:block overflow-x-auto rounded-xl border bg-white" :class="loadingView ? 'opacity-60' : ''">
       <table class="w-full text-sm table-fixed min-w-[760px]">
         <thead class="bg-slate-50">
           <tr>
@@ -752,8 +765,15 @@
     </div>
   </section>
 
-  <section x-show="showInsights && tt.ready && tt.issues.length" class="no-print mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">
-    <template x-for="i in tt.issues.slice(0, 20)"><div x-text="i"></div></template>
+  <section x-show="tab === 'timetable' && showInsights && tt.ready && publishedIssues().length" class="no-print mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+    <details>
+      <summary class="cursor-pointer font-semibold" x-text="publishedLabel().replace('⚠ ', '')"></summary>
+      <p class="text-xs text-amber-800 mt-1 mb-1">These are in the college's own timetables (for example a combined class that two departments both list). TimeWeave keeps them as published and never adds new ones.</p>
+      <template x-for="i in publishedIssues()"><div class="text-xs" x-text="i"></div></template>
+    </details>
+  </section>
+  <section x-show="showInsights && tt.ready && ownIssues().length" class="no-print mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+    <template x-for="i in ownIssues().slice(0, 20)"><div x-text="i"></div></template>
   </section>
 </div>
 </body>
