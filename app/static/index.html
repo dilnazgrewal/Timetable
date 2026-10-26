@@ -6,7 +6,7 @@
 <title>TimeWeave</title>
 <script src="https://cdn.tailwindcss.com/3.4.16"></script>
 <script src="/static/js/shell.js"></script>
-<script src="/static/js/dashboards.js?v=2026-10-26f"></script>
+<script src="/static/js/dashboards.js?v=2026-10-26g"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
 <style>
   [x-cloak] { display: none !important; }
@@ -242,7 +242,13 @@
   </template>
 
   <!-- generate -->
-  <div x-show="tab === 'timetable' && canGenerate" class="no-print flex flex-wrap items-center gap-3 mb-4">
+  <!-- every department imported from the college (no `compare`): nothing to generate, point to the optimised timetables -->
+  <div x-show="tab === 'timetable' && tt.ready && !tt.compare && (can.optimised_view || canGenerate)"
+       class="no-print flex flex-wrap items-center gap-x-3 gap-y-1 mb-4 text-sm">
+    <span class="text-slate-600" x-text="tt.source || 'Every department\'s timetable is imported from the college.'"></span>
+    <a x-show="can.optimised_view" href="/compare.html" class="text-indigo-700 font-semibold hover:underline">See the optimised timetables →</a>
+  </div>
+  <div x-show="tab === 'timetable' && canGenerate && (!tt.ready || tt.compare)" class="no-print flex flex-wrap items-center gap-3 mb-4">
     <button @click="generate()" :disabled="generating"
             class="px-4 py-2 rounded-lg bg-indigo-600 text-white font-semibold hover:bg-indigo-700 disabled:opacity-60 flex items-center gap-2">
       <svg x-show="generating" class="spin h-4 w-4" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="40 60"/></svg>
