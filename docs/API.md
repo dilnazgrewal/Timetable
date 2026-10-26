@@ -125,7 +125,9 @@ Owned by the Dashboards session. Built and tested in `tests/test_dashboards_api.
 
 **`/now`**: `period` is the current period index (`-1` before the day starts, `len(periods)` after it ends). Students get their student type's day (`STORE.attends`), teachers and HODs their own. Returns `{date, day, who: group|teacher|null, weekend, now, next, free: {period, label, start, until, periods, now}, meetings, leave, today}`. Accepted meetings and leave count as busy; `leave` lists the periods the teacher is on leave, and classes inside their leave are left out of `now` / `next`.
 
-**Page deep links** (`/`, index.html): `#teacher`, `#rooms`, `#meetings`, `#subs` (HOD/admin), `#load`, `#ask`.
+**Page deep links** (`/`, index.html): `#teacher`, `#rooms`, `#meetings`, `#subs`, `#load`, `#ask`.
+
+**Who sees what** comes from `TW.can` (the server's permission table), never from role names: Generate = `generate` (admin only); metrics, real-vs-generated panel and Teacher load = `insights`; Substitutions tab = `substitutions` (Assign / Cancel class) or the Dean read-only; Mark leave = `mark_own_leave`, for others `mark_dept_leave`; Meetings = `request_meeting` / `reply_meetings`; the Now/Next card = `my_timetable`. Home view: students their student type, teachers their own week, HOD / coordinator / Dean / admin a department (`TW.user.dept`).
 
 **Leave and substitutions UI** uses the Core endpoints (`POST /api/leave`, `GET /api/leave?on=`, `POST /api/substitutions`): teachers get a "Mark leave" button; HODs and admin get the Substitutions tab with the next 6 school days, each absent teacher's classes, state chips, ranked candidates with reasons, Assign and Cancel class.
 

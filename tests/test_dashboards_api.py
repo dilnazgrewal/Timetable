@@ -46,7 +46,8 @@ def store(solved, tmp_path, monkeypatch):
 
 @pytest.fixture
 def client(store):
-    return TestClient(app)
+    # signed in as the timetable office by default; tests pass their own X-User (accepted in demo mode)
+    return TestClient(app, headers={"X-User": "admin"})
 
 
 def as_(user: str) -> dict:
@@ -215,3 +216,15 @@ def test_substituted_class_names_both_teachers(client, store):
     item = next(i for i in client.get(f"/api/dash/views?student={s.student_type}&on={on}").json()["items"] if i["key"] == o.key)
     assert item["status"] == "substituted" and item["teacher"] == sub
     assert item["regular_teacher_name"] == store.college.teacher_by_id[o.teacher].name
+
+
+def test_dashboards_need_sign_in(store):
+    assert TestClient(app).get("/api/dash/views").status_code == 401
+
+
+def test_dean_is_read_only(client, store):
+    t, monday = busy_teacher(store)
+    assert client.get(f"/api/dash/views?teacher={t.id}", headers=as_("dean")).json()["items"]
+    free = client.get(f"/api/dash/teacher/{t.id}/free?on={monday}", headers=as_("dean")).json()["free"][0]["period"]
+    body = {"teacher": t.id, "date": monday, "period": free}
+    assert client.post("/api/dash/meetings", json=body, headers=as_("dean")).status_code == 403

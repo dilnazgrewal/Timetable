@@ -1,6 +1,7 @@
 // Lane B (Dashboards UI): the Alpine component behind index.html (role home, timetable views,
 // find a teacher + meetings, now / next, leave + substitutions, free rooms, teacher load, ask). Every request goes
-// through TW.api() so the demo account (X-User) is sent.
+// through TW.api() (the signed-in session). What a person may do comes from TW.can (the server's permission
+// table); the role is only used for wording.
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const isoDate = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -17,7 +18,7 @@ const VIEW_BY = [['student', 'Student'], ['section', 'Section'], ['year', 'Year'
 
 function dash() {
   return {
-    user: null, meta: null, tt: { ready: false, issues: [], entries: [] },
+    user: null, can: {}, meta: null, tt: { ready: false, issues: [], entries: [] },
     tab: 'timetable', today: isoDate(new Date()), generating: false, elapsed: 0, problems: [], toast: '',
     VIEW_BY,
 
@@ -45,6 +46,7 @@ function dash() {
     // ---------------------------------------------------------------- start-up and roles
     async init() {
       this.user = await TW.ready;
+      this.can = TW.can || {};
       this.meta = await TW.api('/api/meta');
       const wd = new Date().getDay();
       this.mobileDay = wd >= 1 && wd <= 5 ? wd - 1 : 0;
@@ -60,19 +62,25 @@ function dash() {
       window.addEventListener('hashchange', openHash);
       setInterval(() => { if (this.clock.live) this.tick(); }, 60000);
     },
-    get role() { return this.user?.role || 'admin'; },
-    get isStudent() { return this.role === 'student'; },
-    get isTeacher() { return !!this.user?.teacher_id; },
-    get canGenerate() { return this.role === 'admin' || this.role === 'hod'; },
-    get hasCard() { return this.isStudent || this.isTeacher; },
-    get canSubs() { return this.role === 'admin' || this.role === 'hod'; },
+    get role() { return this.user?.role || ''; },
+    get isStudent() { return this.role === 'student'; },  // wording only
+    get isTeacher() { return !!this.user?.teacher_id; },  // wording only
+    get canGenerate() { return !!this.can.generate; },
+    get hasCard() { return !!this.can.my_timetable; },
+    get canSubs() { return !!this.can.substitutions; },
+    // department-wide numbers (metrics, real-vs-generated, teacher load): office, HOD, coordinator, Dean
+    get showInsights() { return !!this.can.insights; },
+    // the leave board: those who arrange cover, plus the Dean read-only (no capability key for that yet)
+    get showSubs() { return this.canSubs || this.role === 'dean'; },
     tabs() {
-      const t = [{ id: 'timetable', label: this.isStudent ? 'My timetable' : this.role === 'teacher' ? 'My schedule' : 'Timetable' },
-                 { id: 'teacher', label: 'Find a teacher' }, { id: 'rooms', label: 'Free rooms' }];
-      if (this.isStudent || this.isTeacher) t.push({ id: 'meetings', label: 'Meetings', badge: this.meetings.pending });
-      if (this.canSubs) t.push({ id: 'subs', label: 'Substitutions', badge: this.subs.openCount });
-      if (this.canGenerate) t.push({ id: 'load', label: 'Teacher load' });
-      t.push({ id: 'ask', label: 'Ask ✨' });
+      const c = this.can;
+      const t = [{ id: 'timetable', label: this.isStudent ? 'My timetable' : this.role === 'teacher' ? 'My schedule' : 'Timetable' }];
+      if (c.find_teacher) t.push({ id: 'teacher', label: 'Find a teacher' });
+      if (c.free_rooms) t.push({ id: 'rooms', label: 'Free rooms' });
+      if (c.request_meeting || c.reply_meetings) t.push({ id: 'meetings', label: 'Meetings', badge: this.meetings.pending });
+      if (this.showSubs) t.push({ id: 'subs', label: 'Substitutions', badge: this.subs.openCount });
+      if (this.showInsights) t.push({ id: 'load', label: 'Teacher load' });
+      if (c.chat) t.push({ id: 'ask', label: 'Ask ✨' });
       return t;
     },
     go(id, push = true) {
@@ -89,7 +97,7 @@ function dash() {
       return `${h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'}, ${this.user.name}`;
     },
     homeLabel() {
-      return this.isStudent ? 'My timetable' : this.isTeacher ? 'My schedule' : 'My department';
+      return this.isStudent ? 'My timetable' : this.role === 'teacher' ? 'My schedule' : 'My department';
     },
     myView() {
       const u = this.user;
@@ -297,7 +305,7 @@ function dash() {
       } catch (e) { this.flash(e.message); }
     },
     async loadMeetings() {
-      if (!this.isStudent && !this.isTeacher) return;
+      if (!this.can.request_meeting && !this.can.reply_meetings) return;
       try { this.meetings = await TW.api('/api/dash/meetings'); } catch {}
     },
     async reply(m, status) {
@@ -315,8 +323,8 @@ function dash() {
     leaveTeachers() {  // whom this account may mark on leave (the server checks leave.mark again)
       const ts = this.meta?.teachers || [];
       if (this.role === 'admin') return ts;
-      if (this.role === 'hod') return ts.filter(t => t.dept === this.user.dept);
-      return ts.filter(t => t.id === this.user?.teacher_id);
+      if (this.can.mark_dept_leave) return ts.filter(t => t.dept === this.user.dept);  // HOD, coordinator
+      return this.can.mark_own_leave ? ts.filter(t => t.id === this.user?.teacher_id) : [];
     },
     openLeave(teacherId) {
       Object.assign(this.leave, { open: true, result: null, whole: true, periods: [], reason: '',
@@ -343,7 +351,7 @@ function dash() {
     },
     // the board shows one date; the strip above it shows the next school days and how many classes need cover
     async loadSubDays(pickBusy = false) {
-      if (!this.canSubs) return;
+      if (!this.showSubs) return;
       const days = [], d = new Date(schoolDay() + 'T12:00');
       while (days.length < 6) { if (d.getDay() % 6) days.push(isoDate(d)); d.setDate(d.getDate() + 1); }
       if (!days.includes(this.subs.on)) days.unshift(this.subs.on);
