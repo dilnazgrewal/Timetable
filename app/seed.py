@@ -89,6 +89,7 @@ BUILDINGS = [
     Building("CIVIL", "Civil Block", FLOORS),
     Building("MAIN", "Main Block", FLOORS),
     Building("WS", "Workshop Block", ["Ground"]),
+    Building("EE", "Electrical Block", FLOORS),
 ]
 DEPT_BUILDING = {"CSE": "MBA", "IT": "MBA", "ECE": "ECE", "ME": "MECH", "CE": "CIVIL", "EE": "EE"}
 

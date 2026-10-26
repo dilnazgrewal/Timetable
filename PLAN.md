@@ -6,7 +6,7 @@
 
 **Status legend:** ✅ done · 🟡 partly done · ⬜ not started
 
-**Submission: Tuesday 27 Oct 2026.** Day 1 (Wed 21 Oct) shipped the prototype (v0.1, Section 5). From Thu 22 Oct the plan is **v2**, below. It supersedes the older v0.2–v1.0 day split in Section 5.
+**Submission: Tuesday 27 Oct 2026.** Section 0 below is the current status. Sections 4–5 keep the original day-by-day plan (v0.1–v1.0) for history; Section 0 supersedes them.
 
 ---
 
@@ -14,48 +14,56 @@
 Most teams will build an optimised timetable generator. We also run on **GNDEC's real timetable** and solve the everyday problems around it.
 
 ### Why GNDEC data matters
-- The CSE department generates its timetable with **FET** and publishes it at cse.gndec.ac.in. We import it, so the demo shows the real, current timetable.
-- **Real rooms:**
-  - Ground floor: G6, G7, G10–G18
-  - First floor: F105, F107
-  - Second floor: S202–S205, S213–S219
-  - Classrooms seat 75, each with a projector
-  - 13 labs, plus the WS Seminar Hall
-- **Real groups:** D1–D4 CS A–F, with lab groups A1/A2 and cross-section elective groups.
-- **Lunch already varies by year** (D2 at 11:30, D3 at 12:30), which backs our flexible lunch. Several rooms are unused all week, which backs the free-room feature.
+- **Every department publishes its timetable** (generated with **FET**) on its website: CSE, IT, ME, CE, ECE and EE. TimeWeave imports all six, so the demo runs on the real, current Jul–Dec 2026 timetables of the whole college, not made-up data.
+- **Real rooms, teachers and groups:** about 150 rooms, 205 named teachers, every section and lab group. Numbered classrooms (G17, S213) are shared across departments; each department's labs are its own.
+- **Real problems the data shows:**
+  - long waiting gaps
+  - days with no midday break
+  - classes taught by one department to another's students, listed in both timetables
+  - in 3rd/4th year, group numbers that are reused for electives (caught by a student)
+  TimeWeave measures and fixes these; the published data's own 5 teacher double-bookings are reported, never made worse.
 
-### v2 features and status
+### v2 features and status (Mon 26 Oct, evening)
 | # | Feature | Lane | Status |
 |---|---|---|---|
-| A1 | GNDEC-shaped model: buildings and floors, room features, sittable/bookable flags, D-year group naming | A | 🟡 model done; real GNDEC rooms next |
-| A2 | **FET importer:** the real CSE timetable, re-checked by the validator | A | ⬜ |
-| A3 | GNDEC-shaped seed for the other departments, 9-slot day | A | ⬜ |
-| A4 | `effective(date)` = base + that date's overrides (cancel / substitute / room change / booking) | A | ✅ |
-| A5 | Demo accounts for every role + server-side permissions | A | ✅ |
-| B1 | Role dashboards; department → year → section → group filters for every department | B | ⬜ |
-| B2 | Find a teacher: their timetable, free slots, request a meeting | B | ⬜ |
-| B3 | Now / Next card | B | ⬜ |
-| C0 | Free rooms 2.0: by building and floor, sitting rooms only, "near me", booking-aware, chatbot | A + B | 🟡 API filters done (`on`, `sittable_only`, `building`, `floor`) |
-| D1 | Venue booking: requirement form → ranked suitable venues → request | C | ⬜ |
-| D2 | Approvals: club lead → faculty advisor → HOD (central halls → admin); approved booking leaves Free rooms | C | 🟡 rules in `auth.py` |
-| E1 | Event slot finder for organisations and T&P: common free time for a batch, plus a venue | C | ⬜ |
-| F | Substitutions, notifications (🔔 shell ✅), room QR page, insights heatmap, drag-and-drop editor + minimal-change repair, Excel import/export, venue calendar, PWA, deploy, optional Google login | A/B/C | ⬜ |
+| A1 | GNDEC model: buildings and floors, room flags (sittable / bookable), D-year groups, student types (real elective combinations) | A | ✅ |
+| A2 | **FET importers:** CSE (+ groups page, open electives) and IT, ME, CE, ECE, EE (any FET export style); one merged college, first year linked across departments | A | ✅ |
+| A3 | **Optimiser per department:** same lessons, better times, never worse than the college, no new clash anywhere in the college; department picker; propose → publish | A | ✅ |
+| A3b | **College rules** (`data/gndec/rules.json`): each college's own habits (labs on different days, nothing after JPAL, a real class every day, what stays put), obeyed by the optimiser and checked independently | A | ✅ |
+| A4 | `effective(date)` = base + that date's overrides (cancel / substitute / room change / booking / leave) | A | ✅ |
+| A5 | **Sign-in and roles:** four roles (Student, Teacher, HOD, Timetable office) with duties (club lead, coordinator, Dean, T&P); students pick year, section, then subjects; permission table; audit log | A | ✅ |
+| A6 | Generator from scratch (CP-SAT) with an independent validator, on the synthetic seeded college | A | ✅ |
+| B1 | Role dashboards; department → year → section → group / student-type views for every department | B | ✅ |
+| B2 | Find a teacher: their timetable, free slots, request a meeting | B | ✅ |
+| B3 | Now / Next card | B | ✅ |
+| C0 | Free rooms 2.0: by building and floor, sitting rooms only, booking-aware; assistant tools | A + B | ✅ |
+| D1 | Venue booking: requirement form → ranked suitable venues → request | C | ✅ |
+| D2 | Approvals: club lead → faculty advisor → HOD (central halls → timetable office); approved booking leaves Free rooms | C | ✅ |
+| E1 | Event slot finder for organisations and T&P: common free time for a batch, plus a venue | C | ✅ |
+| F1 | Substitutions (absence → ranked substitutes, assign / cancel), leave, notifications | A + B | ✅ |
+| F2 | Read-only Claude assistant (5 tools, checked on the real data) and PDF print | A + B | ✅ |
+| F3 | Room QR page, insights heatmap, drag-and-drop editor + minimal-change repair, Excel import/export, venue calendar, PWA, deploy, Google sign-in | A/B/C | ⬜ after submission |
+
+### Known gaps (data the college doesn't publish)
+- **Applied Sciences** publishes no timetable, so first-year weeks miss maths, physics, chemistry and English.
+- **No elective lists for IT, ME, CE, ECE and EE**, so their electives and 3rd/4th-year group classes stay as published (for CSE we have the lists).
+- **CE gives teachers' initials only.**
 
 ### Parallel lanes (same folder, no branches, no merging; rules in CLAUDE.md)
 - **A. Core and data:** the main chat.
 - **B. Dashboards UI:** its own session, on port 8011.
 - **C. Venues and events:** its own session, on port 8012.
 - Each lane edits only its own files. Cross-lane needs go to `docs/REQUESTS.md`, and the API contract is in `docs/API.md`.
+- The submission report is `docs/HACKATHON_REPORT.md` (written by a separate documentation session from the repo, the tests and commands it ran).
 
-### Schedule
-| Day | Lane A | Lane B | Lane C |
-|---|---|---|---|
-| Thu 22 | ✅ Foundation (store, auth, routers, shell, contract) → FET importer | Dashboards + filters | Venue model, ranking, request form |
-| Fri 23 | FET import done, GNDEC seed, 9-slot solver | Find a teacher, meetings, Now/Next | Approval flow + inbox, booking → Free rooms |
-| Sat 24 | Free rooms 2.0 backend, chatbot tools, substitutions · **Checkpoint 1** | Free rooms 2.0 UI, substitutions UI | Event slot finder, notifications |
-| Sun 25 | Change engine, minimal-change repair, Excel import/export | Drag-and-drop editor + preview, heatmap, room QR | Venue calendar, cancel/reschedule |
-| Mon 26 | **Checkpoint 2:** integration, deploy, optional Google login, rehearsal | PWA + phone polish | Booking polish |
-| Tue 27 | Buffer → **submit** | | |
+### What happened when
+| Day | Done |
+|---|---|
+| Wed 21 | Prototype: generator, validator, grids, free rooms, assistant, PDF |
+| Thu 22 | Foundation for three lanes; real CSE timetable imported |
+| Fri 23 – Sun 25 | Dashboards, find a teacher, venues and approvals, slot finder, substitutions; CSE optimised next to the college's version; student types from the elective lists |
+| Mon 26 | Role-based sign-in and audit; open elective and lab-day rules; college rules; all six departments imported and optimised; first year linked; full browser run-through as every role |
+| Tue 27 | **Submit** |
 
 ---
 

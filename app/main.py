@@ -6,7 +6,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 
@@ -46,6 +46,13 @@ def login_page() -> FileResponse:
 @app.get("/audit.html")
 def audit_page() -> FileResponse:
     return FileResponse(STATIC / "audit.html")  # Lane A: audit log (admin, Dean)
+
+
+@app.get("/favicon.ico")
+def favicon() -> Response:
+    svg = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#4f46e5"/>'
+           '<text x="16" y="21" font-family="sans-serif" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">TW</text></svg>')
+    return Response(svg, media_type="image/svg+xml")
 
 
 @app.get("/compare.html")

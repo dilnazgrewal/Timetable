@@ -193,8 +193,8 @@
    "features": [
     "projector"
    ],
-   "sittable": true,
-   "bookable": true
+   "sittable": false,
+   "bookable": false
   },
   {
    "id": "A",
@@ -206,8 +206,8 @@
    "features": [
     "projector"
    ],
-   "sittable": true,
-   "bookable": true
+   "sittable": false,
+   "bookable": false
   },
   {
    "id": "B",
@@ -219,8 +219,8 @@
    "features": [
     "projector"
    ],
-   "sittable": true,
-   "bookable": true
+   "sittable": false,
+   "bookable": false
   },
   {
    "id": "C",
@@ -232,8 +232,8 @@
    "features": [
     "projector"
    ],
-   "sittable": true,
-   "bookable": true
+   "sittable": false,
+   "bookable": false
   },
   {
    "id": "TEACHOFFICE1",
@@ -245,8 +245,8 @@
    "features": [
     "projector"
    ],
-   "sittable": true,
-   "bookable": true
+   "sittable": false,
+   "bookable": false
   },
   {
    "id": "ADVENVLAB",
@@ -295,8 +295,8 @@
    "features": [
     "projector"
    ],
-   "sittable": true,
-   "bookable": true
+   "sittable": false,
+   "bookable": false
   },
   {
    "id": "ARCDEPT5",
@@ -308,8 +308,8 @@
    "features": [
     "projector"
    ],
-   "sittable": true,
-   "bookable": true
+   "sittable": false,
+   "bookable": false
   },
   {
    "id": "ARCDEPT3",
@@ -321,8 +321,8 @@
    "features": [
     "projector"
    ],
-   "sittable": true,
-   "bookable": true
+   "sittable": false,
+   "bookable": false
   },
   {
    "id": "INTERIORDESIGN",
@@ -334,8 +334,8 @@
    "features": [
     "projector"
    ],
-   "sittable": true,
-   "bookable": true
+   "sittable": false,
+   "bookable": false
   },
   {
    "id": "FIRSTYEARROOM",
@@ -347,8 +347,8 @@
    "features": [
     "projector"
    ],
-   "sittable": true,
-   "bookable": true
+   "sittable": false,
+   "bookable": false
   },
   {
    "id": "ARCDEPT9",
@@ -360,8 +360,8 @@
    "features": [
     "projector"
    ],
-   "sittable": true,
-   "bookable": true
+   "sittable": false,
+   "bookable": false
   },
   {
    "id": "F105",
@@ -555,8 +555,8 @@
    "features": [
     "projector"
    ],
-   "sittable": true,
-   "bookable": true
+   "sittable": false,
+   "bookable": false
   },
   {
    "id": "G15",
@@ -5877,8 +5877,8 @@
   },
   {
    "id": "CE:O0025",
-   "code": "Outside: A(other Deptt)",
-   "name": "A(other Deptt) (in another department's room)",
+   "code": "Outside: OE (B.Tech)",
+   "name": "OE (B.Tech) (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT3",
@@ -5898,8 +5898,8 @@
   },
   {
    "id": "CE:O0026",
-   "code": "Outside: A(other Deptt)",
-   "name": "A(other Deptt) (in another department's room)",
+   "code": "Outside: OE (B.Tech)",
+   "name": "OE (B.Tech) (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT1",
@@ -5919,8 +5919,8 @@
   },
   {
    "id": "CE:O0027",
-   "code": "Outside: A(other Deptt)",
-   "name": "A(other Deptt) (in another department's room)",
+   "code": "Outside: OE (B.Tech)",
+   "name": "OE (B.Tech) (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT1",
@@ -5940,8 +5940,8 @@
   },
   {
    "id": "CE:O0028",
-   "code": "Outside: A(other Deptt)",
-   "name": "A(other Deptt) (in another department's room)",
+   "code": "Outside: OE (B.Tech)",
+   "name": "OE (B.Tech) (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT4",
@@ -5961,8 +5961,8 @@
   },
   {
    "id": "CE:O0029",
-   "code": "Outside: A(other Deptt)",
-   "name": "A(other Deptt) (in another department's room)",
+   "code": "Outside: OE (B.Tech)",
+   "name": "OE (B.Tech) (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT2",
@@ -5982,8 +5982,8 @@
   },
   {
    "id": "CE:O0030",
-   "code": "Outside: A(other Deptt)",
-   "name": "A(other Deptt) (in another department's room)",
+   "code": "Outside: OE (B.Tech)",
+   "name": "OE (B.Tech) (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT2",
@@ -6003,8 +6003,8 @@
   },
   {
    "id": "CE:O0031",
-   "code": "Outside: A(other Deptt)",
-   "name": "A(other Deptt) (in another department's room)",
+   "code": "Outside: OE (B.Tech)",
+   "name": "OE (B.Tech) (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT5",
@@ -6024,8 +6024,8 @@
   },
   {
    "id": "CE:O0032",
-   "code": "Outside: A(other Deptt)",
-   "name": "A(other Deptt) (in another department's room)",
+   "code": "Outside: OE (B.Tech)",
+   "name": "OE (B.Tech) (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT3",
@@ -6045,8 +6045,8 @@
   },
   {
    "id": "CE:O0033",
-   "code": "Outside: A(other Deptt)",
-   "name": "A(other Deptt) (in another department's room)",
+   "code": "Outside: OE (B.Tech)",
+   "name": "OE (B.Tech) (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT3",
@@ -6066,8 +6066,8 @@
   },
   {
    "id": "CE:O0034",
-   "code": "Outside: A(other Deptt)",
-   "name": "A(other Deptt) (in another department's room)",
+   "code": "Outside: OE (B.Tech)",
+   "name": "OE (B.Tech) (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT6",
@@ -6087,8 +6087,8 @@
   },
   {
    "id": "CE:O0035",
-   "code": "Outside: A(other Deptt)",
-   "name": "A(other Deptt) (in another department's room)",
+   "code": "Outside: OE (B.Tech)",
+   "name": "OE (B.Tech) (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT4",
@@ -6108,8 +6108,8 @@
   },
   {
    "id": "CE:O0036",
-   "code": "Outside: A(other Deptt)",
-   "name": "A(other Deptt) (in another department's room)",
+   "code": "Outside: OE (B.Tech)",
+   "name": "OE (B.Tech) (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT4",
@@ -6129,8 +6129,8 @@
   },
   {
    "id": "CE:O0037",
-   "code": "Outside: A(other Deptt)",
-   "name": "A(other Deptt) (in another department's room)",
+   "code": "Outside: OE (B.Tech)",
+   "name": "OE (B.Tech) (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT7",
@@ -6150,8 +6150,8 @@
   },
   {
    "id": "CE:O0038",
-   "code": "Outside: A(other Deptt)",
-   "name": "A(other Deptt) (in another department's room)",
+   "code": "Outside: OE (B.Tech)",
+   "name": "OE (B.Tech) (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT5",
@@ -6171,8 +6171,8 @@
   },
   {
    "id": "CE:O0039",
-   "code": "Outside: A(other Deptt)",
-   "name": "A(other Deptt) (in another department's room)",
+   "code": "Outside: OE (B.Tech)",
+   "name": "OE (B.Tech) (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT5",
@@ -6192,8 +6192,8 @@
   },
   {
    "id": "CE:O0040",
-   "code": "Outside: A(other Deptt)",
-   "name": "A(other Deptt) (in another department's room)",
+   "code": "Outside: OE (B.Tech)",
+   "name": "OE (B.Tech) (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT8",
@@ -6213,8 +6213,8 @@
   },
   {
    "id": "CE:O0041",
-   "code": "Outside: A(other Deptt)",
-   "name": "A(other Deptt) (in another department's room)",
+   "code": "Outside: OE (B.Tech)",
+   "name": "OE (B.Tech) (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT6",
@@ -6234,8 +6234,8 @@
   },
   {
    "id": "CE:O0042",
-   "code": "Outside: A(other Deptt)",
-   "name": "A(other Deptt) (in another department's room)",
+   "code": "Outside: OE (B.Tech)",
+   "name": "OE (B.Tech) (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT6",
@@ -6255,8 +6255,8 @@
   },
   {
    "id": "CE:O0043",
-   "code": "Outside: A(other Deptt)",
-   "name": "A(other Deptt) (in another department's room)",
+   "code": "Outside: OE (B.Tech)",
+   "name": "OE (B.Tech) (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT9",
@@ -6276,8 +6276,8 @@
   },
   {
    "id": "CE:O0044",
-   "code": "Outside: A(other Deptt)",
-   "name": "A(other Deptt) (in another department's room)",
+   "code": "Outside: OE (B.Tech)",
+   "name": "OE (B.Tech) (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT7",
@@ -6297,8 +6297,8 @@
   },
   {
    "id": "CE:O0045",
-   "code": "Outside: A(other Deptt)",
-   "name": "A(other Deptt) (in another department's room)",
+   "code": "Outside: OE (B.Tech)",
+   "name": "OE (B.Tech) (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT7",
@@ -6402,8 +6402,8 @@
   },
   {
    "id": "CE:O0050",
-   "code": "Outside: A(other Deptt)",
-   "name": "A(other Deptt) (in another department's room)",
+   "code": "Outside: OE (B.Tech)",
+   "name": "OE (B.Tech) (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT10",
@@ -6423,8 +6423,8 @@
   },
   {
    "id": "CE:O0051",
-   "code": "Outside: A(other Deptt)",
-   "name": "A(other Deptt) (in another department's room)",
+   "code": "Outside: OE (B.Tech)",
+   "name": "OE (B.Tech) (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT8",
@@ -6444,8 +6444,8 @@
   },
   {
    "id": "CE:O0052",
-   "code": "Outside: A(other Deptt)",
-   "name": "A(other Deptt) (in another department's room)",
+   "code": "Outside: OE (B.Tech)",
+   "name": "OE (B.Tech) (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT8",
@@ -6465,8 +6465,8 @@
   },
   {
    "id": "CE:O0053",
-   "code": "Outside: A(other Deptt)",
-   "name": "A(other Deptt) (in another department's room)",
+   "code": "Outside: OE (B.Tech)",
+   "name": "OE (B.Tech) (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT11",
@@ -6486,8 +6486,8 @@
   },
   {
    "id": "CE:O0054",
-   "code": "Outside: A(other Deptt)",
-   "name": "A(other Deptt) (in another department's room)",
+   "code": "Outside: OE (B.Tech)",
+   "name": "OE (B.Tech) (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT9",
@@ -6507,8 +6507,8 @@
   },
   {
    "id": "CE:O0055",
-   "code": "Outside: A(other Deptt)",
-   "name": "A(other Deptt) (in another department's room)",
+   "code": "Outside: OE (B.Tech)",
+   "name": "OE (B.Tech) (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT9",
@@ -7095,8 +7095,8 @@
   },
   {
    "id": "CE:O0083",
-   "code": "Outside: G-3A (NR)",
-   "name": "G-3A (NR) (in another department's room)",
+   "code": "Outside: ECM",
+   "name": "ECM (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT12",
@@ -7116,8 +7116,8 @@
   },
   {
    "id": "CE:O0084",
-   "code": "Outside: ENV LAB",
-   "name": "ENV LAB (in another department's room)",
+   "code": "Outside: Env Chem lab",
+   "name": "Env Chem lab (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT10",
@@ -7137,8 +7137,8 @@
   },
   {
    "id": "CE:O0085",
-   "code": "Outside: ENV LAB",
-   "name": "ENV LAB (in another department's room)",
+   "code": "Outside: Env Chem lab",
+   "name": "Env Chem lab (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT2",
@@ -7158,8 +7158,8 @@
   },
   {
    "id": "CE:O0086",
-   "code": "Outside: ADV ENV LAB",
-   "name": "ADV ENV LAB (in another department's room)",
+   "code": "Outside: Adv Water & WW lab",
+   "name": "Adv Water & WW lab (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT5",
@@ -7179,8 +7179,8 @@
   },
   {
    "id": "CE:O0087",
-   "code": "Outside: ADV ENV LAB",
-   "name": "ADV ENV LAB (in another department's room)",
+   "code": "Outside: Adv Water & WW lab",
+   "name": "Adv Water & WW lab (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT3",
@@ -7200,8 +7200,8 @@
   },
   {
    "id": "CE:O0088",
-   "code": "Outside: ENV LAB",
-   "name": "ENV LAB (in another department's room)",
+   "code": "Outside: PCTM",
+   "name": "PCTM (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT3",
@@ -7221,8 +7221,8 @@
   },
   {
    "id": "CE:O0089",
-   "code": "Outside: ADV ENV LAB",
-   "name": "ADV ENV LAB (in another department's room)",
+   "code": "Outside: EC&SD",
+   "name": "EC&SD (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT3",
@@ -7242,8 +7242,8 @@
   },
   {
    "id": "CE:O0090",
-   "code": "Outside: Traffic Lab",
-   "name": "Traffic Lab (in another department's room)",
+   "code": "Outside: Env. Design Lab",
+   "name": "Env. Design Lab (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT3",
@@ -7263,8 +7263,8 @@
   },
   {
    "id": "CE:O0091",
-   "code": "Outside: Traffic Lab",
-   "name": "Traffic Lab (in another department's room)",
+   "code": "Outside: Env. Design Lab",
+   "name": "Env. Design Lab (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT2",
@@ -7284,8 +7284,8 @@
   },
   {
    "id": "CE:O0092",
-   "code": "Outside: STR LAB",
-   "name": "STR LAB (in another department's room)",
+   "code": "Outside: RM&IPR",
+   "name": "RM&IPR (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT2",
@@ -7305,8 +7305,8 @@
   },
   {
    "id": "CE:O0093",
-   "code": "Outside: G-3A (NR)",
-   "name": "G-3A (NR) (in another department's room)",
+   "code": "Outside: S&HWAM",
+   "name": "S&HWAM (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT1",
@@ -7326,8 +7326,8 @@
   },
   {
    "id": "CE:O0094",
-   "code": "Outside: ENV LAB",
-   "name": "ENV LAB (in another department's room)",
+   "code": "Outside: S&HWAM",
+   "name": "S&HWAM (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT2",
@@ -7347,8 +7347,8 @@
   },
   {
    "id": "CE:O0095",
-   "code": "Outside: ADV ENV LAB",
-   "name": "ADV ENV LAB (in another department's room)",
+   "code": "Outside: ECM",
+   "name": "ECM (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT1",
@@ -7368,8 +7368,8 @@
   },
   {
    "id": "CE:O0096",
-   "code": "Outside: STR LAB",
-   "name": "STR LAB (in another department's room)",
+   "code": "Outside: EC&SD",
+   "name": "EC&SD (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT1",
@@ -7389,8 +7389,8 @@
   },
   {
    "id": "CE:O0097",
-   "code": "Outside: STR LAB",
-   "name": "STR LAB (in another department's room)",
+   "code": "Outside: ECM",
+   "name": "ECM (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT2",
@@ -7410,8 +7410,8 @@
   },
   {
    "id": "CE:O0098",
-   "code": "Outside: B(other Deptt)",
-   "name": "B(other Deptt) (in another department's room)",
+   "code": "Outside: English for RR/PW",
+   "name": "English for RR/PW (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT2",
@@ -7431,8 +7431,8 @@
   },
   {
    "id": "CE:O0099",
-   "code": "Outside: B(other Deptt)",
-   "name": "B(other Deptt) (in another department's room)",
+   "code": "Outside: English for RR/PW",
+   "name": "English for RR/PW (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT3",
@@ -7452,8 +7452,8 @@
   },
   {
    "id": "CE:O0100",
-   "code": "Outside: ENV LAB",
-   "name": "ENV LAB (in another department's room)",
+   "code": "Outside: S&HWAM",
+   "name": "S&HWAM (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT2",
@@ -7473,8 +7473,8 @@
   },
   {
    "id": "CE:O0101",
-   "code": "Outside: STR LAB",
-   "name": "STR LAB (in another department's room)",
+   "code": "Outside: PCTM",
+   "name": "PCTM (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT2",
@@ -7494,8 +7494,8 @@
   },
   {
    "id": "CE:O0102",
-   "code": "Outside: STR LAB",
-   "name": "STR LAB (in another department's room)",
+   "code": "Outside: RM&IPR",
+   "name": "RM&IPR (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT3",
@@ -7515,8 +7515,8 @@
   },
   {
    "id": "CE:O0103",
-   "code": "Outside: ADV ENV LAB",
-   "name": "ADV ENV LAB (in another department's room)",
+   "code": "Outside: EC&SD",
+   "name": "EC&SD (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT4",
@@ -7536,8 +7536,8 @@
   },
   {
    "id": "CE:O0104",
-   "code": "Outside: STR LAB",
-   "name": "STR LAB (in another department's room)",
+   "code": "Outside: RM&IPR",
+   "name": "RM&IPR (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT2",
@@ -7557,8 +7557,8 @@
   },
   {
    "id": "CE:O0105",
-   "code": "Outside: STR LAB",
-   "name": "STR LAB (in another department's room)",
+   "code": "Outside: PCTM",
+   "name": "PCTM (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT1",
@@ -7578,8 +7578,8 @@
   },
   {
    "id": "CE:O0106",
-   "code": "Outside: Interior Design",
-   "name": "Interior Design (in another department's room)",
+   "code": "Outside: Est Costing & spec",
+   "name": "Est Costing & spec (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT3",
@@ -7599,8 +7599,8 @@
   },
   {
    "id": "CE:O0107",
-   "code": "Outside: Interior Design",
-   "name": "Interior Design (in another department's room)",
+   "code": "Outside: Est Costing & spec",
+   "name": "Est Costing & spec (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT4",
@@ -7620,8 +7620,8 @@
   },
   {
    "id": "CE:O0108",
-   "code": "Outside: Interior Design",
-   "name": "Interior Design (in another department's room)",
+   "code": "Outside: Est Costing & spec",
+   "name": "Est Costing & spec (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT4",
@@ -7641,8 +7641,8 @@
   },
   {
    "id": "CE:O0109",
-   "code": "Outside: ANK",
-   "name": "ANK (in another department's room)",
+   "code": "Outside: DISASTER MGT",
+   "name": "DISASTER MGT (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT2",
@@ -7662,8 +7662,8 @@
   },
   {
    "id": "CE:O0110",
-   "code": "Outside: ANK",
-   "name": "ANK (in another department's room)",
+   "code": "Outside: DISASTER MGT",
+   "name": "DISASTER MGT (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT3",
@@ -7683,8 +7683,8 @@
   },
   {
    "id": "CE:O0111",
-   "code": "Outside: SPS",
-   "name": "SPS (in another department's room)",
+   "code": "Outside: DISASTER MGT",
+   "name": "DISASTER MGT (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT4",
@@ -7704,8 +7704,8 @@
   },
   {
    "id": "CE:O0112",
-   "code": "Outside: SPS",
-   "name": "SPS (in another department's room)",
+   "code": "Outside: DISASTER MGT",
+   "name": "DISASTER MGT (in another department's room)",
    "kind": "theory",
    "dept": "CE",
    "teacher": "TBA-CE-OUT2",

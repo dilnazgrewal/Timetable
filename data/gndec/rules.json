@@ -52,7 +52,7 @@
     ]
    },
    "text": "Classes run with other departments (open electives, JPAL, classes in their rooms) stay where they are.",
-   "why": "Their teachers and rooms belong to other departments, so CSE can't move them."
+   "why": "Their teachers and rooms belong to other departments, so this department can't move them."
   },
   {
    "id": "keep-other-teachers",

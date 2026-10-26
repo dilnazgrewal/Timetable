@@ -245,6 +245,18 @@ def _class_of(a: dict) -> dict:
     return out
 
 
+def _subject_line(a: dict) -> str:
+    """The subject of a groups-page cell. Newer FET labels it; older FET lists groups, subjects, teachers and
+    rooms line by line ('D2IT_C1', 'DCCN_LAB P', 'Pf. Hardeepak Singh-HDS', 'DBMS_Lab'): the subject is the
+    line ending in an activity tag (L, T, P, E(L)...)."""
+    if a["subject"]:
+        return f"{a['subject']} {a['tag']}".strip()
+    for line in a["lines"]:
+        if re.search(r"\s(L|T|P|Tu|E\([LTP]\)|L\+P)$", line) and not re.search(r"\b(Dr|Pf|Er|Prof)\b\.?", line):
+            return line
+    return next((x for x in a["lines"][1:] if not re.search(r"\b(Dr|Pf|Er|Prof)\b\.?|-[A-Z]{2,6}$", x)), "Class")
+
+
 def _teacher(text: str, dept: str) -> tuple[str, str, str]:
     """-> (id, name, home dept). 'Dr. Randeep Kaur-RDK', 'KSK', 'SWJ (AppSc)', 'NK(APS)', 'MK_APS',
     'Dr. Narwant Singh Grewal (NSG)', 'HPS (Dr. Harpuneet Singh)'."""
@@ -410,7 +422,7 @@ def import_department(dept: str) -> dict:
                 if not free or (t["title"], day, q) in seen:
                     continue
                 seen.add((t["title"], day, q))
-                what = _class_of(acts[0])["activity"] if acts else "Class"
+                what = _subject_line(acts[0]) if acts else "Class"
                 code_ = f"Outside: {_subject(what)[0]}"[:40]
                 k = parallel[day, q] = parallel.get((day, q), 0) + 1  # placeholder "teachers" never overlap
                 teacher = f"TBA-{dept}-OUT{k}"
@@ -449,7 +461,10 @@ def _room(key: str, name: str, dept: str, building: str) -> Room:
         return Room(key, "Study Area", 20, dept, building, floor, [])
     if re.search(r"LAB|/L\b|/L\(|W/S|WORKSHOP", up):
         return Room(key, "Lab", 30, dept, building, floor, ["projector"], sittable=False)
-    return Room(key, "Classroom", 60, dept, building, floor, ["projector"], bookable=True)
+    # only a numbered classroom ("G17", "S213") is offered to sit in or to book; vague names such as
+    # "A (other Deptt)", "Arc Dept 5" or "Teach Office" stay in the timetable but are never offered
+    numbered = bool(re.match(r"^[GFS]\d", key))
+    return Room(key, "Classroom", 60, dept, building, floor, ["projector"], sittable=numbered, bookable=numbered)
 
 
 def teacher_names() -> dict[str, str]:
