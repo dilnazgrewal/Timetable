@@ -5,13 +5,13 @@
 > **How it was checked:** every claim comes from the repository (code, docs, git history), the test suite, or a command run on **Mon 26 Oct 2026**. Nothing is from memory. The commands are listed under [Sources](#18-sources). Anything that could not be confirmed yet is listed under [Pending](#19-pending).
 >
 > **State of the repo when this was written:**
-> - Final numbers are from commit `7a33645` (26 Oct 2026). The last data changes were `89254d8` (two same-named teachers kept apart: 5 teacher clashes in the published data) and `53e1f7f` (**first year linked across departments**).
+> - Final numbers are from commit `d3e1a9d` (26 Oct 2026), after Lane A's full browser run-through of every role. The last data changes were `89254d8` (two same-named teachers kept apart: 5 teacher clashes in the published data) and `53e1f7f` (**first year linked across departments**).
 > - Before it:
 >   - `39212e3` imported and optimised the **real timetables of all six departments** (CSE, IT, ME, CE, ECE, EE)
 >   - `32f1b45` added College rules
 >   - `becb48e` added the lab-pair rule
 >   - `3acc154` imported D4's open elective from the FET *groups* page
-> - **All 118 tests pass** on `7a33645`.
+> - **All 122 tests pass** on `d3e1a9d`.
 
 ---
 
@@ -60,7 +60,7 @@ What it does:
 - **State:** in memory, persisted to JSON files.
 - **Chatbot:** Anthropic SDK, model `claude-opus-5-5` at low effort.
 
-**Tests:** **118 automated tests, all 118 pass** (commit `7a33645`; see [11](#11-testing-every-test-and-the-edge-case-it-covers)).
+**Tests:** **122 automated tests, all 122 pass** (commit `d3e1a9d`; see [11](#11-testing-every-test-and-the-edge-case-it-covers)).
 
 ---
 
@@ -249,8 +249,9 @@ Two more import rules:
 
 **Teacher names:**
 - Full names come from each department's teachers page, because cells often show only initials.
-- CE publishes initials only, so **35 of the 205 real teachers** keep a name like "CE teacher (HVS)".
+- CE publishes initials only, so **35 of the 203 real teachers** keep a name like "CE teacher (HVS)".
 - **People with the same name are kept apart:** records that are both on a department's own teacher list are never merged (`89254d8`). ECE has a Dr. and a Pf. Harminder Kaur, who are different people.
+- **One person written two ways is merged:** a teacher written by full name in one cell is merged with their own-list record (e.g. ME-DRHARPUN → ME-HPS, `dce71d3`).
 
 **What was imported** (`data/gndec/<dept>.json`; lessons and sessions as used in the merged college):
 
@@ -262,7 +263,7 @@ Two more import rules:
 | CE | 272 | 396 | 49 | 52 | 56 |
 | ECE | 278 | 359 | 37 | 42 | 37 |
 | EE | 202 | 280 | 32 | 54 | 66 |
-| **College** | **1,865** | **2,579** | 153 rooms in the merged college | **205** real teachers (288 teacher records incl. 83 placeholders) | 231 audiences: 68 real sections + 163 elective audiences |
+| **College** | **1,865** | **2,579** | 153 rooms in the merged college | **203** real teachers (286 teacher records incl. 83 placeholders) | 231 audiences: 68 real sections + 163 elective audiences |
 
 ECE and EE shrank in `53e1f7f`, when first year was linked across departments. Classes written in two departments' timetables are now kept once, and placeholders are dropped where a linked class shows what really happens.
 
@@ -279,13 +280,13 @@ ECE and EE shrank in `53e1f7f`, when first year was linked across departments. C
 | Item | Count |
 |---|---|
 | Departments | 6 + Applied Sciences (teachers only) |
-| Rooms | 153 (71 classrooms, 53 department labs, 13 computer labs, 6 seminar halls, …; 78 sittable, 91 bookable) |
-| Teachers | **205 real people** (CSE 44, ME 43, IT 28, EE 27, CE 25, ECE 24, Applied Sciences 14), plus 83 placeholder records (`TBA-…`: "Taught in another department", "Major Project (staff)", "JPAL (staff)", open electives taught elsewhere) that hold fixed hours but are not people |
+| Rooms | 153 (71 classrooms, 53 department labs, 13 computer labs, 6 seminar halls, …; only numbered classrooms are offered to sit in or book (`d3e1a9d`): 64 sittable, 77 bookable) |
+| Teachers | **203 real people** (CSE 44, ME 41, IT 28, EE 27, CE 25, ECE 24, Applied Sciences 14), plus 83 placeholder records (`TBA-…`: "Taught in another department", "Major Project (staff)", "JPAL (staff)", open electives taught elsewhere) that hold fixed hours but are not people |
 | Real sections / their lab groups | 68 / 197 |
 | Lessons | 1,865, all imported |
 | Weekly sessions | **2,579** |
 | Student types | 241 (CSE 132, IT 31, ME 25, ECE 22, CE 17, EE 14; 39 with guards) |
-| Demo accounts | 466 |
+| Demo accounts | 464 |
 | Teacher lab pairs (`lab_pairs()`) | 169 |
 
 **The published data has errors of its own.** Put together, the six published timetables have:
@@ -364,7 +365,7 @@ Status as of commit `53e1f7f`. ✅ built and committed · ⬜ designed, not buil
 | A12 | Propose (department) → publish / unpublish (timetable office), **per department**; publishing re-validates the whole college and is refused if it adds a clash | ✅ |
 | A13 | Sign-in (session cookie; demo sign-in with **four roles**: Student, Teacher, HOD, Timetable office, with club lead / coordinator / Dean / T&P / visitor as extra duties inside them; students choose department → year → section → their group and subjects, `84f400e`), 8 permission roles, PERMISSIONS table, capabilities, audit log | ✅ |
 | A14 | In-app notifications (🔔 in the shared top bar) | ✅ |
-| A15 | Read-only Claude assistant with 5 date-aware tools | ✅ |
+| A15 | Read-only Claude assistant with 5 date-aware tools; tools tested on the real data without calling the API (`dce71d3`) | ✅ |
 | A16 | Pages: sign-in, compare (college vs optimised, with a **department picker**: HODs see their own department, the Dean sees all), audit log; shared top bar | ✅ |
 | A17 | Demo reset (admin) | ✅ |
 
@@ -709,6 +710,8 @@ Every candidate comes with plain-English reasons.
 
 It has **no write tools**.
 
+**Tested without spending API credit** (`dce71d3`): `tests/test_core_chat_tools.py` calls every tool directly on the real data. Days accept "Mon" or "Monday". Room search understands other departments' spellings ("S-213" = S213) and never offers the stand-in rooms.
+
 ---
 
 ## 7. Roles, sign-in and permissions
@@ -742,12 +745,12 @@ It has **no write tools**.
 
   Example (checked in the browser by Lane A): CSE → 4th year → D4 CS A → A2, CV, SC (A1 group), TA A3 signs in as `D4-CS-A:A2:CV:SCA1:TA3`.
 - **API:** `GET /api/auth/demo-accounts` now also gives each student account its `year`, `section_name`, `details` (their choices) and `count` (how many students share that combination).
-- **Demo accounts (466):**
+- **Demo accounts (464):**
 
 | Role | Accounts | Notes |
 |---|---|---|
 | student | 241 | one per student type |
-| teacher | 205 | every real teacher of the six departments + Applied Sciences; placeholder "teachers" get no account (`958cd5d`) |
+| teacher | 203 | every real teacher of the six departments + Applied Sciences; placeholder "teachers" get no account (`958cd5d`) |
 | hod | 7 | one per department with teachers (incl. Applied Sciences) |
 | coordinator | 6 | one per department with sections |
 | club | 3 | DMC, CODE, ROBO, each with a faculty advisor |
@@ -922,7 +925,8 @@ Commands: `.venv/Scripts/python -m pytest -q -rA` and `pytest --collect-only -q`
 
 | Code state | Tests | Passed | Failed | Time |
 |---|---|---|---|---|
-| **Final: commit `7a33645`** | 118 | **118** | **0** | 23 s |
+| **Final: commit `d3e1a9d`** | 122 | **122** | **0** | 27 s |
+| Earlier: commit `7a33645` (before the 4 assistant-tool tests) | 118 | 118 | 0 | 23 s |
 | Earlier: commits `53e1f7f` to `89254d8` | 117 | 117 | 0 | 23–36 s |
 | Earlier: commit `39212e3` (before the first-year test) | 116 | 116 | 0 | 28 s |
 | Earlier: commit `32f1b45` (before the six-department and new slot-finder tests) | 95 | 95 | 0 | 58 s |
@@ -941,13 +945,14 @@ Commands: `.venv/Scripts/python -m pytest -q -rA` and `pytest --collect-only -q`
 | `tests/test_core_optimise.py` | A | 3 (1 added in `becb48e`) | 3 |
 | `tests/test_core_rules.py` | A | 7 (added in `32f1b45`) | 7 |
 | `tests/test_core_departments.py` | A | 19 (18 added in `39212e3`, incl. 5 + 6 parametrised; 1 in `53e1f7f`) | 19 |
-| **Lane A total** | | **80** | **80** |
+| `tests/test_core_chat_tools.py` | A | 4 (added in `dce71d3`) | 4 |
+| **Lane A total** | | **84** | **84** |
 | `tests/test_dashboards_api.py` | B | **14** | 14 |
 | `tests/test_venues_approvals.py` | C | 7 | 7 |
 | `tests/test_venues_ranking.py` | C | 8 (incl. 4 parametrised) | 8 |
 | `tests/test_venues_slots.py` | C | 9 (3 added in `49004bb`) | 9 |
 | **Lane C total** | | **24** | 24 |
-| **Overall** | | **118** | **118** |
+| **Overall** | | **122** | **122** |
 
 **Note:** while the optimiser re-run was in progress, 2 tests failed as expected:
 - `test_core_optimise.py::test_no_clashes_and_never_worse`
@@ -1077,6 +1082,16 @@ These are "testing the tester": mutation tests inject each kind of mistake and c
 | `test_optimised_department_adds_no_clash_anywhere_in_the_college` ×6 (all six) | Each optimised department dropped into the **whole college** creates **no clash that the published timetables don't already have** (shared teachers and rooms) |
 | `test_each_hod_compares_their_own_department` | The IT HOD lists **only IT** in `/api/compare`; the Dean sees all six; IT HOD → 200 on `/compare/it`, **403 on `/compare/cse`**, **404 on an unknown department**, 403 on publish (the timetable office publishes) |
 
+### 11.8d `tests/test_core_chat_tools.py`: the assistant's tools on real data (4, added in `dce71d3`)
+The tools are called directly, so no call to the Claude API and no credit is used.
+
+| Test | What it checks · edge case |
+|---|---|
+| `test_search_finds_people_sections_and_rooms_in_any_spelling` | "Harpuneet" finds **one** record (`ME-HPS`; the duplicate record written by full name is merged); "D2IT" finds section D2-IT-C; **"S-213" (IT's spelling) finds CSE's S213** |
+| `test_schedules_for_students_sections_teachers_rooms` | D4 CS A student type on "Monday": first class 8:30 is the **open elective**; **CSE first year (D1-CS-A-A1) on "Tue" includes ECE's BEEE** (linked across departments); section, teacher and room schedules work; G17 on Thu 10:45 is **not free** |
+| `test_free_rooms_and_teacher_slots` | Free rooms on Mon 12:30 exist and **never include the stand-ins** ("OTHER DEPARTMENT", "APPLIED SCIENCES"); an IT teacher has free periods on Wednesday |
+| `test_bad_input_is_reported_not_crashing` | **"Sunday"** and an **unknown room** come back as an error message to the model, not a crash |
+
 ### 11.9 `tests/test_dashboards_api.py`: Lane B (14)
 Runs against a fresh `build_college()` store (since `39212e3`, the real six-department college), with state in a temp file.
 
@@ -1131,15 +1146,29 @@ Runs against a fresh `build_college()` store (since `39212e3`, the real six-depa
 | `test_other_department_stand_in_is_never_a_venue` | *(added in `49004bb`)* The `OTHER DEPARTMENT` placeholder never appears as a venue or a near miss |
 
 ### 11.13 What the automated tests don't cover (honest gaps)
-- **The chatbot** (`/api/chat`) has no automated test. This is on purpose: it would spend the limited Anthropic API credit. Its tools read the same `STORE` functions the tested endpoints use.
-- **The HTML pages** (index, venues, compare, login, audit) have no browser tests. They were checked by hand during development.
+- **The chatbot conversation** (`/api/chat`, the call to Claude) has no automated test. This is on purpose: it would spend the limited Anthropic API credit. Since `dce71d3`, **all 5 of its tools are tested** directly on the real data (§11.8d).
+- **The HTML pages** (index, venues, compare, login, audit) have no automated browser tests. **Lane A did a full browser run-through of every role on 26 Oct**, before `dce71d3` / `d3e1a9d`, with no server errors (500s) during the whole run. Reported results:
+  - **Student** (D4 CS A, the project owner's own combination): own week including OE-II at 8:30, free rooms, find a teacher.
+  - **Teacher** (an IT teacher): own week, venue search.
+  - **HOD IT:**
+    - dashboard with the green "0 clashes" card, the amber "5 teacher double-bookings as published" badge and the Data card
+    - an IT-only comparison with Propose
+  - **Timetable office:** the six-department picker with Propose and Publish; the audit log.
+  - **Dean:** a read-only comparison (no buttons).
+  - **CSE coordinator:** the substitutions board with ranked substitutes.
+  - **Club lead (DMC):** venue search for 100 people.
+    - MBA Seminar Hall is the best fit, then LT-1/2.
+    - IT's T&P seminar hall goes to the IT HOD for approval.
+  - **T&P:** the slot finder for all of D4 CSE gives 13 common 2-hour slots in two weeks, with the Auditorium.
+
+  This run-through is Lane A's report; I did not repeat it here.
 - **`POST /api/generate` and `POST /api/compare/{dept}/run`** are only tested indirectly: the solver and optimiser output are tested, and the permission rules for generate are tested.
 - **Optimiser runs** themselves are not run in tests (they take minutes); the tests check the saved result.
 
 ---
 
 ## 12. Timeline: how it was built
-From `git log` (70 commits by the end of 26 Oct, the last code commit being `958cd5d`; 9 of them are this report). Commits per day: 21 Oct 15 · 22 Oct 14 · 26 Oct 41.
+From `git log` (73 commits by the end of 26 Oct, the last code commit being `d3e1a9d`; 10 of them are this report). Commits per day: 21 Oct 15 · 22 Oct 14 · 26 Oct 44.
 
 ### Day 1: Wed 21 Oct, prototype (v0.1), demo at 4 PM
 - Scaffold, `CLAUDE.md`, plan.
@@ -1202,6 +1231,19 @@ From `git log` (70 commits by the end of 26 Oct, the last code commit being `958
   - a timetable-issues badge for staff only, worded as teacher double-bookings in the published data (`286e3f8`)
   - honest dashboard numbers (`6c59dbc`): the validator card counts only TimeWeave's own clashes, the college's published clashes are shown separately to staff, a Data card replaces the solver card for imported timetables, and the grid shows even if `/api/timetable` fails
   - no Generate button when every department is imported; the data source and a link to the optimised timetables instead (`cabdf9e`)
+- **Lane A, last before submission:**
+  - **a full browser run-through of every role**, with no server errors (500s) (see §11.13)
+  - **fixes from it, part 1** (`dce71d3`):
+    - the assistant's tools tested on real data (4 tests)
+    - "Mon"/"Monday" and "S-213" understood
+    - one teacher record per person (ME-DRHARPUN merged into ME-HPS)
+  - **fixes from it, part 2** (`d3e1a9d`):
+    - only numbered classrooms offered to sit in or book: vague names from other departments' exports ("A (other Deptt)", "Arc Dept 5", "Teach Office") stay in the timetable only
+    - "taught elsewhere" placeholders show the subject (e.g. "Outside: PPS")
+    - EE building named
+    - rule wording made department-neutral
+    - a favicon
+    - PLAN.md section 0 brought up to date
 - **Lane C, final:** elective audiences and student types also rule slot-finder times out; 3 new tests (`49004bb`).
 - This report was committed alongside.
 
@@ -1291,7 +1333,7 @@ Suggested, about 5 minutes. Built only from features listed above.
    - **CSE:** no-lunch days 44 → 0. Be honest: CSE's gain is smaller than in the CSE-only run, because CSE's first year and classes by other departments' teachers are now kept as published, so other departments are never hurt.
    - **Rules:** scroll to **"GNDEC's timetable rules"**: each college habit in plain words, and how often each version breaks it. Tell the story: an earlier CSE run left 6 D4 Fridays with only project + open elective; writing the rule down fixed it (6 → 0).
    - **Publishing:** it is refused if a rule is broken more often, or if a clash appears anywhere in the college. **Propose** as the HOD, then **Publish** as the admin; the validator re-checks the whole college.
-8. **Trust:** the independent validator, the independent college-rules check, 118 automated tests, and the audit log (`/audit.html` as the Dean) showing a refused action.
+8. **Trust:** the independent validator, the independent college-rules check, 122 automated tests, and the audit log (`/audit.html` as the Dean) showing a refused action.
 9. **Ask TimeWeave** (optional, uses API credit): "Will G17 be free at 12:30 on Friday?"
 
 ---
@@ -1316,7 +1358,7 @@ Suggested, about 5 minutes. Built only from features listed above.
 - **First-year weeks are still incomplete:** first year is now linked across departments (`53e1f7f`), so ME's, ECE's and EE's classes show up. But Applied Sciences (maths, physics, chemistry, English) doesn't publish a timetable, so those hours are missing for every first-year group. (From Lane A.)
 - **ME's "CSE A" … "CSE F"** (one subject, "EP&S", no year written) are left unlinked rather than guessed.
 - **No elective distribution lists for IT, ME, CE, ECE and EE.** Their electives and 3rd/4th-year group classes therefore stay as published, and their students are one type per lab group, guarded against same-year electives.
-- **Initials only:** 35 of 205 real teachers (CE publishes initials only) keep a name like "CE teacher (HVS)".
+- **Initials only:** 35 of 203 real teachers (CE publishes initials only) keep a name like "CE teacher (HVS)".
 - **Published errors:** the published timetables themselves contain 5 teacher double-bookings when put together (4 combined CSE/ME M.Tech classes listed by both departments, and 1 in CE's own export). The API lists them as `published_issues`.
 - **Same-name teachers:** teachers are merged across departments by name and initials, except when both records are on one department's own list. A same-named pair that appears in two different departments could still be merged wrongly; none is known. TimeWeave reports them and never adds to them, but can't fix them without knowing which listing is right.
 - "Self Study · Library" slots are deliberately not imported (they are free periods, not classes).
@@ -1353,7 +1395,7 @@ Suggested, about 5 minutes. Built only from features listed above.
 | Number | What |
 |---|---|
 | **6** | real GNDEC department timetables imported and optimised (CSE, IT, ME, CE, ECE, EE) |
-| **2,579** | real weekly classes; 1,865 lessons; 205 teachers; 153 rooms |
+| **2,579** | real weekly classes; 1,865 lessons; 203 teachers; 153 rooms |
 | **0** | new clashes anywhere in the college from any optimised department (proven by an independent validator that shares no code with the solver) |
 | **1,007 → 600** | teacher waiting periods per week, all six departments (−40%) |
 | **263 → 188** | student waiting periods per week, all six departments (−29%) |
@@ -1368,8 +1410,8 @@ Suggested, about 5 minutes. Built only from features listed above.
 | **6 → 0** | D4 Fridays with only project + open elective (an earlier CSE run vs now), fixed by writing the rule down |
 | **8** | roles, with a deny-by-default permission table and an audit log |
 | **40** | API routes |
-| **118 / 118** | automated tests passing |
-| **3** | parallel build lanes, 70 commits |
+| **122 / 122** | automated tests passing |
+| **3** | parallel build lanes, 73 commits |
 
 ---
 
@@ -1391,7 +1433,7 @@ Suggested, about 5 minutes. Built only from features listed above.
 - **Not read:** `data/private/`
 
 **Commands (26 Oct 2026):**
-- `pytest -q` on `7a33645`: **118 passed** (final); on `89254d8`: 117; on `53e1f7f` + `dee7b1e`: 117; `test_first_year_is_linked_across_departments` passes on its own
+- `pytest -q` on `d3e1a9d`: **122 passed** (final); on `7a33645`: 118; on `89254d8`: 117; on `53e1f7f` + `dee7b1e`: 117; `test_first_year_is_linked_across_departments` passes on its own
 - first-year checks:
   - 94 linked sessions (ME 23, ECE 22, EE 49)
   - CSE D1-CS-A-A1: 5 hours at `39212e3` (temporary checkout) → 11 now
@@ -1406,7 +1448,7 @@ Suggested, about 5 minutes. Built only from features listed above.
 - `pytest -q` on commit `3acc154`: 87 passed
 - a Python check of `College.lab_pairs()` (86 pairs, 54 in CSE) and of the SC/ACC lab days in the optimised file
 - earlier: `pytest -q -rA` on the working tree before the re-run (85 passed, 2 failed as expected) and on a clean checkout of `aac5df1` (84 passed)
-- `pytest --collect-only -q` (87 tests at `3acc154`; 88 at `becb48e`; 95 at `32f1b45`; 116 at `39212e3`; 117 at `53e1f7f`; 118 at `7a33645`)
+- `pytest --collect-only -q` (87 tests at `3acc154`; 88 at `becb48e`; 95 at `32f1b45`; 116 at `39212e3`; 117 at `53e1f7f`; 118 at `7a33645`; 122 at `d3e1a9d`)
 - a Python check printing college counts, metrics and `compare` from `app.store.STORE`
 - `git log`, `git log --stat`, `git diff --stat`, `git status`
 
@@ -1425,12 +1467,15 @@ All numbers were checked here against the committed data files.
 
 ## 19. Pending
 **Resolved on 26 Oct** (after commits `53e1f7f` and `dee7b1e`):
-- Final test totals: **118 / 118 pass** (re-run here; Lane A 80, B 14, C 24).
+- Final test totals: **122 / 122 pass** (re-run here; Lane A 84, B 14, C 24).
+- Counts after the re-import in `d3e1a9d` (203 real teachers, 464 accounts, 64 sittable / 77 bookable rooms) and unchanged optimised results: checked here.
+- **The UI in a browser: verified by Lane A** in a full run-through of every role on 26 Oct (see §11.13). I did not click through it myself.
 - Clash counts after `89254d8` (5 teacher, 0 student, 0 room), the `/api/timetable` fields, and ECE's re-measured numbers: checked here.
 - First-year linking: checked independently (see Sources).
 - Per-department optimised numbers (§10.3, §17): every value checked against the six committed `<dept>_optimised.json` files, and the "All six" sums added up by hand and matched against the whole-college metrics.
 - College-rule break counts: from each optimised file.
 - Merged college counts (§4.4, §7.1): measured with `app.store.STORE`.
 
-**Still not verified:**
-- UI behaviour was described from page source (labels, tabs, `x-show` rules), not from clicking through every screen in a browser. This includes the new department picker and the four-role sign-in (its student flow was checked in the browser by Lane A, not here).
+**Still not verified independently here:**
+- Nothing in the data or tests.
+- My own descriptions of the UI come from the page source (labels, tabs, `x-show` rules). The browser behaviour of every role was verified by Lane A (above and §11.13).
