@@ -42,6 +42,7 @@ Most teams will build an optimised timetable generator. We also run on **GNDEC's
 | E1 | Event slot finder for organisations and T&P: common free time for a batch, plus a venue | C | ✅ |
 | F1 | Substitutions (absence → ranked substitutes, assign / cancel), leave, notifications | A + B | ✅ |
 | F2 | Read-only Claude assistant (5 tools, checked on the real data) and PDF print | A + B | ✅ |
+| F4 | **Onboarding another college from Excel** (template, plain-language checks, generate + validate; made-up sample college) | A | ✅ proof (command line) |
 | F3 | Room QR page, insights heatmap, drag-and-drop editor + minimal-change repair, Excel import/export, venue calendar, PWA, deploy, Google sign-in | A/B/C | ⬜ after submission |
 
 ### Known gaps (data the college doesn't publish)

@@ -38,6 +38,8 @@ python -m venv .venv && .venv/Scripts/python -m pip install -r requirements.txt 
 .venv/Scripts/python -m app.importers.fet_dept ALL   # re-import IT/ME/CE/ECE/EE from data/gndec/raw/<dept>/ -> data/gndec/<dept>.json
 .venv/Scripts/python -m app.optimise 300 IT ME      # optimise departments (or ALL) -> data/gndec/<dept>_optimised.json
 .venv/Scripts/python -m uvicorn app.main:app --reload --port 8001   # run app → http://localhost:8001
+.venv/Scripts/python -m app.importers.sheets data/colleges/demo_institute/demo_institute.xlsx   # onboard a college from Excel: check, generate, validate
+.venv/Scripts/python -m app.importers.sheets --template college_template.xlsx                    # a blank template for a new college
 .venv/Scripts/python -m pytest -q           # tests
 ```
 
@@ -56,7 +58,7 @@ Each lane **only edits the files it owns**. Shared files are owned by Lane A.
 
 | Lane | Owns |
 |---|---|
-| **A. Core and data** | `app/models.py`, `app/rules.py`, `app/store.py`, `app/auth.py`, `app/substitutions.py`, `app/optimise.py`, `app/static/compare.html`, `app/static/login.html`, `app/static/audit.html`, `app/static/concerns.html`, `app/main.py`, `app/seed.py`, `app/solver.py`, `app/validator.py`, `app/chat.py`, `app/importers/*`, `data/gndec/*`, `app/api/core.py`, `app/static/js/shell.js`, `.claude/launch.json`, `docs/API.md` (Core and Shared sections), `PLAN.md`, `CLAUDE.md`, `README.md`, `tests/test_core_*`, `tests/test_validator.py` |
+| **A. Core and data** | `app/models.py`, `app/rules.py`, `app/store.py`, `app/auth.py`, `app/substitutions.py`, `app/optimise.py`, `app/static/compare.html`, `app/static/login.html`, `app/static/audit.html`, `app/static/concerns.html`, `app/main.py`, `app/seed.py`, `app/solver.py`, `app/validator.py`, `app/chat.py`, `app/importers/*`, `data/gndec/*`, `data/colleges/*`, `app/api/core.py`, `app/static/js/shell.js`, `.claude/launch.json`, `docs/API.md` (Core and Shared sections), `PLAN.md`, `CLAUDE.md`, `README.md`, `tests/test_core_*`, `tests/test_validator.py` |
 | **B. Dashboards UI** | `app/static/index.html`, `app/static/js/dashboards.js`, `app/static/css/*`, `app/api/dashboards.py`, `docs/API.md` (Lane B section), `tests/test_dashboards_*` |
 | **C. Venues and events** | `app/static/venues.html`, `app/static/js/venues.js`, `app/venues/*`, `app/api/venues.py`, `docs/API.md` (Lane C section), `tests/test_venues_*` |
 
@@ -105,6 +107,11 @@ Rules for every lane:
   - other departments' classes count as fixed for shared teachers and rooms
 - **Teachers:** full names come from each department's teachers page (`fet_dept.teacher_names()`; CE publishes only initials). One person with two records (named in full by one department, by initials in their own) is merged.
 - **Published data that is already wrong is never made worse.** Put together, the published timetables list 32 teacher double-bookings, mostly one combined class written in two departments' timetables; CE's own export double-books one teacher. No optimised department may add a clash anywhere in the college (`test_core_departments.py`).
+
+## Onboarding another college (Excel)
+- `app/importers/sheets.py`: one workbook, five sheets (Profile, Rooms, Teachers, Classes, Lessons); blank template in `data/colleges/college_template.xlsx`. Every mistake is reported with its sheet and row; nothing is imported until the workbook is clean. With no current timetable, the generator builds one and the validator checks it; the result is written back as an Excel timetable (a sheet per section, the college's own period times).
+- Sample: `data/colleges/demo_institute/` (made up, not GNDEC; `make_sample.py` writes the workbook). Today the engine grid is 5 days x 8 periods with the break in periods 4-6; a college's own period times are used for display. Next: move the grid, naming and buildings into a per-college profile, an upload page for the timetable office, and FET project-file import.
+- This path is separate: the GNDEC app (`seed.build_college()`) is unchanged.
 
 ## Student concerns
 - `/concerns.html`: students report what in their timetable makes them miss classes (too early to reach, ends too late, long wait, no break, too many in a row). A timed concern must name a class the student really has; classmates add "me too" instead of duplicates; at most 5 open per student.
