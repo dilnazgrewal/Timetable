@@ -7,13 +7,13 @@
 > **How it was checked:** every claim comes from the repository (code, docs, git history), the test suite, or a command run on **26–27 Oct 2026**. Nothing is from memory. The commands are listed under [Sources](#18-sources). Anything that could not be confirmed yet is listed under [Pending](#19-pending).
 >
 > **State of the repo when this was written:**
-> - Final numbers are from commit `d12f3f4` (27 Oct 2026). The last three code commits are **student concerns** (`d173b37`), the **AI assistant switched on for the live site** (`76fb30e`), and the timetable office no longer raising concerns or requesting meetings as a student (`d12f3f4`). Before them came deployment (`5a6a9bc`, `a557f04`, `2ac1a85`). Before that came Lane A's full browser run-through of every role (`d3e1a9d`). The last data changes were `89254d8` (two same-named teachers kept apart: 5 teacher clashes in the published data) and `53e1f7f` (**first year linked across departments**).
+> - Final numbers are from commit `c19e75b` (27 Oct 2026), which adds a venues test for the last change. The four code commits before it are **student concerns** (`d173b37`), the **AI assistant switched on for the live site** (`76fb30e`), the timetable office no longer raising concerns or requesting meetings as a student (`d12f3f4`), and **a department's hall needing its own HOD even when the office books it** (`da6859b`). Before them came deployment (`5a6a9bc`, `a557f04`, `2ac1a85`). Before that came Lane A's full browser run-through of every role (`d3e1a9d`). The last data changes were `89254d8` (two same-named teachers kept apart: 5 teacher clashes in the published data) and `53e1f7f` (**first year linked across departments**).
 > - Before it:
 >   - `39212e3` imported and optimised the **real timetables of all six departments** (CSE, IT, ME, CE, ECE, EE)
 >   - `32f1b45` added College rules
 >   - `becb48e` added the lab-pair rule
 >   - `3acc154` imported D4's open elective from the FET *groups* page
-> - **All 128 tests pass** on `d12f3f4`.
+> - **All 130 tests pass** on `c19e75b`.
 
 ---
 
@@ -64,7 +64,7 @@ What it does:
 
 **Live demo:** https://timeweave-3y2g.onrender.com (Render, free tier; see §14.1).
 
-**Tests:** **128 automated tests, all 128 pass** (commit `d12f3f4`; see [11](#11-testing-every-test-and-the-edge-case-it-covers)).
+**Tests:** **130 automated tests, all 130 pass** (commit `c19e75b`; see [11](#11-testing-every-test-and-the-edge-case-it-covers)).
 
 ---
 
@@ -396,7 +396,7 @@ Status as of commit `53e1f7f`. ✅ built and committed · ⬜ designed, not buil
 | # | Feature | Status |
 |---|---|---|
 | C1 | Venue ranking: free bookable rooms ranked by fit, with plain-English reasons and "near misses" | ✅ |
-| C2 | Booking requests with an approval chain: club → faculty advisor → room's HOD (central halls → admin); pre-approved steps for approvers | ✅ |
+| C2 | Booking requests with an approval chain: club → faculty advisor → room's HOD (central halls → admin); pre-approved steps for approvers. Since `da6859b` the timetable office can't approve a department's hall or endorse for a club | ✅ |
 | C3 | Approvals inbox, rejection with a reason, cancel, a timeline per request, warnings about competing requests | ✅ |
 | C4 | An approved booking becomes a booking override, so the room leaves Free rooms for those periods; cancelling gives it back | ✅ |
 | C5 | Event slot finder: common free time for a batch (dept+year, sections or groups) on real dates, with best-fit venues, lunch protection and "nearly free" times naming who would miss which class | ✅ |
@@ -673,6 +673,8 @@ Every candidate comes with plain-English reasons.
 
 **Approval chain** (`requests.py`), built when the request is made:
 - **Club lead:** faculty advisor (endorse) → room's HOD (approve). Central halls (`dept=None`) go to the admin instead of a HOD.
+- **A department's room always needs that department's HOD** (`_approve` in `app/auth.py`, `da6859b`), even when the timetable office books it: the request waits for the HOD, and the office can't decide it (403). Only rooms with no department, or of a department without an HOD account, go to the admin. In the current data, **73 of the 77 bookable rooms** go to a department's HOD and **4 are central** (Auditorium, LT-1, LT-2, WS Seminar Hall; every department that owns rooms has an HOD account).
+- **Only the club's faculty advisor endorses** a club's request; the admin can't do it for them (`da6859b`).
 - **Teacher, coordinator, HOD, org, admin:** skip the advisor.
 - **Requester who is an approver:** that step is pre-approved.
 - **Statuses:** pending → endorsed → approved, or rejected / cancelled.
@@ -767,7 +769,7 @@ It has **no write tools**.
 | dean | 1 | |
 
 ### 7.2 The 8 roles and what they can do
-(From `PERMISSIONS` and `capabilities()` in `app/auth.py`. The admin may do everything except two things a person does as a student: `STUDENTS_ONLY = {"concern.raise", "meeting.request"}` (`d12f3f4`). Anything not listed is denied. On the sign-in page these 8 appear as four roles with extra duties; see 7.1.)
+(From `PERMISSIONS` and `capabilities()` in `app/auth.py`. The admin is **not** allowed everything. It passes every rule except four actions: two a person does as a student, `STUDENTS_ONLY = {"concern.raise", "meeting.request"}` (`d12f3f4`), and two that are someone else's authority, `OWN_AUTHORITY = {"booking.approve", "booking.endorse"}` (`da6859b`). For those two it follows the normal rule, which lets it approve central halls only. Anything not listed is denied. On the sign-in page these 8 appear as four roles with extra duties; see 7.1.)
 
 | Role | Can | Cannot |
 |---|---|---|
@@ -778,10 +780,10 @@ It has **no write tools**.
 | **Dean** (read-only) | every department's timetable, **every department's** optimised view, insights, leave board, **audit log**, slot finder, every department's student concerns | change anything: propose, override, publish, book, request meetings, answer concerns |
 | **Club lead** | request venues (goes to the faculty advisor first), slot finder, cancel own requests | endorse or approve its own request |
 | **Org** (visitor / T&P) | request venues (no advisor step), slot finder, book for a batch audience | approve |
-| **Admin** (timetable office) | everything else: **regenerate**, **publish/unpublish**, approve **central halls**, see all accounts, demo reset, audit log, **see and answer every department's student concerns** | raise student concerns or request meetings as a student (`d12f3f4`) |
+| **Admin** (timetable office) | everything else: **regenerate**, **publish/unpublish**, approve **central halls** (its own), see all accounts, demo reset, audit log, **see and answer every department's student concerns** | raise student concerns or request meetings as a student (`d12f3f4`); **approve a department's hall**, even one it booked itself (that department's HOD decides), or endorse a club's request (`da6859b`) |
 
 - **Faculty advisor** is not a role: it is a teacher named as a club's advisor (`booking.endorse`).
-- **Who approves a booking** depends on the room: its owning department's HOD, or the admin for central rooms.
+- **Who approves a booking** depends on the room: its owning department's HOD, or the admin for central rooms. Since `da6859b` this holds for the admin too: when the office books the MBA Seminar Hall (CSE), the request waits for the CSE HOD, and the office gets 403 if it tries to decide it. When it books the Auditorium (central), its own step is pre-approved, so the booking is approved at once.
 
 ### 7.3 Propose → publish flow (per department)
 1. A department's HOD or coordinator opens `/compare.html` and picks their department; they can see only their own. They compare the two timetables and press **Propose to the timetable office**. Status → `proposed`; admins are notified.
@@ -984,7 +986,9 @@ Commands: `.venv/Scripts/python -m pytest -q -rA` and `pytest --collect-only -q`
 
 | Code state | Tests | Passed | Failed | Time |
 |---|---|---|---|---|
-| **Final: commit `d12f3f4`** | 128 | **128** | **0** | 25 s |
+| **Final: commit `c19e75b`** | 130 | **130** | **0** | 35 s |
+| Earlier: commit `da6859b` (before the venues department-hall test) | 129 | 129 | 0 | 25 s |
+| Earlier: commit `d12f3f4` (before the department-hall test) | 128 | 128 | 0 | 25 s |
 | Earlier: commit `d173b37` (same tests, before the hosted-assistant and admin changes) | 128 | 128 | 0 | 23 s |
 | Earlier: commit `2ac1a85` (before the 5 concerns tests) | 123 | 123 | 0 | 55 s |
 | Earlier: commit `d3e1a9d` (before the hosted-mode test) | 122 | 122 | 0 | 27 s |
@@ -999,7 +1003,7 @@ Commands: `.venv/Scripts/python -m pytest -q -rA` and `pytest --collect-only -q`
 | File | Lane | Tests | Pass |
 |---|---|---|---|
 | `tests/test_validator.py` | A | 12 | 12 |
-| `tests/test_core_permissions.py` | A | 19 (incl. 5 parametrised; 1 added in `7a33645`, 1 in `5a6a9bc`) | 19 |
+| `tests/test_core_permissions.py` | A | 20 (incl. 5 parametrised; 1 added in `7a33645`, 1 in `5a6a9bc`, 1 in `da6859b`) | 20 |
 | `tests/test_core_fet.py` | A | 7 (3 added in `3acc154`) | 7 |
 | `tests/test_core_students.py` | A | 6 | 6 |
 | `tests/test_core_store.py` | A | 4 | 4 |
@@ -1009,13 +1013,13 @@ Commands: `.venv/Scripts/python -m pytest -q -rA` and `pytest --collect-only -q`
 | `tests/test_core_departments.py` | A | 19 (18 added in `39212e3`, incl. 5 + 6 parametrised; 1 in `53e1f7f`) | 19 |
 | `tests/test_core_chat_tools.py` | A | 4 (added in `dce71d3`) | 4 |
 | `tests/test_core_concerns.py` | A | 5 (added in `d173b37`) | 5 |
-| **Lane A total** | | **90** | **90** |
+| **Lane A total** | | **91** | **91** |
 | `tests/test_dashboards_api.py` | B | **14** | 14 |
-| `tests/test_venues_approvals.py` | C | 7 | 7 |
+| `tests/test_venues_approvals.py` | C | 8 (1 added in `c19e75b`) | 8 |
 | `tests/test_venues_ranking.py` | C | 8 (incl. 4 parametrised) | 8 |
 | `tests/test_venues_slots.py` | C | 9 (3 added in `49004bb`) | 9 |
-| **Lane C total** | | **24** | 24 |
-| **Overall** | | **128** | **128** |
+| **Lane C total** | | **25** | 25 |
+| **Overall** | | **130** | **130** |
 
 **Note:** while the optimiser re-run was in progress, 2 tests failed as expected:
 - `test_core_optimise.py::test_no_clashes_and_never_worse`
@@ -1056,13 +1060,14 @@ These are "testing the tester": mutation tests inject each kind of mistake and c
 | `test_precheck_explains_overloaded_teacher` | Prechecks explain an impossible input in plain English (teacher available only Tuesday, max 3 a day, with 4 hours assigned) |
 | `test_unknown_lesson_flagged` | An entry for a lesson that doesn't exist is flagged |
 
-### 11.3 `tests/test_core_permissions.py`: role-based access (19)
+### 11.3 `tests/test_core_permissions.py`: role-based access (20)
 | Test | What it checks · edge case |
 |---|---|
 | `test_every_api_route_needs_sign_in_except_auth` | Walks **every** `/api` route of the app and checks that it depends on `current_user` (except `/api/auth/*`): no route is accidentally left open |
 | `test_no_sign_in_is_401` ×5 | `/api/meta`, `/api/me`, `/api/timetable`, `/api/free-rooms`, `/api/notifications` return **401** with no sign-in |
 | `test_session_sign_in_and_out` | The demo account list is open; signing in as an unknown user gives 404; signing in as the Dean works and `/api/me` shows `audit` but not `publish`; after logout `/api/me` gives 401 |
-| `test_admin_may_do_everything_and_unknown_actions_are_refused` | The admin passes every rule **except the two student-only actions** (`concern.raise`, `meeting.request`; `d12f3f4`), which it never passes; an **unknown action is refused even for the admin** (deny by default) |
+| `test_admin_may_do_everything_and_unknown_actions_are_refused` | The admin passes every rule **except four**: the two student-only actions (`concern.raise`, `meeting.request`; `d12f3f4`), which it never passes, and the two `OWN_AUTHORITY` ones (`booking.approve`, `booking.endorse`; `da6859b`), tested in the next test. Since `da6859b` the check that an **unknown action is refused even for the admin** (deny by default) sits at the end of the next test |
+| `test_a_department_hall_needs_its_hod_even_when_the_office_books_it` | *(added in `da6859b`)* A request by the admin for the **MBA Seminar Hall (CSE's)**: the admin **can't approve it**, the CSE HOD can. A request for the **Auditorium (central)**: the admin can approve it, the CSE HOD can't. A DMC club request: the admin **can't endorse** it; the club's faculty advisor can. An unknown action is refused for the admin |
 | `test_college_wide_actions_are_admin_only` | Generate, publish, see accounts and demo reset are refused for Dean, HOD, coordinator, teacher, student, club and org |
 | `test_department_staff_only_manage_their_own_department` | HOD and coordinator of CSE may view/run/propose/override for **CSE but not ME**; the ME HOD can't see the CSE optimiser; students and teachers can't |
 | `test_dean_reads_but_never_changes` | The Dean may view the optimiser, insights, audit and timetables, but not run, propose, override, publish or **request meetings** |
@@ -1185,7 +1190,7 @@ Runs against a fresh `build_college()` store (since `39212e3`, the real six-depa
 | `test_dashboards_need_sign_in` | `/api/dash/views` without sign-in gives 401 |
 | `test_dean_is_read_only` | The Dean can view a teacher's week and free slots, but requesting a meeting gives 403 |
 
-### 11.10 `tests/test_venues_approvals.py`: Lane C approvals (7)
+### 11.10 `tests/test_venues_approvals.py`: Lane C approvals (8)
 | Test | What it checks · edge case |
 |---|---|
 | `test_club_request_advisor_then_hod_then_room_leaves_free_rooms` | The full chain. The hall is free, then the club requests it: the advisor is notified, the request is in the advisor's inbox but not yet the HOD's. **The HOD can't skip the advisor; the club can't approve itself.** The advisor endorses and the HOD is notified; **the advisor can't give final approval; another department's HOD can't.** The HOD approves, and **the hall leaves Free rooms** for both periods; the timeline ends "Booked". **The advisor can't cancel; the club can**, and the room is free again |
@@ -1195,6 +1200,7 @@ Runs against a fresh `build_college()` store (since `39212e3`, the real six-depa
 | `test_who_may_request` | A **student can't request** a venue (403); an unknown room gives 400 |
 | `test_event_audience_hears_about_approval_and_cancellation` | An unknown audience group gives 400; the audience label is the section name; **students hear nothing until approval**, then every student of the batch gets "Event for your batch"; students outside the batch don't; everyone in the batch is told on cancel |
 | `test_new_roles_and_sign_in` | A coordinator books with no advisor step (HOD only) and **can't approve**; the Dean **can't book** but may use the slot finder; signed out → 401 |
+| `test_department_hall_needs_its_hod_even_when_the_office_books_it` | *(added in `c19e75b`)* The **admin requests a department's hall** through the API: the request stays **pending** with a single step for **that department's HOD**, `can_decide` is false for the admin, the admin deciding gives **403**, and the HOD's approval makes it **approved** |
 
 ### 11.11 `tests/test_venues_ranking.py`: Lane C ranking (8)
 | Test | What it checks · edge case |
@@ -1241,7 +1247,7 @@ Runs against a fresh `build_college()` store (since `39212e3`, the real six-depa
 ---
 
 ## 12. Timeline: how it was built
-From `git log` (83 commits up to `d12f3f4`; 14 of them are this report). Commits per day: 21 Oct 15 · 22 Oct 14 · 26 Oct 45 · 27 Oct 9.
+From `git log` (86 commits up to `c19e75b`; 15 of them are this report). Commits per day: 21 Oct 15 · 22 Oct 14 · 26 Oct 45 · 27 Oct 12.
 
 ### Day 1: Wed 21 Oct, prototype (v0.1), demo at 4 PM
 - Scaffold, `CLAUDE.md`, plan.
@@ -1323,6 +1329,7 @@ From `git log` (83 commits up to `d12f3f4`; 14 of them are this report). Commits
 - **Deployed** to Render (`5a6a9bc`, `a557f04`, `2ac1a85`): Dockerfile, hosted mode (at first with no paid assistant and no optimiser re-runs), the live link in the README. Hugging Face Spaces was tried first.
 - **Student concerns** (`d173b37`): students report what makes a whole class miss classes; departments see counts per class without names and answer. Also **"Continue as"** on the sign-in page. 5 new tests.
 - **The AI assistant on the live site** (`76fb30e`): the project owner decided to turn it on and set `ANTHROPIC_API_KEY` on Render. Optimiser re-runs stay off.
+- **Department halls** (`da6859b`): a department's hall needs that department's HOD even when the timetable office books it; the office approves central halls only, and only a club's faculty advisor endorses its requests (`OWN_AUTHORITY`). 1 new permissions test (129), plus a venues test through the API (`c19e75b`, 130). Also checked through the API by Lane A (see §7.2).
 - **Permissions fix** (`d12f3f4`): the timetable office could raise student concerns, because the admin passed every rule. Now `STUDENTS_ONLY` (raise a concern, request a meeting) is refused for the admin, who sees and answers concerns instead. Tests updated (still 128).
 - **Offered but not built** (the project owner chose concerns first): a rule editor where the HOD proposes new college rules from the app.
 - This report was committed alongside.
@@ -1448,7 +1455,7 @@ Suggested, about 5 minutes. Built only from features listed above.
    - **CSE:** no-lunch days 44 → 0. Be honest: CSE's gain is smaller than in the CSE-only run, because CSE's first year and classes by other departments' teachers are now kept as published, so other departments are never hurt.
    - **Rules:** scroll to **"GNDEC's timetable rules"**: each college habit in plain words, and how often each version breaks it. Tell the story: an earlier CSE run left 6 D4 Fridays with only project + open elective; writing the rule down fixed it (6 → 0).
    - **Publishing:** it is refused if a rule is broken more often, or if a clash appears anywhere in the college. **Propose** as the HOD, then **Publish** as the admin; the validator re-checks the whole college.
-9. **Trust:** the independent validator, the independent college-rules check, 128 automated tests, and the audit log (`/audit.html` as the Dean) showing a refused action.
+9. **Trust:** the independent validator, the independent college-rules check, 130 automated tests, and the audit log (`/audit.html` as the Dean) showing a refused action.
 10. **Ask TimeWeave** (optional; uses API credit; works on the live link): "Will G17 be free at 12:30 on Friday?" Lane A's live check: "Is G17 free on Monday at 12:30?" answered correctly in about 6 s with the `room_status` tool.
 
 ---
@@ -1530,8 +1537,8 @@ Suggested, about 5 minutes. Built only from features listed above.
 | **6 → 0** | D4 Fridays with only project + open elective (an earlier CSE run vs now), fixed by writing the rule down |
 | **8** | roles, with a deny-by-default permission table and an audit log |
 | **46** | API routes |
-| **128 / 128** | automated tests passing |
-| **3** | parallel build lanes, 83 commits |
+| **130 / 130** | automated tests passing |
+| **3** | parallel build lanes, 86 commits |
 
 ---
 
@@ -1553,7 +1560,7 @@ Suggested, about 5 minutes. Built only from features listed above.
 - **Not read:** `data/private/`
 
 **Commands (26 Oct 2026):**
-- `pytest -q` on `d12f3f4`: **128 passed** (final); on `d173b37`: 128; on `2ac1a85`: 123; on `d3e1a9d`: 122; on `7a33645`: 118; on `89254d8`: 117; on `53e1f7f` + `dee7b1e`: 117; `test_first_year_is_linked_across_departments` passes on its own
+- `pytest -q` on `c19e75b`: **130 passed** (final); on `da6859b`: 129; on `d12f3f4`: 128; on `d173b37`: 128; on `2ac1a85`: 123; on `d3e1a9d`: 122; on `7a33645`: 118; on `89254d8`: 117; on `53e1f7f` + `dee7b1e`: 117; `test_first_year_is_linked_across_departments` passes on its own
 - first-year checks:
   - 94 linked sessions (ME 23, ECE 22, EE 49)
   - CSE D1-CS-A-A1: 5 hours at `39212e3` (temporary checkout) → 11 now
@@ -1568,7 +1575,7 @@ Suggested, about 5 minutes. Built only from features listed above.
 - `pytest -q` on commit `3acc154`: 87 passed
 - a Python check of `College.lab_pairs()` (86 pairs, 54 in CSE) and of the SC/ACC lab days in the optimised file
 - earlier: `pytest -q -rA` on the working tree before the re-run (85 passed, 2 failed as expected) and on a clean checkout of `aac5df1` (84 passed)
-- `pytest --collect-only -q` (87 tests at `3acc154`; 88 at `becb48e`; 95 at `32f1b45`; 116 at `39212e3`; 117 at `53e1f7f`; 118 at `7a33645`; 122 at `d3e1a9d`; 123 at `2ac1a85`; 128 at `d173b37` and `d12f3f4`)
+- `pytest --collect-only -q` (87 tests at `3acc154`; 88 at `becb48e`; 95 at `32f1b45`; 116 at `39212e3`; 117 at `53e1f7f`; 118 at `7a33645`; 122 at `d3e1a9d`; 123 at `2ac1a85`; 128 at `d173b37` and `d12f3f4`; 129 at `da6859b`; 130 at `c19e75b`)
 - a Python check printing college counts, metrics and `compare` from `app.store.STORE`
 - `git log`, `git log --stat`, `git diff --stat`, `git status`
 
@@ -1589,7 +1596,8 @@ All numbers were checked here against the committed data files.
 
 ## 19. Pending
 **Resolved on 26–27 Oct:**
-- Final test totals: **128 / 128 pass** (re-run here on `d12f3f4`; Lane A 90, B 14, C 24).
+- Final test totals: **130 / 130 pass** (re-run here on `c19e75b`; Lane A 91, B 14, C 25).
+- Department halls (`da6859b`, `c19e75b`): read in the diffs and both tests; the 73 / 4 split of bookable rooms counted here with `app.store.STORE`. The three API bookings (MBA Seminar Hall, HOD approval, Auditorium) are Lane A's check.
 - The assistant on the live site (`76fb30e`) and the admin's student-only exclusions (`d12f3f4`): read in the diffs and the tests. The live assistant answer is Lane A's check.
 - Student concerns: tests, permissions, the 6 endpoints, the 30% / 2-vote flag, the 200-character and 5-concern limits, all read in the code. The end-to-end browser run is Lane A's.
 - The live deployment: answered and matched the local numbers (see §14.1).
@@ -1603,5 +1611,5 @@ All numbers were checked here against the committed data files.
 
 **Still not verified independently here:**
 - Nothing in the data or tests.
-- **The live site and `d12f3f4`:** `d12f3f4` is on GitHub, but two read-only checks here on 27 Oct still showed the old permissions on the live site (the timetable office had `raise_concerns` and `request_meeting`). Render had not redeployed yet. Check once more before judging: sign in as the timetable office, and the Student concerns page should show no "Raise a concern" button.
+- **The live site and `d12f3f4` / `da6859b`:** `d12f3f4` is on GitHub, but two read-only checks here on 27 Oct still showed the old permissions on the live site (the timetable office had `raise_concerns` and `request_meeting`). Render had not redeployed yet. Check once more before judging: sign in as the timetable office, and the Student concerns page should show no "Raise a concern" button.
 - My own descriptions of the UI come from the page source (labels, tabs, `x-show` rules). The browser behaviour of every role was verified by Lane A (above and §11.13).
