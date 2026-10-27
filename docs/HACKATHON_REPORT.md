@@ -831,7 +831,13 @@ The first writes `timetable.xlsx` next to the workbook (or to `--out <file>`). T
   - **Lane A** (local settings, real clicks in the browser): 0 clashes, 0 waiting periods, 0 single-lecture days, made in about 3 s.
   - **Here, through the API with the public server's settings:** 0 clashes, 0 waiting, 0 single-lecture days. It used the whole 15 s limit (15.5 s), 6 section timetables came back, and GNDEC's timetable was unchanged.
 - **Bug fixed while testing** (Lane A): the buttons stayed disabled, because the page treated an empty status text as "busy".
-- **Not on the live site yet:** it needs a push, and then Render redeploys.
+- **On the live site** (redeployed on 27 Oct):
+  - **Checked by Lane A:**
+    - `/onboard.html`, the template (7.8 KB) and the sample all answer 200
+    - the sample checks ok: 2 departments, 12 rooms, 11 teachers, 6 sections, 40 lessons, 94 classes a week
+    - **generating** it on the free server: ok, **0 clashes**, 6 sections, 0.1 waiting periods per student-day, 4 single-lecture days; 16.0 s of solving, 16.8 s for the whole request
+  - **Why it is slightly worse than locally** (0 / 0 / 0 in about 3 s): the free server has a fraction of one CPU and a 15 s limit, so the solver stops at a good, clash-free timetable rather than the best one.
+  - **Re-checked here (read-only):** the page, template (7,824 bytes) and sample answer 200; `/check` on the sample is ok with the same counts; the sign-in page offers "Set up a different college". Generating was not repeated here, to spare the free server.
 
 ---
 
@@ -1562,6 +1568,7 @@ Optimise departments (here 300 s each for IT and ME; or `ALL`), writing `data/gn
   - 105 free rooms at Mon P5
   - HOD IT sees only IT (student waiting 15 → 11); a re-run gives 409
   - the CSE comparison page renders
+  - **website onboarding** (after the redeploy): the sample college made on the live server with 0 clashes in about 17 s (see §6.8)
   - **the assistant** (after `76fb30e`): as a student, "Is G17 free on Monday at 12:30?" got a correct answer in about 6 s, using the `room_status` tool
 - **Re-checked here after `76fb30e` (read-only, no chat question asked):** HOD IT and the timetable office both have the Ask tab (`chat`) and no re-run. The live site did not yet have `d12f3f4` at that time (the office still showed `raise_concerns`).
 - **Re-checked here after the redeploy (27 Oct, read-only):** the timetable office: `raise_concerns`, `request_meeting` and `endorse_venues` false, while `approve_venues`, `view_concerns`, `answer_concerns` and `chat` are true. The CSE HOD: `chat`, `approve_venues` and `answer_concerns` true, `optimised_run` false (re-runs off on the live site). So `d12f3f4`, `da6859b` and `1bb36be` are live.
@@ -1766,6 +1773,7 @@ All numbers were checked here against the committed data files.
 - Final test totals: **138 / 138 pass** (re-run here on `87126a8`; Lane A 99, B 14, C 25).
 - **The sign-in guard test** (found checking nothing at `9aaef0c`): **fixed in `87126a8`**. Re-checked here: it finds 50 `/api` routes, passes, and fails when an unprotected router is added in memory (no file changed).
 - Website onboarding (`9aaef0c`): the code, the tests and the API checked here; the browser click-through and the disabled-buttons fix are Lane A's.
+- **Website onboarding is live** (redeployed 27 Oct): generating on the live server checked by Lane A (0 clashes, about 17 s); the page, downloads and `/check` re-checked here, read-only.
 - Excel onboarding (`5242494`): the code, tests and sample checked here (see Sources). The reason it was built (the project owner's question) is from Lane A.
 - Excel onboarding with fewer than 8 periods: **fixed in `d5ad645`** and re-checked here (0 class-hours outside a 6-period day; the new test passes).
 - Department halls (`da6859b`, `c19e75b`) and the endorse inbox (`1bb36be`): read in the diffs and the tests; the 73 / 4 split of bookable rooms counted here with `app.store.STORE`. The three API bookings (MBA Seminar Hall, HOD approval, Auditorium) are Lane A's check.
@@ -1783,5 +1791,4 @@ All numbers were checked here against the committed data files.
 
 **Still not verified independently here:**
 - Nothing in the data or tests.
-- **Website onboarding on the live site:** not deployed yet (needs a push, then Render redeploys).
 - My own descriptions of the UI come from the page source (labels, tabs, `x-show` rules). The browser behaviour of every role was verified by Lane A (above and §11.13).
