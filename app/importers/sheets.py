@@ -66,7 +66,8 @@ def write_workbook(path: Path, data: dict[str, list[list]]) -> None:
             ws.append(row)
         for i, h in enumerate(header):
             ws.column_dimensions[chr(65 + i)].width = max(14, len(h) + 4)
-    path.parent.mkdir(parents=True, exist_ok=True)
+    if isinstance(path, Path):  # or a file object (the website's download)
+        path.parent.mkdir(parents=True, exist_ok=True)
     wb.save(path)
 
 
@@ -239,8 +240,20 @@ def build_college(wb: Workbook) -> tuple[College | None, dict, list[str]]:
     return college, {**profile, "period_times": periods}, []
 
 
-def write_timetable(path: Path, college: College, entries: list, periods: list[str]) -> None:
-    """One sheet per section: days across, the college's own period times down."""
+def section_grid(college: College, entries: list, s: Section) -> dict[tuple[int, int], list[str]]:
+    """(day, period) -> what the section has then, e.g. 'DS Lab [G1] · AK · CS-Lab-1'."""
+    grid: dict[tuple[int, int], list[str]] = {}
+    for e in entries:
+        l = college.lesson_by_id[e.lesson]
+        if set(l.batches) & set(s.groups):
+            for q in e.slots:
+                who = "" if set(s.groups) <= set(l.batches) else f" [{l.section.split()[-1]}]"
+                grid.setdefault((e.day, q), []).append(f"{l.code}{who} · {l.teacher} · {e.room}")
+    return grid
+
+
+def write_timetable(path, college: College, entries: list, periods: list[str]) -> None:
+    """One sheet per section: days across, the college's own period times down (path may be a file object)."""
     from openpyxl import Workbook as XL
     from openpyxl.styles import Alignment, Font
 
@@ -249,13 +262,7 @@ def write_timetable(path: Path, college: College, entries: list, periods: list[s
     for s in college.sections:
         ws = wb.create_sheet(s.id[:31])
         ws.append(["Period", *DAYS])
-        grid = {}
-        for e in entries:
-            l = college.lesson_by_id[e.lesson]
-            if set(l.batches) & set(s.groups):
-                for q in e.slots:
-                    who = "" if set(s.groups) <= set(l.batches) else f" [{l.section.split()[-1]}]"
-                    grid.setdefault((e.day, q), []).append(f"{l.code}{who} · {l.teacher} · {e.room}")
+        grid = section_grid(college, entries, s)
         for p, label in enumerate(periods):
             ws.append([label, *["\n".join(grid.get((d, p), [])) for d in range(len(DAYS))]])
         for c in ws[1]:

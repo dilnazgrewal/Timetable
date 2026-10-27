@@ -110,6 +110,12 @@ Every lane codes against this file. **Lane A owns the "Core" and "Shared buildin
 - optional filters: `min_capacity`, `kind`, `sittable_only=true`, `building`, `floor`
 - Each returned room has all `Room` fields plus `free_until`. Rooms come sorted by building, then floor (ground first), then classrooms first.
 
+**Another college from Excel (`app/api/onboard.py`, prefix `/api/onboard`, no sign-in, nothing stored):**
+- `GET /template`, `GET /sample`: the blank workbook and a filled-in made-up sample (.xlsx)
+- `POST /check` (body = the .xlsx bytes) → `{ok, problems: ["Lessons row 12: …"], summary: {college, departments, rooms, teachers, sections, lessons, sessions, periods}}`
+- `POST /generate` (same body) → `{ok, summary, seconds, clashes, idle_per_day, lonely_days, days, sections: [{id, rows: [period][day] -> ["DS · AK · A101"]}], file: base64 timetable .xlsx}`; or `{ok: false, problems}`
+- 400 not a workbook, 413 over 2 MB or over 600 classes a week, 429 another college is generating
+
 ## Lane B: Dashboards (`app/api/dashboards.py`, prefix `/api/dash`)
 Owned by the Dashboards session. Built and tested in `tests/test_dashboards_api.py`.
 

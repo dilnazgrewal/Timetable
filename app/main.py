@@ -14,7 +14,7 @@ from starlette.middleware.sessions import SessionMiddleware
 ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(ROOT / ".env")
 
-from app.api import core, dashboards, venues  # noqa: E402  (after .env is loaded)
+from app.api import core, dashboards, onboard, venues  # noqa: E402  (after .env is loaded)
 
 STATIC = Path(__file__).resolve().parent / "static"
 
@@ -28,6 +28,7 @@ app.include_router(core.auth_router)  # Lane A: /api/auth/... (sign-in, no sessi
 app.include_router(core.router)  # Lane A: /api/...
 app.include_router(dashboards.router)  # Lane B: /api/dash/...
 app.include_router(venues.router)  # Lane C: /api/venues/...
+app.include_router(onboard.router)  # Lane A: /api/onboard/... (another college, from Excel; no sign-in, nothing kept)
 app.mount("/static", StaticFiles(directory=STATIC), name="static")
 
 
@@ -54,6 +55,11 @@ def audit_page() -> FileResponse:
 @app.get("/concerns.html")
 def concerns_page() -> FileResponse:
     return FileResponse(STATIC / "concerns.html")  # Lane A: students' timetable concerns
+
+
+@app.get("/onboard.html")
+def onboard_page() -> FileResponse:
+    return FileResponse(STATIC / "onboard.html")  # Lane A: set up another college from Excel
 
 
 @app.get("/favicon.ico")

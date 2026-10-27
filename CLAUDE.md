@@ -58,7 +58,7 @@ Each lane **only edits the files it owns**. Shared files are owned by Lane A.
 
 | Lane | Owns |
 |---|---|
-| **A. Core and data** | `app/models.py`, `app/rules.py`, `app/store.py`, `app/auth.py`, `app/substitutions.py`, `app/optimise.py`, `app/static/compare.html`, `app/static/login.html`, `app/static/audit.html`, `app/static/concerns.html`, `app/main.py`, `app/seed.py`, `app/solver.py`, `app/validator.py`, `app/chat.py`, `app/importers/*`, `data/gndec/*`, `data/colleges/*`, `app/api/core.py`, `app/static/js/shell.js`, `.claude/launch.json`, `docs/API.md` (Core and Shared sections), `PLAN.md`, `CLAUDE.md`, `README.md`, `tests/test_core_*`, `tests/test_validator.py` |
+| **A. Core and data** | `app/models.py`, `app/rules.py`, `app/store.py`, `app/auth.py`, `app/substitutions.py`, `app/optimise.py`, `app/static/compare.html`, `app/static/login.html`, `app/static/audit.html`, `app/static/concerns.html`, `app/static/onboard.html`, `app/main.py`, `app/seed.py`, `app/solver.py`, `app/validator.py`, `app/chat.py`, `app/importers/*`, `data/gndec/*`, `data/colleges/*`, `app/api/core.py`, `app/api/onboard.py`, `app/static/js/shell.js`, `.claude/launch.json`, `docs/API.md` (Core and Shared sections), `PLAN.md`, `CLAUDE.md`, `README.md`, `tests/test_core_*`, `tests/test_validator.py` |
 | **B. Dashboards UI** | `app/static/index.html`, `app/static/js/dashboards.js`, `app/static/css/*`, `app/api/dashboards.py`, `docs/API.md` (Lane B section), `tests/test_dashboards_*` |
 | **C. Venues and events** | `app/static/venues.html`, `app/static/js/venues.js`, `app/venues/*`, `app/api/venues.py`, `docs/API.md` (Lane C section), `tests/test_venues_*` |
 
@@ -111,6 +111,7 @@ Rules for every lane:
 ## Onboarding another college (Excel)
 - `app/importers/sheets.py`: one workbook, five sheets (Profile, Rooms, Teachers, Classes, Lessons); blank template in `data/colleges/college_template.xlsx`. Every mistake is reported with its sheet and row; nothing is imported until the workbook is clean. With no current timetable, the generator builds one and the validator checks it; the result is written back as an Excel timetable (a sheet per section, the college's own period times).
 - Sample: `data/colleges/demo_institute/` (made up, not GNDEC; `make_sample.py` writes the workbook). Today the engine grid is 5 days x 8 periods with the break in periods 4-6; a college's own period times are used for display. Next: move the grid, naming and buildings into a per-college profile, an upload page for the timetable office, and FET project-file import.
+- **On the website:** the sign-in page first asks which college: "Continue as GNDEC Ludhiana" (the roles) or "Set up a different college" (`/onboard.html`): download the template or a sample, upload the workbook, see the problems by sheet and row, make the timetable, view it per section and download it as Excel. `app/api/onboard.py` (`/api/onboard/template|sample|check|generate`) needs no sign-in (a visiting college has no account) and is bounded instead: 2 MB, 600 classes a week, one generation at a time, 15 s on the public server. Nothing is stored and STORE is never touched.
 - This path is separate: the GNDEC app (`seed.build_college()`) is unchanged.
 
 ## Student concerns

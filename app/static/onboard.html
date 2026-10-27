@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TimeWeave · Set up your college</title>
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+<style>
+  [x-cloak] { display: none !important; }
+  body { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+</style>
+</head>
+<!-- Lane A owns this page: another college sets itself up from one Excel workbook (no sign-in, nothing kept). -->
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+<main x-data="onboardApp()" x-cloak class="max-w-5xl mx-auto px-4 py-8">
+  <div class="flex items-center gap-3 mb-2">
+    <span class="h-11 w-11 rounded-xl bg-indigo-600 text-white grid place-items-center font-bold text-lg">TW</span>
+    <div>
+      <h1 class="text-2xl font-bold leading-tight">Set up your college</h1>
+      <p class="text-sm text-slate-500">One Excel workbook in, a clash-free timetable out</p>
+    </div>
+  </div>
+  <a href="/login.html" class="text-sm text-indigo-700 underline">← Back (GNDEC Ludhiana)</a>
+
+  <!-- step 1: what we need -->
+  <section class="mt-6 rounded-xl border bg-white p-4">
+    <h2 class="font-semibold">1. What we need from you</h2>
+    <p class="text-sm text-slate-500 mb-3">Download the template and fill in one sheet for each of these. Each sheet has an example row.</p>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-2 text-sm">
+      <template x-for="s in needs" :key="s.name">
+        <div class="rounded-lg border bg-slate-50 p-3">
+          <div class="font-semibold" x-text="s.name"></div>
+          <div class="text-xs text-slate-500 mt-1" x-text="s.about"></div>
+        </div>
+      </template>
+    </div>
+    <div class="mt-3 flex flex-wrap gap-2">
+      <a href="/api/onboard/template" class="rounded-lg bg-indigo-600 text-white px-4 py-2 text-sm font-semibold">Download the blank template</a>
+      <a href="/api/onboard/sample" class="rounded-lg border px-4 py-2 text-sm font-semibold hover:bg-slate-50">Download a filled-in sample</a>
+    </div>
+    <p class="mt-2 text-xs text-slate-400">Colleges already using FET timetables: importing your FET files directly is the next step. GNDEC's departments came in that way.</p>
+  </section>
+
+  <!-- step 2: upload and check -->
+  <section class="mt-4 rounded-xl border bg-white p-4">
+    <h2 class="font-semibold">2. Upload your filled-in workbook</h2>
+    <p class="text-sm text-slate-500 mb-3">We check every row first. If something is wrong, we tell you the sheet and row, and nothing is used until it is fixed.</p>
+    <div class="flex flex-wrap items-center gap-2">
+      <input type="file" accept=".xlsx" @change="pickFile($event)" class="text-sm">
+      <button @click="check()" :disabled="!file || !!busy" class="rounded-lg bg-indigo-600 text-white px-4 py-2 text-sm font-semibold disabled:opacity-50">Check my workbook</button>
+      <span class="text-sm text-slate-400">or</span>
+      <button @click="useSample()" :disabled="!!busy" class="rounded-lg border px-4 py-2 text-sm font-semibold hover:bg-slate-50 disabled:opacity-50">Try it with the sample college</button>
+    </div>
+    <p x-show="busy" class="mt-3 text-sm text-indigo-700" x-text="busy"></p>
+    <p x-show="error" class="mt-3 text-sm text-red-700" x-text="error"></p>
+
+    <div x-show="problems.length" class="mt-3 rounded-lg border border-red-200 bg-red-50 p-3">
+      <div class="font-semibold text-red-800 text-sm" x-text="problems.length + ' thing(s) to fix in your workbook'"></div>
+      <ul class="mt-1 list-disc pl-5 text-sm text-red-800 space-y-0.5">
+        <template x-for="p in problems" :key="p"><li x-text="p"></li></template>
+      </ul>
+    </div>
+
+    <div x-show="summary" class="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm">
+      <div class="font-semibold text-emerald-800">Your workbook is clean ✓</div>
+      <div class="mt-1 text-emerald-900" x-show="summary">
+        <b x-text="summary?.college"></b>:
+        <span x-text="`${summary?.departments} departments, ${summary?.rooms} rooms, ${summary?.teachers} teachers, ${summary?.sections} sections, ${summary?.sessions} classes a week`"></span>
+      </div>
+      <button @click="generate()" :disabled="!!busy" class="mt-3 rounded-lg bg-emerald-600 text-white px-4 py-2 text-sm font-semibold disabled:opacity-50">3. Make the timetable</button>
+    </div>
+  </section>
+
+  <!-- step 3: the result -->
+  <section x-show="result" class="mt-4 rounded-xl border bg-white p-4">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <h2 class="font-semibold">Your timetable</h2>
+      <a :href="download" download="timetable.xlsx" class="rounded-lg bg-indigo-600 text-white px-4 py-2 text-sm font-semibold">Download as Excel</a>
+    </div>
+    <div class="mt-2 grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
+      <div class="rounded-lg border p-2"><div class="text-xs text-slate-500">Clashes (checked separately)</div>
+        <div class="text-lg font-bold" :class="result?.clashes.length ? 'text-red-700' : 'text-emerald-700'" x-text="result?.clashes.length"></div></div>
+      <div class="rounded-lg border p-2"><div class="text-xs text-slate-500">Waiting periods per student-day</div>
+        <div class="text-lg font-bold" x-text="result?.idle_per_day"></div></div>
+      <div class="rounded-lg border p-2"><div class="text-xs text-slate-500">Days with a single lecture</div>
+        <div class="text-lg font-bold" x-text="result?.lonely_days"></div></div>
+      <div class="rounded-lg border p-2"><div class="text-xs text-slate-500">Made in</div>
+        <div class="text-lg font-bold" x-text="result?.seconds + ' s'"></div></div>
+    </div>
+    <ul x-show="result?.clashes.length" class="mt-2 list-disc pl-5 text-sm text-red-800">
+      <template x-for="c in result?.clashes || []" :key="c"><li x-text="c"></li></template>
+    </ul>
+
+    <label class="mt-4 block text-xs text-slate-500">Section
+      <select x-model="section" class="mt-0.5 border rounded-lg px-2 py-1.5 bg-white text-sm text-slate-800">
+        <template x-for="s in result?.sections || []" :key="s.id"><option :value="s.id" x-text="s.id"></option></template>
+      </select></label>
+    <div class="mt-2 overflow-x-auto">
+      <table class="min-w-full text-xs border">
+        <thead class="bg-slate-100"><tr>
+          <th class="border px-2 py-1 text-left">Time</th>
+          <template x-for="d in result?.days || []" :key="d"><th class="border px-2 py-1 text-left" x-text="d"></th></template>
+        </tr></thead>
+        <tbody>
+          <template x-for="(row, p) in grid()" :key="p">
+            <tr>
+              <td class="border px-2 py-1 whitespace-nowrap text-slate-500" x-text="result.summary.periods[p]"></td>
+              <template x-for="(cell, d) in row" :key="d">
+                <td class="border px-2 py-1 align-top" :class="cell.length ? 'bg-indigo-50' : ''">
+                  <template x-for="c in cell" :key="c"><div x-text="c"></div></template>
+                </td>
+              </template>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+    <p class="mt-2 text-xs text-slate-400">Each class shows subject · teacher · room; [G1] means only that lab group. Nothing you upload is kept on our server.</p>
+  </section>
+</main>
+<script>
+function onboardApp() {
+  return {
+    needs: [
+      { name: 'Profile', about: 'College name, working days, period times, departments' },
+      { name: 'Rooms', about: 'Every classroom, lab and hall: seats, building, floor, department' },
+      { name: 'Teachers', about: 'Code, name, department, and times they are not available' },
+      { name: 'Classes', about: 'Each section: year, students, home room, lab groups' },
+      { name: 'Lessons', about: 'Who teaches what to whom: subject, teacher, hours a week, lab rooms' },
+    ],
+    file: null, busy: '', error: '', problems: [], summary: null, result: null, section: '', download: '',
+    pickFile(e) { this.file = e.target.files[0] || null; this.reset(); },
+    reset() { this.error = ''; this.problems = []; this.summary = null; this.result = null; },
+    async send(path) {
+      const r = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/octet-stream' }, body: this.file });
+      const body = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(body.detail || 'Something went wrong. Please try again.');
+      return body;
+    },
+    async check() {
+      this.reset(); this.busy = 'Checking your workbook…';
+      try {
+        const b = await this.send('/api/onboard/check');
+        this.problems = b.problems || []; this.summary = b.summary || null;
+      } catch (e) { this.error = e.message; }
+      this.busy = '';
+    },
+    async useSample() {
+      this.reset(); this.busy = 'Fetching the sample college…';
+      const r = await fetch('/api/onboard/sample');
+      this.file = await r.blob();
+      await this.check();
+    },
+    async generate() {
+      this.error = ''; this.busy = 'Making a clash-free timetable… this takes about 20 seconds.';
+      try {
+        const b = await this.send('/api/onboard/generate');
+        if (!b.ok) { this.problems = b.problems || []; this.summary = null; }
+        else {
+          this.result = b; this.section = b.sections[0]?.id || '';
+          const bytes = Uint8Array.from(atob(b.file), c => c.charCodeAt(0));
+          if (this.download) URL.revokeObjectURL(this.download);
+          this.download = URL.createObjectURL(new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+        }
+      } catch (e) { this.error = e.message; }
+      this.busy = '';
+    },
+    grid() { return (this.result?.sections.find(s => s.id === this.section) || {}).rows || []; },
+  };
+}
+</script>
+</body>
+</html>
