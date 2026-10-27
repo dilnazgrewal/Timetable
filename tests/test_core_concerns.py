@@ -37,6 +37,10 @@ def test_a_concern_is_about_a_class_the_student_really_has():
     assert raise_(ME, reason="nonsense").status_code == 400
     assert raise_("t-KC", reason="other").status_code == 403  # students only
     assert raise_("hod-CSE", reason="other").status_code == 403
+    assert raise_("admin", reason="other").status_code == 403  # the timetable office sees and answers, never raises
+    assert raise_("dean", reason="other").status_code == 403
+    can = as_("admin").get("/api/me").json()["can"]
+    assert not can["raise_concerns"] and can["view_concerns"] and can["answer_concerns"]
 
 
 def test_classmates_add_votes_instead_of_duplicates():

@@ -63,7 +63,9 @@ def test_session_sign_in_and_out():
 
 # --- the permission table ------------------------------------------------------------------------------
 def test_admin_may_do_everything_and_unknown_actions_are_refused():
-    assert all(authorize(u("admin"), a) for a in PERMISSIONS)
+    from app.auth import STUDENTS_ONLY
+    assert all(authorize(u("admin"), a) for a in PERMISSIONS if a not in STUDENTS_ONLY)
+    assert not any(authorize(u("admin"), a) for a in STUDENTS_ONLY)  # a student's own requests and concerns
     assert not authorize(u("admin"), "no.such.action")
 
 
@@ -118,7 +120,8 @@ def test_capabilities_follow_the_table():
     student, admin = capabilities(first("student", "CSE")), capabilities(u("admin"))
     assert student["request_meeting"] and student["my_timetable"] and student["free_rooms"]
     assert not any(student[k] for k in ["optimised_view", "publish", "generate", "audit", "substitutions", "approve_venues"])
-    assert all(v for k, v in admin.items() if k not in ("my_timetable", "reply_meetings", "mark_own_leave"))  # not a teacher
+    assert all(v for k, v in admin.items() if k not in ("my_timetable", "reply_meetings", "mark_own_leave",  # not a teacher
+                                                         "request_meeting", "raise_concerns"))  # nor a student
     hod = capabilities(u("hod-CSE"))
     assert hod["optimised_propose"] and hod["substitutions"] and not hod["publish"]
     assert capabilities(u("hod-ME"))["optimised_view"]  # ME's own optimised timetable, never CSE's

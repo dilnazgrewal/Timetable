@@ -154,11 +154,15 @@ READ_ONLY = {"timetable.view", "rooms.view", "chat.ask", "concern.view", "leave.
              "accounts.view"}
 
 
+# things a person does about their own timetable as a student: the timetable office sees and answers them instead
+STUDENTS_ONLY = {"concern.raise", "meeting.request"}
+
+
 def authorize(user: User, action: str, resource: object = None) -> bool:
     """Every permission rule lives in PERMISSIONS. Unknown actions are refused."""
     if action not in PERMISSIONS:
         return False
-    if user.role == "admin":
+    if user.role == "admin" and action not in STUDENTS_ONLY:
         return True
     return bool(PERMISSIONS[action][1](user, resource))
 
