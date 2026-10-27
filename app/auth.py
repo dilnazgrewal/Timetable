@@ -210,7 +210,7 @@ def capabilities(user: User) -> dict[str, bool]:
         "mark_dept_leave": user.role in DEPT_STAFF or user.role == "admin",
         "substitutions": a("override.create", dept) if user.role != "admin" else True,
         "request_venue": a("booking.request"),
-        "endorse_venues": user.role == "admin" or any(c.advisor == user.id for c in STORE.clubs.values()),
+        "endorse_venues": any(c.advisor == user.id for c in STORE.clubs.values()),  # only a club's faculty advisor
         "approve_venues": user.role in ("hod", "admin"),
         "slot_finder": a("slotfinder.use"),
         "optimised_view": a("optimise.view", dept or "CSE") or user.role == "dean",  # their department; Dean: all

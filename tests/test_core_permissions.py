@@ -79,6 +79,7 @@ def test_a_department_hall_needs_its_hod_even_when_the_office_books_it():
     club_req = BookingRequest(id="x3", title="Workshop", requester="club-DMC", club="DMC", attendees=60, needs=[],
                               date="2026-10-28", periods=[4], room="MBA Seminar Hall")
     assert not authorize(u("admin"), "booking.endorse", club_req)  # only the club's faculty advisor
+    assert not capabilities(u("admin"))["endorse_venues"] and capabilities(u(STORE.clubs["DMC"].advisor))["endorse_venues"]
     assert authorize(u(STORE.clubs["DMC"].advisor), "booking.endorse", club_req)
     assert not authorize(u("admin"), "no.such.action")
 
@@ -135,7 +136,8 @@ def test_capabilities_follow_the_table():
     assert student["request_meeting"] and student["my_timetable"] and student["free_rooms"]
     assert not any(student[k] for k in ["optimised_view", "publish", "generate", "audit", "substitutions", "approve_venues"])
     assert all(v for k, v in admin.items() if k not in ("my_timetable", "reply_meetings", "mark_own_leave",  # not a teacher
-                                                         "request_meeting", "raise_concerns"))  # nor a student
+                                                         "request_meeting", "raise_concerns",  # nor a student
+                                                         "endorse_venues"))  # nor a club's faculty advisor
     hod = capabilities(u("hod-CSE"))
     assert hod["optimised_propose"] and hod["substitutions"] and not hod["publish"]
     assert capabilities(u("hod-ME"))["optimised_view"]  # ME's own optimised timetable, never CSE's
