@@ -34,14 +34,31 @@ def as_(uid):
 
 
 # --- sign-in -----------------------------------------------------------------------------------------
+def _api_routes(routes, prefix="", deps=()):
+    """Every route with its full path, also inside included routers (newer FastAPI keeps those wrapped)."""
+    for r in routes:
+        if isinstance(r, APIRoute):
+            yield prefix + r.path, r, deps
+        elif hasattr(r, "original_router"):
+            c = r.include_context
+            yield from _api_routes(r.original_router.routes, prefix + (c.prefix or ""),
+                                   deps + tuple(d.dependency for d in c.dependencies))
+
+
+# sign-in itself, and another college setting itself up (no account yet; nothing stored, GNDEC untouched)
+NO_SIGN_IN = ("/api/auth/", "/api/onboard/")
+
+
 def test_every_api_route_needs_sign_in_except_auth():
+    api = [(p, r, d) for p, r, d in _api_routes(app.routes) if p.startswith("/api")]
+    assert len(api) > 40  # the walk really finds the routes (it once found none and passed)
     open_routes = []
-    for r in app.routes:
-        if isinstance(r, APIRoute) and r.path.startswith("/api") and not r.path.startswith("/api/auth/"):
-            deps = {d.call for d in r.dependant.dependencies}
+    for path, r, router_deps in api:
+        if not path.startswith(NO_SIGN_IN):
+            deps = {d.call for d in r.dependant.dependencies} | set(router_deps)
             deps |= {sub.call for d in r.dependant.dependencies for sub in d.dependencies}
             if current_user not in deps:
-                open_routes.append(r.path)
+                open_routes.append(path)
     assert open_routes == []
 
 
