@@ -1513,7 +1513,8 @@ Optimise departments (here 300 s each for IT and ME; or `ALL`), writing `data/gn
   - HOD IT sees only IT (student waiting 15 → 11); a re-run gives 409
   - the CSE comparison page renders
   - **the assistant** (after `76fb30e`): as a student, "Is G17 free on Monday at 12:30?" got a correct answer in about 6 s, using the `room_status` tool
-- **Re-checked here after `76fb30e` (read-only, no chat question asked):** HOD IT and the timetable office both have the Ask tab (`chat`) and no re-run. The live site did **not yet** have `d12f3f4` at that time (the office still showed `raise_concerns`); see Pending.
+- **Re-checked here after `76fb30e` (read-only, no chat question asked):** HOD IT and the timetable office both have the Ask tab (`chat`) and no re-run. The live site did not yet have `d12f3f4` at that time (the office still showed `raise_concerns`).
+- **Re-checked here after the redeploy (27 Oct, read-only):** the timetable office: `raise_concerns`, `request_meeting` and `endorse_venues` false, while `approve_venues`, `view_concerns`, `answer_concerns` and `chat` are true. The CSE HOD: `chat`, `approve_venues` and `answer_concerns` true, `optimised_run` false (re-runs off on the live site). So `d12f3f4`, `da6859b` and `1bb36be` are live.
 - **How we got there:** Hugging Face Spaces was tried first, but Docker Spaces now need a paid plan, so Render was used. `deploy/push_to_space.sh` (publishes to a Space without the binary files in `docs/progress`) is kept but unused.
 
 ---
@@ -1713,6 +1714,7 @@ All numbers were checked here against the committed data files.
 - The assistant on the live site (`76fb30e`) and the admin's student-only exclusions (`d12f3f4`): read in the diffs and the tests. The live assistant answer is Lane A's check.
 - Student concerns: tests, permissions, the 6 endpoints, the 30% / 2-vote flag, the 200-character and 5-concern limits, all read in the code. The end-to-end browser run is Lane A's.
 - The live deployment: answered and matched the local numbers (see §14.1).
+- **The live site has the new permissions** (redeployed after `d12f3f4`, `da6859b`, `1bb36be`): confirmed by Lane A and re-checked here (read-only, 27 Oct). The timetable office has no `raise_concerns`, `request_meeting` or `endorse_venues`, but does have `approve_venues`, `view_concerns`, `answer_concerns` and `chat`. The Excel onboarding commits (`5242494`, `d5ad645`) were not yet pushed then; they are command line only, so the live site's behaviour is the same.
 - Counts after the re-import in `d3e1a9d` (203 real teachers, 464 accounts, 64 sittable / 77 bookable rooms) and unchanged optimised results: checked here.
 - **The UI in a browser: verified by Lane A** in a full run-through of every role on 26 Oct (see §11.13). I did not click through it myself.
 - Clash counts after `89254d8` (5 teacher, 0 student, 0 room), the `/api/timetable` fields, and ECE's re-measured numbers: checked here.
@@ -1723,5 +1725,4 @@ All numbers were checked here against the committed data files.
 
 **Still not verified independently here:**
 - Nothing in the data or tests.
-- **The live site and `d12f3f4` / `da6859b` / `1bb36be`:** `d12f3f4` is on GitHub, but two read-only checks here on 27 Oct still showed the old permissions on the live site (the timetable office had `raise_concerns` and `request_meeting`). Render had not redeployed yet. Check once more before judging: sign in as the timetable office, and the Student concerns page should show no "Raise a concern" button.
 - My own descriptions of the UI come from the page source (labels, tabs, `x-show` rules). The browser behaviour of every role was verified by Lane A (above and §11.13).
