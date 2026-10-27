@@ -11,7 +11,7 @@ import anthropic
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 
-from app.auth import DEMO_MODE, HOSTED, ROLES, authorize, capabilities, current_user, require
+from app.auth import DEMO_MODE, HOSTED, ROLES, assistant_ready, authorize, capabilities, current_user, require
 from app.chat import Assistant
 from app.models import CONCERN_REASONS, CONCERN_TIMED, DAYS, FEATURES, LUNCH_WINDOW, PERIODS, Concern, Entry, User
 from app.solver import solve
@@ -245,10 +245,7 @@ class ChatRequest(BaseModel):
 
 @router.post("/chat")
 def chat(req: ChatRequest, user: User = Depends(current_user)) -> dict:
-    if HOSTED:
-        return {"answer": "The assistant is switched off on this public demo because it uses a paid API. "
-                          "The team can show it live.", "tools_used": []}
-    if not (os.getenv("ANTHROPIC_API_KEY") or os.getenv("ANTHROPIC_AUTH_TOKEN")):
+    if not assistant_ready():
         return {"answer": "The assistant isn't configured: add ANTHROPIC_API_KEY to the .env file.", "tools_used": []}
     try:
         return ASSISTANT.ask(req.messages, user)

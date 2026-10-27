@@ -19,8 +19,13 @@ from fastapi import Header, HTTPException, Request
 from app.models import BookingRequest, Club, College, MeetingRequest, Teacher, User
 
 DEMO_MODE = os.getenv("TIMEWEAVE_DEMO", "1") != "0"
-# public demo link (TIMEWEAVE_HOSTED=1): no assistant (it uses a paid API) and no optimiser runs (minutes of full CPU)
+# public demo link (TIMEWEAVE_HOSTED=1): no optimiser runs (minutes of full CPU). The assistant works wherever an
+# Anthropic key is set (on the host: an environment variable, never in the repo)
 HOSTED = os.getenv("TIMEWEAVE_HOSTED", "0") == "1"
+
+
+def assistant_ready() -> bool:
+    return bool(os.getenv("ANTHROPIC_API_KEY") or os.getenv("ANTHROPIC_AUTH_TOKEN"))
 ROLES = {
     "student": "Student", "teacher": "Teacher", "club": "Club lead", "org": "Visitor / T&P",
     "coordinator": "Timetable coordinator", "hod": "HOD", "dean": "Dean (read-only)", "admin": "Timetable office (admin)",
@@ -206,7 +211,7 @@ def capabilities(user: User) -> dict[str, bool]:
         "audit": a("audit.view"),
         "accounts": a("accounts.view"),
         "demo_reset": a("demo.reset"),
-        "chat": a("chat.ask") and not HOSTED,
+        "chat": a("chat.ask") and (assistant_ready() or not HOSTED),
         "raise_concerns": a("concern.raise"),
         "view_concerns": a("concern.view", dept) or user.role in ("dean", "admin"),
         "answer_concerns": a("concern.answer", dept) or user.role == "admin",

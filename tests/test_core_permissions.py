@@ -180,15 +180,19 @@ def test_timetable_route_reports_published_clashes_apart():
     assert all(c.startswith("CLASH Teacher") for c in body["published_issues"])
 
 
-def test_public_demo_switches_off_the_assistant_and_optimiser_runs(monkeypatch):
-    """TIMEWEAVE_HOSTED=1 (the public link): no paid API calls, no minutes-long optimiser runs; the rest works."""
+def test_public_demo_switches_off_optimiser_runs_and_needs_a_key_for_the_assistant(monkeypatch):
+    """TIMEWEAVE_HOSTED=1 (the public link): no minutes-long optimiser runs; the assistant only with a key set."""
     import app.api.core as core
     import app.auth as auth
 
     monkeypatch.setattr(auth, "HOSTED", True)
     monkeypatch.setattr(core, "HOSTED", True)
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.delenv("ANTHROPIC_AUTH_TOKEN", raising=False)
     can = as_("hod-CSE").get("/api/me").json()["can"]
     assert not can["chat"] and not can["optimised_run"] and can["optimised_propose"]
-    assert "switched off" in as_("hod-CSE").post("/api/chat", json={"messages": [{"role": "user", "content": "hi"}]}).json()["answer"]
+    assert "isn't configured" in as_("hod-CSE").post("/api/chat", json={"messages": [{"role": "user", "content": "hi"}]}).json()["answer"]
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-not-a-real-key")  # set on the host: the Ask tab appears
+    assert as_("hod-CSE").get("/api/me").json()["can"]["chat"]
     assert as_("hod-CSE").post("/api/compare/cse/run").status_code == 409
     assert as_("hod-CSE").get("/api/compare/cse").json()["available"]

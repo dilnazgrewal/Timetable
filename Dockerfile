@@ -1,5 +1,6 @@
 # TimeWeave public demo (Hugging Face Spaces, Docker SDK; any container host works the same way).
-# The assistant (paid API) and optimiser re-runs (minutes of full CPU) are switched off: TIMEWEAVE_HOSTED=1.
+# Optimiser re-runs (minutes of full CPU) are switched off: TIMEWEAVE_HOSTED=1. The assistant works when the host sets
+# ANTHROPIC_API_KEY as an environment variable (never put the key in the repo).
 FROM python:3.12-slim
 
 # Spaces run the container as user 1000; the app writes data/state.json (demo changes, until a restart)
