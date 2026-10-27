@@ -7,13 +7,13 @@
 > **How it was checked:** every claim comes from the repository (code, docs, git history), the test suite, or a command run on **26–27 Oct 2026**. Nothing is from memory. The commands are listed under [Sources](#18-sources). Anything that could not be confirmed yet is listed under [Pending](#19-pending).
 >
 > **State of the repo when this was written:**
-> - Final numbers are from commit `d5ad645` (27 Oct 2026), which fixes a shorter college day in **onboarding another college from Excel** (`5242494`: a template, plain-language checks, then generate and validate; proven on a made-up sample college). Just before that, `1bb36be` stopped showing the timetable office an endorse inbox it can't act on, and `c19e75b` added a venues test. The four code commits before those are **student concerns** (`d173b37`), the **AI assistant switched on for the live site** (`76fb30e`), the timetable office no longer raising concerns or requesting meetings as a student (`d12f3f4`), and **a department's hall needing its own HOD even when the office books it** (`da6859b`). Before them came deployment (`5a6a9bc`, `a557f04`, `2ac1a85`). Before that came Lane A's full browser run-through of every role (`d3e1a9d`). The last data changes were `89254d8` (two same-named teachers kept apart: 5 teacher clashes in the published data) and `53e1f7f` (**first year linked across departments**).
+> - Final numbers are from commit `9aaef0c` (27 Oct 2026): **the sign-in page asks which college**, and another college can **set itself up on the website** from one Excel workbook (`/onboard.html`). Before it came **onboarding another college from Excel** on the command line (`5242494`: a template, plain-language checks, then generate and validate; proven on a made-up sample college) and its shorter-day fix (`d5ad645`). Before those, `1bb36be` stopped showing the timetable office an endorse inbox it can't act on, and `c19e75b` added a venues test. The four code commits before those are **student concerns** (`d173b37`), the **AI assistant switched on for the live site** (`76fb30e`), the timetable office no longer raising concerns or requesting meetings as a student (`d12f3f4`), and **a department's hall needing its own HOD even when the office books it** (`da6859b`). Before them came deployment (`5a6a9bc`, `a557f04`, `2ac1a85`). Before that came Lane A's full browser run-through of every role (`d3e1a9d`). The last data changes were `89254d8` (two same-named teachers kept apart: 5 teacher clashes in the published data) and `53e1f7f` (**first year linked across departments**).
 > - Before it:
 >   - `39212e3` imported and optimised the **real timetables of all six departments** (CSE, IT, ME, CE, ECE, EE)
 >   - `32f1b45` added College rules
 >   - `becb48e` added the lab-pair rule
 >   - `3acc154` imported D4's open elective from the FET *groups* page
-> - **All 135 tests pass** on `d5ad645`.
+> - **All 138 tests pass** on `9aaef0c`.
 
 ---
 
@@ -42,7 +42,7 @@
 
 ## 1. The project in one page
 
-**TimeWeave** is a web app for a whole college's **time and space**. It runs on **GNDEC Ludhiana's real timetables of all six departments** (CSE, IT, ME, CE, ECE, EE): 2,579 weekly classes, imported from the FET pages each department publishes. First-year students see the classes other departments teach them. It is built to work for any college through a college profile plus importers. **For a college without FET**, there is a second way in: one Excel workbook, checked row by row in plain words, then generated and validated. It is proven on a made-up sample college (`5242494`, §6.8).
+**TimeWeave** is a web app for a whole college's **time and space**. It runs on **GNDEC Ludhiana's real timetables of all six departments** (CSE, IT, ME, CE, ECE, EE): 2,579 weekly classes, imported from the FET pages each department publishes. First-year students see the classes other departments teach them. It is built to work for any college through a college profile plus importers. **For a college without FET**, there is a second way in: one Excel workbook, checked row by row in plain words, then generated and validated. It is proven on a made-up sample college (`5242494`, §6.8). Since `9aaef0c` this works **on the website too**: the sign-in page asks "GNDEC Ludhiana" or "Set up a different college".
 
 What it does:
 
@@ -55,7 +55,7 @@ What it does:
 | **Everyday campus problems** | Free rooms to sit in (by building and floor), find a teacher's free slots and request a meeting, Now/Next card, leave with ranked substitutes, venue booking with approvals, an event slot finder for a whole batch, and **student concerns** (a class tells its department what makes it miss classes, e.g. an 8:30 start for students who commute; votes, not names). |
 | **Roles** | 8 roles with sign-in, a server-side permission table (deny by default) and an audit log. |
 | **AI assistant** | A read-only Claude assistant answering timetable questions from live data through 5 tools. It can never change anything. |
-| **Any college** | Another college fills in one Excel workbook (rooms, teachers, classes, lessons). Every mistake is explained by sheet and row; then TimeWeave generates a clash-free timetable, checks it with the validator and writes it back as Excel. Command line for now (§6.8). |
+| **Any college** | Another college fills in one Excel workbook (rooms, teachers, classes, lessons). Every mistake is explained by sheet and row; then TimeWeave generates a clash-free timetable, checks it with the validator and writes it back as Excel. On the website (`/onboard.html`, no account needed) or the command line (§6.8). |
 
 **Stack:**
 - **Backend:** Python 3.12+, FastAPI, OR-Tools CP-SAT.
@@ -65,7 +65,7 @@ What it does:
 
 **Live demo:** https://timeweave-3y2g.onrender.com (Render, free tier; see §14.1).
 
-**Tests:** **135 automated tests, all 135 pass** (commit `d5ad645`; see [11](#11-testing-every-test-and-the-edge-case-it-covers)).
+**Tests:** **138 automated tests, all 138 pass** (commit `9aaef0c`; see [11](#11-testing-every-test-and-the-edge-case-it-covers)).
 
 ---
 
@@ -376,7 +376,7 @@ Status as of commit `53e1f7f`. ✅ built and committed · ⬜ designed, not buil
 | A17 | Demo reset (admin) | ✅ |
 | A18 | **Deployed** at https://timeweave-3y2g.onrender.com (Render, Docker). Hosted mode switches off optimiser re-runs (minutes of full CPU) with a friendly message, and hides that button via `TW.can` (`5a6a9bc`, `2ac1a85`). The AI assistant works there: the host sets `ANTHROPIC_API_KEY` as an environment variable, never in the repo (`76fb30e`) | ✅ |
 | A19 | **Student concerns** (`/concerns.html`): students raise a concern about a real class of theirs (too early, too late, long wait, no lunch, too many in a row, other); classmates vote "me too"; department staff see counts per class without names and answer; everyone who agreed is notified (`d173b37`) | ✅ |
-| A20 | **Onboarding another college from Excel** (`app/importers/sheets.py`): a five-sheet template, every mistake explained by sheet and row, nothing imported until clean, then generate + independent validation + an Excel timetable in the college's own times. A made-up sample college proves it; command line only (`5242494`, §6.8) | ✅ proof |
+| A20 | **Onboarding another college from Excel** (`app/importers/sheets.py`): a five-sheet template, every mistake explained by sheet and row, nothing imported until clean, then generate + independent validation + an Excel timetable in the college's own times. A made-up sample college proves it (`5242494`, §6.8). **On the website since `9aaef0c`:** the sign-in page asks which college; `/onboard.html` does template → upload → check → make → view per section → download as Excel, with no sign-in and nothing stored | ✅ |
 
 ### 5.2 Dashboards (Lane B, `index.html`, `/api/dash`)
 | # | Feature | Status |
@@ -797,11 +797,41 @@ The first writes `timetable.xlsx` next to the workbook (or to `--out <file>`). T
 - **Engine grid:** it is still 5 days × 8 periods with the midday break in periods 4–6. A college's own period times are used for display only.
 - **Fewer than 8 periods: fixed in `d5ad645`.** Found while checking this report: the template's own example lists 6 periods. With 6 periods in the sample's profile, the generator placed **18 class-hours in periods 7–8**, and the Excel output (which writes only the college's 6 periods) left them out without a warning. Lane A fixed it the same morning (see the shorter-day rule above). Re-run here on `d5ad645`: **0** class-hours in periods 7–8. The template's example teacher is now "Fri 5-6", because "Fri 6-8" didn't exist in its own 6-period day.
 - **Room features:** every imported room gets the feature "projector"; the sheet has no features column yet.
-- **Command line only:** there is no upload page yet.
+- **An upload page:** missing at `5242494` (command line only); **built in `9aaef0c`** (see "On the website" below). On the website a college is limited to 600 classes a week and 15 s of solving on the public server; a whole large college still goes through the command line.
 - **Next steps** (about 4–5 days, Lane A's estimate):
   - a per-college profile for the grid, naming and buildings
-  - an upload page with check → preview → use
+  - an upload page with check → preview → use (**built in `9aaef0c`**; still to come: keeping a college's data and signing its staff in)
   - import of FET project files (`.fet`)
+
+**On the website** (since `9aaef0c`):
+- **The sign-in page asks which college first.**
+  - "Continue as GNDEC Ludhiana" leads to the existing role sign-in.
+  - "Set up a different college" opens `/onboard.html`.
+  - The choice is kept for the browser tab (`sessionStorage`), with a "change college" link.
+- **`/onboard.html`, step by step:**
+  1. **What we need:** the five sheets, each explained, with **Download the blank template** and **Download a filled-in sample**. A note says FET-file import is the next step for colleges that already use FET.
+  2. **Upload and check:**
+     - choose the `.xlsx` and press **Check my workbook**, or press **Try it with the sample college** to do it in one click
+     - problems are listed by sheet and row ("N thing(s) to fix in your workbook"), and nothing is used until the workbook is clean
+     - a clean workbook shows "Your workbook is clean ✓" with its counts
+  3. **Make the timetable:** the generator builds it, and the independent validator counts the clashes ("Clashes (checked separately)"). The page shows:
+     - waiting periods per student-day and days with a single lecture
+     - how long it took
+     - the timetable for each section in the college's own period times
+     - **Download as Excel**
+- **API** (`app/api/onboard.py`):
+  - `GET /api/onboard/template` and `GET /api/onboard/sample`
+  - `POST /api/onboard/check` and `POST /api/onboard/generate`, each with the `.xlsx` bytes as the body
+- **No sign-in, on purpose:** a visiting college has no account. In return:
+  - **nothing is stored**, and GNDEC's data (`STORE`) is never touched
+  - it is bounded: **2 MB** (413), **600 classes a week** (413), **one generation at a time** (else 429)
+  - generation is limited to **15 s with 2 workers on the public server** (20 s with 8 workers locally)
+  - a file that isn't a workbook gives 400
+- **The sample college on the website:**
+  - **Lane A** (local settings, real clicks in the browser): 0 clashes, 0 waiting periods, 0 single-lecture days, made in about 3 s.
+  - **Here, through the API with the public server's settings:** 0 clashes, 0 waiting, 0 single-lecture days. It used the whole 15 s limit (15.5 s), 6 section timetables came back, and GNDEC's timetable was unchanged.
+- **Bug fixed while testing** (Lane A): the buttons stayed disabled, because the page treated an empty status text as "busy".
+- **Not on the live site yet:** it needs a push, and then Render redeploys.
 
 ---
 
@@ -812,7 +842,8 @@ The first writes `timetable.xlsx` next to the workbook (or to `--out <file>`). T
 - **Demo mode** (`TIMEWEAVE_DEMO=1`, the default):
   - anyone can sign in as any demo account without a password
   - API clients and tests may send `X-User: <account id>`
-- **No sign-in → 401** on every `/api/*` route except `/api/auth/*`. There is no default account.
+- **No sign-in → 401** on every `/api/*` route except `/api/auth/*` and, since `9aaef0c`, the four `/api/onboard/*` routes (a visiting college has no account; nothing is stored there). There is no default account.
+- **First question (since `9aaef0c`): which college.** "Continue as GNDEC Ludhiana" shows the role sign-in below; "Set up a different college" opens `/onboard.html` (§6.8).
 - **The sign-in page shows four roles** (first grouped in `39212e3`, redesigned at the project owner's request in `84f400e`):
 
 | Role on the sign-in page | Who | Extra duties inside it |
@@ -940,18 +971,19 @@ For a time-based reason the student picks the class from **their own timetable**
 ## 8. Pages and screens
 | Page | Who | What's on it |
 |---|---|---|
-| `/login.html` | everyone | Demo sign-in ("no password, for judging") with four roles: Student, Teacher, HOD, Timetable office. Extra duties (club lead, coordinator, Dean, T&P, visitor) are shown next to names. Students choose department → year → section → group and subjects (pre-filled, only real combinations) → **Show my timetable**; club leads have quick links. Others search by name or department. **"Continue as"** lists recently used accounts (in this browser), so switching back is one click (`d173b37`). |
+| `/login.html` | everyone | **First: which college** (since `9aaef0c`): "Continue as GNDEC Ludhiana" or "Set up a different college". Then demo sign-in ("no password, for judging") with four roles: Student, Teacher, HOD, Timetable office. Extra duties (club lead, coordinator, Dean, T&P, visitor) are shown next to names. Students choose department → year → section → group and subjects (pre-filled, only real combinations) → **Show my timetable**; club leads have quick links. Others search by name or department. **"Continue as"** lists recently used accounts (in this browser), so switching back is one click (`d173b37`). |
 | `/concerns.html` (Lane A; "Concerns" in the top bar) | students; department staff, Dean, admin | Students: raise a concern about one of their own classes, "Me too" on classmates' concerns, see replies. Staff: concerns per class, biggest share first, "worth acting on" flags, no names; answer seen / planning a change / can't change |
 | `/` (`index.html`, Lane B) | everyone signed in | **Timetable** tab: views and filters, week / dated week, Print / Save PDF. When every department is imported (today), it shows the data source and **"See the optimised timetables →"** instead of the real-vs-generated panel and the **Regenerate** button (`cabdf9e`); both appear only for a college with generated departments. **Find a teacher** (`#teacher`): day view, Request meeting. **Free rooms** (`#rooms`): Right now, building/floor, near me. **Meetings** (`#meetings`). **Substitutions** (`#subs`): leave board, candidates, Assign, Cancel class. **Teacher load** (`#load`). **Ask** (`#ask`, chatbot). **Mark leave**. **Now/Next** card. Phone layout with day tabs. |
 | `/venues.html` (Lane C) | staff, clubs, orgs (by capability) | `#book` Book a venue (requirement form → ranked venues → request), `#requests` My requests with timeline, `#inbox` Approvals (endorse/approve/reject), `#slots` Event slot finder ("Find common free time", "Nearly free", "Book this") |
 | `/compare.html` (Lane A; "Optimised timetables" in the top bar) | each department's HOD/coordinator (their own department), Dean and admin (all six) | **Department picker**; college vs optimised timetable by section, student (group and electives) or teacher; before/after numbers (incl. "Same lab for two groups on one day"); **"GNDEC's timetable rules"**: each rule in plain words, must/prefer, and how often each version breaks it; Propose / Publish / Go back |
 | `/audit.html` (Lane A) | admin, Dean | Audit log, newest first |
+| `/onboard.html` (Lane A, `9aaef0c`) | anyone, **no sign-in** | Set up a different college: download the template or a sample, upload, problems by sheet and row, make the timetable, validator's clash count, waiting and single-lecture days, the timetable per section, Download as Excel |
 | Shared top bar (`shell.js`) | every page | Logo, navigation (hides what you can't use), "<name> · Switch" (demo mode; opens the sign-in page, `958cd5d`), 🔔 notifications |
 
 ---
 
 ## 9. API summary
-Full contract: `docs/API.md`. The app has **46 API routes**:
+Full contract: `docs/API.md`. The app has **50 API routes** (46 before `9aaef0c`):
 
 | Group | Routes | Paths |
 |---|---|---|
@@ -959,8 +991,11 @@ Full contract: `docs/API.md`. The app has **46 API routes**:
 | Core (`/api/*`) | 29 | meta, me, users, audit, timetable, effective, generate, free-rooms, notifications (+read), demo/reset, chat, leave (POST/GET), substitutions, **compare** (departments I may compare), **compare/{dept}** (+run, propose, publish, unpublish), students/types, students/{type}/timetable, **concerns** (reasons, mine, raise, vote, list, answer) |
 | Dashboards (`/api/dash/*`) | 7 | ping, views, teacher/{id}/free, meetings (POST/GET), meetings/{id}/reply, now |
 | Venues (`/api/venues/*`) | 7 | list, rank, requests (POST/GET), requests/{id}/decide, requests/{id}/cancel, slot-finder |
+| Onboarding (`/api/onboard/*`, **no sign-in**) | 4 | template, sample, check, generate (another college from Excel; nothing stored) |
 
-Errors are always `{"detail": "plain-English message"}` with status 400, 401, 403, 404 or 409.
+Errors are always `{"detail": "plain-English message"}` with status 400, 401, 403, 404 or 409; the onboarding routes also use 413 (too big) and 429 (another college is generating).
+
+Counted here by walking every route, including those inside included routers (see the note in §11.3): auth 3, core 29, dashboards 7, venues 7, onboarding 4.
 
 ---
 
@@ -1068,7 +1103,8 @@ Commands: `.venv/Scripts/python -m pytest -q -rA` and `pytest --collect-only -q`
 
 | Code state | Tests | Passed | Failed | Time |
 |---|---|---|---|---|
-| **Final: commit `d5ad645`** | 135 | **135** | **0** | 28 s |
+| **Final: commit `9aaef0c`** | 138 | **138** | **0** | 51 s |
+| Earlier: commit `d5ad645` (before the 3 website onboarding tests) | 135 | 135 | 0 | 28 s |
 | Earlier: commit `5242494` (before the shorter-day test) | 134 | 134 | 0 | 26 s |
 | Earlier: commit `1bb36be` (before the 4 Excel onboarding tests) | 130 | 130 | 0 | 49 s |
 | Earlier: commit `c19e75b` (same tests, before the `endorse_venues` checks) | 130 | 130 | 0 | 35 s |
@@ -1099,13 +1135,14 @@ Commands: `.venv/Scripts/python -m pytest -q -rA` and `pytest --collect-only -q`
 | `tests/test_core_chat_tools.py` | A | 4 (added in `dce71d3`) | 4 |
 | `tests/test_core_concerns.py` | A | 5 (added in `d173b37`) | 5 |
 | `tests/test_core_sheets.py` | A | 5 (4 added in `5242494`, 1 in `d5ad645`) | 5 |
-| **Lane A total** | | **96** | **96** |
+| `tests/test_core_onboard_web.py` | A | 3 (added in `9aaef0c`) | 3 |
+| **Lane A total** | | **99** | **99** |
 | `tests/test_dashboards_api.py` | B | **14** | 14 |
 | `tests/test_venues_approvals.py` | C | 8 (1 added in `c19e75b`) | 8 |
 | `tests/test_venues_ranking.py` | C | 8 (incl. 4 parametrised) | 8 |
 | `tests/test_venues_slots.py` | C | 9 (3 added in `49004bb`) | 9 |
 | **Lane C total** | | **25** | 25 |
-| **Overall** | | **135** | **135** |
+| **Overall** | | **138** | **138** |
 
 **Note:** while the optimiser re-run was in progress, 2 tests failed as expected:
 - `test_core_optimise.py::test_no_clashes_and_never_worse`
@@ -1149,7 +1186,7 @@ These are "testing the tester": mutation tests inject each kind of mistake and c
 ### 11.3 `tests/test_core_permissions.py`: role-based access (20)
 | Test | What it checks · edge case |
 |---|---|
-| `test_every_api_route_needs_sign_in_except_auth` | Walks **every** `/api` route of the app and checks that it depends on `current_user` (except `/api/auth/*`): no route is accidentally left open |
+| `test_every_api_route_needs_sign_in_except_auth` | **Caveat found on 27 Oct (see below the table).** Meant to walk **every** `/api` route of the app and check that it depends on `current_user` (except `/api/auth/*`): no route is accidentally left open |
 | `test_no_sign_in_is_401` ×5 | `/api/meta`, `/api/me`, `/api/timetable`, `/api/free-rooms`, `/api/notifications` return **401** with no sign-in |
 | `test_session_sign_in_and_out` | The demo account list is open; signing in as an unknown user gives 404; signing in as the Dean works and `/api/me` shows `audit` but not `publish`; after logout `/api/me` gives 401 |
 | `test_admin_may_do_everything_and_unknown_actions_are_refused` | The admin passes every rule **except four**: the two student-only actions (`concern.raise`, `meeting.request`; `d12f3f4`), which it never passes, and the two `OWN_AUTHORITY` ones (`booking.approve`, `booking.endorse`; `da6859b`), tested in the next test. Since `da6859b` the check that an **unknown action is refused even for the admin** (deny by default) sits at the end of the next test |
@@ -1265,6 +1302,13 @@ The tools are called directly, so no call to the Claude API and no credit is use
 | `test_a_missing_sheet_or_column_is_reported` | A workbook with only a half-filled Rooms sheet: "no 'Teachers' sheet" and "Rooms: missing column(s) Seats" |
 | `test_a_shorter_college_day_keeps_every_class_inside_it` | *(added in `d5ad645`, after this report found the bug)* A **6-period college** (09:00–15:00): no problems, 0 clashes, **every class within periods 1–6**, and **the number of classes written to `timetable.xlsx` equals the number generated** (none lost). A "Mon 7-8" unavailability is refused ("periods are 1 to 6") |
 
+### 11.8g `tests/test_core_onboard_web.py`: another college on the website (3, added in `9aaef0c`)
+| Test | What it checks · edge case |
+|---|---|
+| `test_the_template_and_sample_download_without_signing_in` | With **nobody signed in**, the template and the sample both download (200) and are real `.xlsx` files (they start with `PK`, the zip signature) |
+| `test_a_bad_file_or_a_bad_row_is_explained` | An **empty upload → 400**, **not a workbook → 400**; the downloaded template checks as **ok** (its example rows are valid); the template with an added lesson for an unknown teacher `ZZ` is **not ok**, and the problem names the **Lessons row** and `'ZZ'` |
+| `test_the_sample_college_gets_a_clash_free_timetable_and_gndec_is_untouched` | With the **public server's short time limit**: the sample checks with 6 sections; generating gives ok, **no clashes**, 6 section timetables of **8 periods × 5 days**, and an Excel file; **GNDEC's timetable has the same number of classes before and after** (nothing stored) |
+
 ### 11.9 `tests/test_dashboards_api.py`: Lane B (14)
 Runs against a fresh `build_college()` store (since `39212e3`, the real six-department college), with state in a temp file.
 
@@ -1338,11 +1382,13 @@ Runs against a fresh `build_college()` store (since `39212e3`, the real six-depa
   This run-through is Lane A's report; I did not repeat it here.
 - **`POST /api/generate` and `POST /api/compare/{dept}/run`** are only tested indirectly: the solver and optimiser output are tested, and the permission rules for generate are tested.
 - **Optimiser runs** themselves are not run in tests (they take minutes); the tests check the saved result.
+- **The "every route needs sign-in" guard checks nothing on this FastAPI version** (found on 27 Oct, at `9aaef0c`). In FastAPI 0.156.8, `app.routes` wraps each included router in an `_IncludedRouter`, so the test's loop finds **0** `/api` routes and passes trivially. A walk inside the routers found **50 `/api` routes**, and every one needs sign-in except `/api/auth/*` (3) and `/api/onboard/*` (4), both on purpose. So nothing is open by accident today, but the test would not catch a future mistake. Reported to Lane A.
+- **The onboarding page itself** (`/onboard.html`) has no browser test; Lane A clicked through it with the sample college.
 
 ---
 
 ## 12. Timeline: how it was built
-From `git log` (92 commits up to `d5ad645`; 18 of them are this report). Commits per day: 21 Oct 15 · 22 Oct 14 · 26 Oct 45 · 27 Oct 18.
+From `git log` (95 commits up to `9aaef0c`; 20 of them are this report). Commits per day: 21 Oct 15 · 22 Oct 14 · 26 Oct 45 · 27 Oct 21.
 
 ### Day 1: Wed 21 Oct, prototype (v0.1), demo at 4 PM
 - Scaffold, `CLAUDE.md`, plan.
@@ -1420,13 +1466,14 @@ From `git log` (92 commits up to `d5ad645`; 18 of them are this report). Commits
     - PLAN.md section 0 brought up to date
 - **Lane C, final:** elective audiences and student types also rule slot-finder times out; 3 new tests (`49004bb`).
 
-### Tue 27 Oct: deployment, student concerns and Excel onboarding
+### Tue 27 Oct: deployment, student concerns and onboarding other colleges
 - **Deployed** to Render (`5a6a9bc`, `a557f04`, `2ac1a85`): Dockerfile, hosted mode (at first with no paid assistant and no optimiser re-runs), the live link in the README. Hugging Face Spaces was tried first.
 - **Student concerns** (`d173b37`): students report what makes a whole class miss classes; departments see counts per class without names and answer. Also **"Continue as"** on the sign-in page. 5 new tests.
 - **The AI assistant on the live site** (`76fb30e`): the project owner decided to turn it on and set `ANTHROPIC_API_KEY` on Render. Optimiser re-runs stay off.
 - **Department halls** (`da6859b`): a department's hall needs that department's HOD even when the timetable office books it; the office approves central halls only, and only a club's faculty advisor endorses its requests (`OWN_AUTHORITY`). 1 new permissions test (129), plus a venues test through the API (`c19e75b`, 130). Also checked through the API by Lane A (see §7.2). Then `1bb36be`: the office no longer gets an endorse inbox it can't act on (`endorse_venues` only for a club's faculty advisor).
 - **Permissions fix** (`d12f3f4`): the timetable office could raise student concerns, because the admin passed every rule. Now `STUDENTS_ONLY` (raise a concern, request a meeting) is refused for the admin, who sees and answers concerns instead. Tests updated (still 128).
 - **Onboarding another college from Excel** (`5242494`): a five-sheet template, plain-language checks by sheet and row, then generate, validate and write back as Excel; a made-up sample college (94 sessions, OPTIMAL in about 4 s, 0 clashes). 4 new tests (134). `openpyxl` added.
+- **Which college, and onboarding on the website** (`9aaef0c`): the sign-in page asks "GNDEC Ludhiana" or "Set up a different college"; `/onboard.html` and `/api/onboard/*` (no sign-in, nothing stored, bounded). Lane A found and fixed a disabled-buttons bug while clicking through. 3 new tests (138).
 - **Shorter college day fixed** (`d5ad645`): this report's check found that a 6-period college lost classes from its Excel output. Lane A fixed it: periods after the college's day are unavailable to every teacher, and unavailability outside the day is refused. 1 new test (135).
 - **Offered but not built** (the project owner chose concerns first): a rule editor where the HOD proposes new college rules from the app.
 - This report was committed alongside.
@@ -1485,6 +1532,7 @@ Optimise departments (here 300 s each for IT and ME; or `ALL`), writing `data/gn
 - **Optional:** copy `.env.example` to `.env` and add `ANTHROPIC_API_KEY` for the assistant (never commit `.env`).
 - **Demo mode** is on by default (`TIMEWEAVE_DEMO=1`). Sign in at `/login.html` by picking an account.
 - **Re-import CSE:** `python -m app.importers.fet` (FET HTML → `data/gndec/cse.json`) and `python -m app.importers.gndec_students` (needs the private lists).
+- **Another college on the website:** open `/login.html` → "Set up a different college" (`/onboard.html`); no sign-in needed.
 - **Another college from Excel:** `python -m app.importers.sheets data/colleges/demo_institute/demo_institute.xlsx` (checks, generates, validates, writes `timetable.xlsx`; add `--out <file>` to write elsewhere) and `python -m app.importers.sheets --template college_template.xlsx` (blank template). See §6.8.
 - **Generator demo:** `python -m app.solver` generates the synthetic seeded college from scratch and prints the status and the validator's result (since `dee7b1e`). The live GNDEC college has nothing to generate, because every class is imported.
 - **Requirements:** FastAPI, OR-Tools, the Anthropic SDK, pypdf, openpyxl (Excel, since `5242494`), and the rest of `requirements.txt`.
@@ -1554,7 +1602,7 @@ Suggested, about 5 minutes. Built only from features listed above.
    - **CSE:** no-lunch days 44 → 0. Be honest: CSE's gain is smaller than in the CSE-only run, because CSE's first year and classes by other departments' teachers are now kept as published, so other departments are never hurt.
    - **Rules:** scroll to **"GNDEC's timetable rules"**: each college habit in plain words, and how often each version breaks it. Tell the story: an earlier CSE run left 6 D4 Fridays with only project + open elective; writing the rule down fixed it (6 → 0).
    - **Publishing:** it is refused if a rule is broken more often, or if a clash appears anywhere in the college. **Propose** as the HOD, then **Publish** as the admin; the validator re-checks the whole college.
-9. **Trust:** the independent validator, the independent college-rules check, 135 automated tests, and the audit log (`/audit.html` as the Dean) showing a refused action.
+9. **Trust:** the independent validator, the independent college-rules check, 138 automated tests, and the audit log (`/audit.html` as the Dean) showing a refused action.
 10. **Ask TimeWeave** (optional; uses API credit; works on the live link): "Will G17 be free at 12:30 on Friday?" Lane A's live check: "Is G17 free on Monday at 12:30?" answered correctly in about 6 s with the `room_status` tool.
 
 ---
@@ -1563,7 +1611,7 @@ Suggested, about 5 minutes. Built only from features listed above.
 **Not built yet** (designed in `PLAN.md` / `docs/DESIGN.md`):
 - **Data in and out:**
   - **Excel import with row-level errors and Excel export: built as a command-line proof** for a new college (`5242494`, §6.8). Still to do:
-    - an upload page (check → preview → use)
+    - an upload page: **built** (`9aaef0c`); still to come: keeping a college's data and signing its staff in
     - a per-college grid instead of 5 days × 8 periods (a shorter day already works, since `d5ad645`)
     - per-college naming and buildings
     - FET project-file (`.fet`) import
@@ -1640,10 +1688,10 @@ Suggested, about 5 minutes. Built only from features listed above.
 | **10** | GNDEC timetable rules written down; every one kept at least as well as the college does |
 | **6 → 0** | D4 Fridays with only project + open elective (an earlier CSE run vs now), fixed by writing the rule down |
 | **8** | roles, with a deny-by-default permission table and an audit log |
-| **46** | API routes |
-| **Any college** | one Excel workbook in, a checked clash-free timetable out (made-up sample: 94 sessions, OPTIMAL in about 4 s, 0 clashes) |
-| **135 / 135** | automated tests passing |
-| **3** | parallel build lanes, 92 commits |
+| **50** | API routes |
+| **Any college** | one Excel workbook in, a checked clash-free timetable out, on the website with no account (made-up sample: 94 sessions, OPTIMAL in about 4 s, 0 clashes) |
+| **138 / 138** | automated tests passing |
+| **3** | parallel build lanes, 95 commits |
 
 ---
 
@@ -1665,7 +1713,7 @@ Suggested, about 5 minutes. Built only from features listed above.
 - **Not read:** `data/private/`
 
 **Commands (26 Oct 2026):**
-- `pytest -q` on `d5ad645`: **135 passed** (final); on `5242494`: 134; on `1bb36be`: 130; on `c19e75b`: 130; on `da6859b`: 129; on `d12f3f4`: 128; on `d173b37`: 128; on `2ac1a85`: 123; on `d3e1a9d`: 122; on `7a33645`: 118; on `89254d8`: 117; on `53e1f7f` + `dee7b1e`: 117; `test_first_year_is_linked_across_departments` passes on its own
+- `pytest -q` on `9aaef0c`: **138 passed** (final); on `d5ad645`: 135; on `5242494`: 134; on `1bb36be`: 130; on `c19e75b`: 130; on `da6859b`: 129; on `d12f3f4`: 128; on `d173b37`: 128; on `2ac1a85`: 123; on `d3e1a9d`: 122; on `7a33645`: 118; on `89254d8`: 117; on `53e1f7f` + `dee7b1e`: 117; `test_first_year_is_linked_across_departments` passes on its own
 - first-year checks:
   - 94 linked sessions (ME 23, ECE 22, EE 49)
   - CSE D1-CS-A-A1: 5 hours at `39212e3` (temporary checkout) → 11 now
@@ -1680,7 +1728,7 @@ Suggested, about 5 minutes. Built only from features listed above.
 - `pytest -q` on commit `3acc154`: 87 passed
 - a Python check of `College.lab_pairs()` (86 pairs, 54 in CSE) and of the SC/ACC lab days in the optimised file
 - earlier: `pytest -q -rA` on the working tree before the re-run (85 passed, 2 failed as expected) and on a clean checkout of `aac5df1` (84 passed)
-- `pytest --collect-only -q` (87 tests at `3acc154`; 88 at `becb48e`; 95 at `32f1b45`; 116 at `39212e3`; 117 at `53e1f7f`; 118 at `7a33645`; 122 at `d3e1a9d`; 123 at `2ac1a85`; 128 at `d173b37` and `d12f3f4`; 129 at `da6859b`; 130 at `c19e75b` and `1bb36be`; 134 at `5242494`; 135 at `d5ad645`)
+- `pytest --collect-only -q` (87 tests at `3acc154`; 88 at `becb48e`; 95 at `32f1b45`; 116 at `39212e3`; 117 at `53e1f7f`; 118 at `7a33645`; 122 at `d3e1a9d`; 123 at `2ac1a85`; 128 at `d173b37` and `d12f3f4`; 129 at `da6859b`; 130 at `c19e75b` and `1bb36be`; 134 at `5242494`; 135 at `d5ad645`; 138 at `9aaef0c`)
 - a Python check printing college counts, metrics and `compare` from `app.store.STORE`
 - `git log`, `git log --stat`, `git diff --stat`, `git status`
 
@@ -1689,6 +1737,11 @@ Suggested, about 5 minutes. Built only from features listed above.
 - ran the sample with `--out` to a temporary folder (no repo file changed): OPTIMAL, 3.5 s, 0 clashes, 0 waiting
 - wrote the blank template to a temporary folder
 - in a temporary copy, set the sample's profile to 6 periods: 18 class-hours placed in periods 7–8 on `5242494`, and **0 on `d5ad645`** (with the sample teacher's "Fri 6-8" changed to "Fri 5-6", since the fixed importer rightly refuses a time outside the day)
+
+**Website onboarding (27 Oct, on `9aaef0c`):**
+- read `app/api/onboard.py`, `app/static/onboard.html`, the `login.html`, `main.py`, `sheets.py`, `docs/API.md` and `CLAUDE.md` changes, and `tests/test_core_onboard_web.py`
+- through the API (TestClient, public-server settings): the sample's result, a 2 MB+ upload (413), and GNDEC's timetable unchanged
+- a walk of every route inside the included routers: 50 `/api` routes, the only open ones being `/api/auth/*` and `/api/onboard/*`
 
 **Deliberately not run:** `python -m app.optimise` (Lane A ran the optimiser) and `/api/chat` (API credit; Lane A's one live question is reported as theirs).
 
@@ -1707,7 +1760,8 @@ All numbers were checked here against the committed data files.
 
 ## 19. Pending
 **Resolved on 26–27 Oct:**
-- Final test totals: **135 / 135 pass** (re-run here on `d5ad645`; Lane A 96, B 14, C 25).
+- Final test totals: **138 / 138 pass** (re-run here on `9aaef0c`; Lane A 99, B 14, C 25).
+- Website onboarding (`9aaef0c`): the code, the tests and the API checked here; the browser click-through and the disabled-buttons fix are Lane A's.
 - Excel onboarding (`5242494`): the code, tests and sample checked here (see Sources). The reason it was built (the project owner's question) is from Lane A.
 - Excel onboarding with fewer than 8 periods: **fixed in `d5ad645`** and re-checked here (0 class-hours outside a 6-period day; the new test passes).
 - Department halls (`da6859b`, `c19e75b`) and the endorse inbox (`1bb36be`): read in the diffs and the tests; the 73 / 4 split of bookable rooms counted here with `app.store.STORE`. The three API bookings (MBA Seminar Hall, HOD approval, Auditorium) are Lane A's check.
@@ -1725,4 +1779,6 @@ All numbers were checked here against the committed data files.
 
 **Still not verified independently here:**
 - Nothing in the data or tests.
+- **The sign-in guard test** (`test_every_api_route_needs_sign_in_except_auth`) checks no routes on FastAPI 0.156.8 (§11.13). Today no route is open by accident (walked by hand here). Reported to Lane A; not fixed at `9aaef0c`.
+- **Website onboarding on the live site:** not deployed yet (needs a push, then Render redeploys).
 - My own descriptions of the UI come from the page source (labels, tabs, `x-show` rules). The browser behaviour of every role was verified by Lane A (above and §11.13).
