@@ -168,3 +168,11 @@ def test_new_roles_and_sign_in(client, hall):
         assert call(client, dean.id, "POST", "/api/venues/slot-finder",
                     json={"dept": sec.dept, "year": sec.year, "duration": 1}).status_code == 200
     assert TestClient(app).get("/api/venues/requests").status_code == 401  # nobody signed in
+
+
+def test_department_hall_needs_its_hod_even_when_the_office_books_it(client, hall):
+    req = ask(client, "admin", hall.id).json()["request"]
+    assert req["status"] == "pending" and [s["approver"] for s in req["steps"]] == [f"hod-{hall.dept}"]
+    assert not req["can_decide"]
+    assert decide(client, "admin", req["id"]).status_code == 403
+    assert decide(client, f"hod-{hall.dept}", req["id"]).json()["request"]["status"] == "approved"
