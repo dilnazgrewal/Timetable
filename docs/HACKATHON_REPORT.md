@@ -7,13 +7,13 @@
 > **How it was checked:** every claim comes from the repository (code, docs, git history), the test suite, or a command run on **26–27 Oct 2026**. Nothing is from memory. The commands are listed under [Sources](#18-sources). Anything that could not be confirmed yet is listed under [Pending](#19-pending).
 >
 > **State of the repo when this was written:**
-> - Final numbers are from commit `1bb36be` (27 Oct 2026), which stops showing the timetable office an endorse inbox it can't act on. Just before it, `c19e75b` added a venues test. The four code commits before that are **student concerns** (`d173b37`), the **AI assistant switched on for the live site** (`76fb30e`), the timetable office no longer raising concerns or requesting meetings as a student (`d12f3f4`), and **a department's hall needing its own HOD even when the office books it** (`da6859b`). Before them came deployment (`5a6a9bc`, `a557f04`, `2ac1a85`). Before that came Lane A's full browser run-through of every role (`d3e1a9d`). The last data changes were `89254d8` (two same-named teachers kept apart: 5 teacher clashes in the published data) and `53e1f7f` (**first year linked across departments**).
+> - Final numbers are from commit `5242494` (27 Oct 2026): **onboarding another college from Excel** (a template, plain-language checks, then generate and validate; proven on a made-up sample college). Just before it, `1bb36be` stopped showing the timetable office an endorse inbox it can't act on, and `c19e75b` added a venues test. The four code commits before those are **student concerns** (`d173b37`), the **AI assistant switched on for the live site** (`76fb30e`), the timetable office no longer raising concerns or requesting meetings as a student (`d12f3f4`), and **a department's hall needing its own HOD even when the office books it** (`da6859b`). Before them came deployment (`5a6a9bc`, `a557f04`, `2ac1a85`). Before that came Lane A's full browser run-through of every role (`d3e1a9d`). The last data changes were `89254d8` (two same-named teachers kept apart: 5 teacher clashes in the published data) and `53e1f7f` (**first year linked across departments**).
 > - Before it:
 >   - `39212e3` imported and optimised the **real timetables of all six departments** (CSE, IT, ME, CE, ECE, EE)
 >   - `32f1b45` added College rules
 >   - `becb48e` added the lab-pair rule
 >   - `3acc154` imported D4's open elective from the FET *groups* page
-> - **All 130 tests pass** on `1bb36be`.
+> - **All 134 tests pass** on `5242494`.
 
 ---
 
@@ -42,7 +42,7 @@
 
 ## 1. The project in one page
 
-**TimeWeave** is a web app for a whole college's **time and space**. It runs on **GNDEC Ludhiana's real timetables of all six departments** (CSE, IT, ME, CE, ECE, EE): 2,579 weekly classes, imported from the FET pages each department publishes. First-year students see the classes other departments teach them. It is built to work for any college through a college profile plus importers.
+**TimeWeave** is a web app for a whole college's **time and space**. It runs on **GNDEC Ludhiana's real timetables of all six departments** (CSE, IT, ME, CE, ECE, EE): 2,579 weekly classes, imported from the FET pages each department publishes. First-year students see the classes other departments teach them. It is built to work for any college through a college profile plus importers. **For a college without FET**, there is a second way in: one Excel workbook, checked row by row in plain words, then generated and validated. It is proven on a made-up sample college (`5242494`, §6.8).
 
 What it does:
 
@@ -55,6 +55,7 @@ What it does:
 | **Everyday campus problems** | Free rooms to sit in (by building and floor), find a teacher's free slots and request a meeting, Now/Next card, leave with ranked substitutes, venue booking with approvals, an event slot finder for a whole batch, and **student concerns** (a class tells its department what makes it miss classes, e.g. an 8:30 start for students who commute; votes, not names). |
 | **Roles** | 8 roles with sign-in, a server-side permission table (deny by default) and an audit log. |
 | **AI assistant** | A read-only Claude assistant answering timetable questions from live data through 5 tools. It can never change anything. |
+| **Any college** | Another college fills in one Excel workbook (rooms, teachers, classes, lessons). Every mistake is explained by sheet and row; then TimeWeave generates a clash-free timetable, checks it with the validator and writes it back as Excel. Command line for now (§6.8). |
 
 **Stack:**
 - **Backend:** Python 3.12+, FastAPI, OR-Tools CP-SAT.
@@ -64,7 +65,7 @@ What it does:
 
 **Live demo:** https://timeweave-3y2g.onrender.com (Render, free tier; see §14.1).
 
-**Tests:** **130 automated tests, all 130 pass** (commit `1bb36be`; see [11](#11-testing-every-test-and-the-edge-case-it-covers)).
+**Tests:** **134 automated tests, all 134 pass** (commit `5242494`; see [11](#11-testing-every-test-and-the-edge-case-it-covers)).
 
 ---
 
@@ -105,7 +106,8 @@ FastAPI app (app/main.py, signed session cookie "tw_session")
    app/rules.py     college rules (data/gndec/rules.json): who stays put, labs apart, nothing after JPAL,
                     a real class daily; counts every break (no solver code), also turned into optimiser constraints
    app/importers/   fet.py (CSE's FET pages → model), fet_dept.py (every other department's FET pages),
-                    gndec_students.py (distribution lists → student types)
+                    gndec_students.py (distribution lists → student types),
+                    sheets.py (another college from one Excel workbook → check → generate → Excel; 5242494)
    app/seed.py      build_college(): merges the six departments into one college (+ central halls)
    app/substitutions.py  leave → ranked substitutes
    app/venues/      ranking.py, requests.py (approval chain), slots.py (slot finder), common.py
@@ -374,6 +376,7 @@ Status as of commit `53e1f7f`. ✅ built and committed · ⬜ designed, not buil
 | A17 | Demo reset (admin) | ✅ |
 | A18 | **Deployed** at https://timeweave-3y2g.onrender.com (Render, Docker). Hosted mode switches off optimiser re-runs (minutes of full CPU) with a friendly message, and hides that button via `TW.can` (`5a6a9bc`, `2ac1a85`). The AI assistant works there: the host sets `ANTHROPIC_API_KEY` as an environment variable, never in the repo (`76fb30e`) | ✅ |
 | A19 | **Student concerns** (`/concerns.html`): students raise a concern about a real class of theirs (too early, too late, long wait, no lunch, too many in a row, other); classmates vote "me too"; department staff see counts per class without names and answer; everyone who agreed is notified (`d173b37`) | ✅ |
+| A20 | **Onboarding another college from Excel** (`app/importers/sheets.py`): a five-sheet template, every mistake explained by sheet and row, nothing imported until clean, then generate + independent validation + an Excel timetable in the college's own times. A made-up sample college proves it; command line only (`5242494`, §6.8) | ✅ proof |
 
 ### 5.2 Dashboards (Lane B, `index.html`, `/api/dash`)
 | # | Feature | Status |
@@ -722,6 +725,83 @@ It has **no write tools**.
 
 **Tested without spending API credit** (`dce71d3`): `tests/test_core_chat_tools.py` calls every tool directly on the real data. Days accept "Mon" or "Monday". Room search understands other departments' spellings ("S-213" = S213) and never offers the stand-in rooms.
 
+### 6.8 Onboarding another college from Excel (`app/importers/sheets.py`, commit `5242494`)
+**Why** (from Lane A): the project owner asked how other colleges could use TimeWeave, since their rooms, teachers and classes have to get in somehow. GNDEC's data comes from FET (already built). This path is for colleges without FET. It is **separate**: the GNDEC app (`seed.build_college()`) is unchanged.
+
+**One workbook, five sheets** (blank template: `data/colleges/college_template.xlsx`, with a valid example row on each sheet):
+
+| Sheet | Columns |
+|---|---|
+| Profile | Key / Value: College, Days, Periods (e.g. `09:00-10:00, 10:00-11:00`), Departments (`CS = Computer Science; EC = Electronics`) |
+| Rooms | Room, Type (Classroom / Lab / Hall), Seats, Building, Floor, Department, Students may sit, Bookable |
+| Teachers | Code, Name, Department, Not available (e.g. `Fri 6-8; Tue 1`) |
+| Classes | Section, Department, Year, Students, Home room, Lab groups (e.g. `G1, G2`) |
+| Lessons | Subject code, Subject name, Teacher, Section, Lab group, Type (Theory / Lab), Hours per week, Lab rooms |
+
+**Every mistake is explained in plain words, with its sheet and row, and nothing is imported until the workbook is clean.** The checks (read in the code):
+- **Workbook:** a missing sheet ("The workbook has no 'Teachers' sheet") or a missing column ("Rooms: missing column(s) Seats"). Blank rows are skipped.
+- **Profile:**
+  - Days must be Mon–Fri for now.
+  - Periods must look like `09:00-10:00`, with 1 to 8 of them.
+  - Departments must be written as `code = name`.
+- **Rooms:**
+  - every room needs a name, listed only once
+  - Type must be Classroom, Lab or Hall
+  - Seats must be a number
+  - the department must be in the Profile
+- **Teachers:**
+  - every teacher needs a code and a name, and a code is used only once
+  - the department must be known
+  - "Not available" must look like `Fri 6-8` or `Tue 1` (e.g. "'Someday 9' should look like 'Fri 6-8'"), with periods from 1 to 8
+- **Classes:**
+  - a section is listed only once
+  - the department must be known
+  - Year and Students must be numbers
+  - the home room must be a **classroom** on the Rooms sheet ("home room 'CS-Lab-1' is not a classroom")
+  - the home room must seat the whole section
+- **Lessons:**
+  - the subject needs a code
+  - the teacher must be on the Teachers sheet ("teacher 'ZZ' is not on the Teachers sheet")
+  - the section must be on the Classes sheet
+  - Type must be Theory or Lab, and hours must be a number
+  - **labs come in 2-hour blocks**, so lab hours must be even
+  - the lab group must exist in that section ("has no lab group 'G9'")
+  - the listed lab rooms must be labs, and at least one must seat the group
+- Each row reports its first problem; fixing it may reveal the next one on the same row.
+
+**Then:**
+1. **Generate:** the CP-SAT generator (§6.1) builds the timetable.
+2. **Check:** the independent validator (§6.2) checks it.
+3. **Write back:** the timetable is saved as **Excel**, one sheet per section, using the college's own period times.
+
+How lessons are modelled:
+- a theory lesson is taught in the section's home room
+- a lab with a lab group is for that group only; a lab without one is for the whole section
+- lab rooms default to every lab
+- a teacher's unavailability is a hard rule
+
+**Commands:**
+```bash
+.venv/Scripts/python -m app.importers.sheets data/colleges/demo_institute/demo_institute.xlsx
+.venv/Scripts/python -m app.importers.sheets --template college_template.xlsx
+```
+The first writes `timetable.xlsx` next to the workbook (or to `--out <file>`). The second writes a blank template.
+
+**The sample college:** `data/colleges/demo_institute/`, "Demo Institute of Technology". It is **made up, not GNDEC**; `make_sample.py` writes the workbook.
+- **Size:** 2 departments, 12 rooms, 11 teachers, 6 sections, 40 lessons, 94 weekly sessions.
+- **Run here (27 Oct, output to a temporary folder):** **OPTIMAL in 3.5 s**, independent validator **0 clashes**, 0 student waiting periods per day, 0 single-lecture days.
+- **Unavailability:** a teacher marked "Fri 6-8" gets no class then (checked by the test).
+
+**Honest limits** (from Lane A, also in `CLAUDE.md` and `PLAN.md` F4):
+- **Engine grid:** it is still 5 days × 8 periods with the midday break in periods 4–6. A college's own period times are used for display only.
+- **Fewer than 8 periods (found while checking this report):** the template's own example lists 6 periods. With 6 periods in the sample's profile, the generator still placed **18 class-hours in periods 7–8**, and the Excel output (which writes only the college's 6 periods) leaves them out without a warning. The 8-period sample is not affected. Reported to Lane A.
+- **Room features:** every imported room gets the feature "projector"; the sheet has no features column yet.
+- **Command line only:** there is no upload page yet.
+- **Next steps** (about 4–5 days, Lane A's estimate):
+  - a per-college profile for the grid, naming and buildings
+  - an upload page with check → preview → use
+  - import of FET project files (`.fet`)
+
 ---
 
 ## 7. Roles, sign-in and permissions
@@ -987,7 +1067,8 @@ Commands: `.venv/Scripts/python -m pytest -q -rA` and `pytest --collect-only -q`
 
 | Code state | Tests | Passed | Failed | Time |
 |---|---|---|---|---|
-| **Final: commit `1bb36be`** | 130 | **130** | **0** | 49 s |
+| **Final: commit `5242494`** | 134 | **134** | **0** | 26 s |
+| Earlier: commit `1bb36be` (before the 4 Excel onboarding tests) | 130 | 130 | 0 | 49 s |
 | Earlier: commit `c19e75b` (same tests, before the `endorse_venues` checks) | 130 | 130 | 0 | 35 s |
 | Earlier: commit `da6859b` (before the venues department-hall test) | 129 | 129 | 0 | 25 s |
 | Earlier: commit `d12f3f4` (before the department-hall test) | 128 | 128 | 0 | 25 s |
@@ -1015,13 +1096,14 @@ Commands: `.venv/Scripts/python -m pytest -q -rA` and `pytest --collect-only -q`
 | `tests/test_core_departments.py` | A | 19 (18 added in `39212e3`, incl. 5 + 6 parametrised; 1 in `53e1f7f`) | 19 |
 | `tests/test_core_chat_tools.py` | A | 4 (added in `dce71d3`) | 4 |
 | `tests/test_core_concerns.py` | A | 5 (added in `d173b37`) | 5 |
-| **Lane A total** | | **91** | **91** |
+| `tests/test_core_sheets.py` | A | 4 (added in `5242494`) | 4 |
+| **Lane A total** | | **95** | **95** |
 | `tests/test_dashboards_api.py` | B | **14** | 14 |
 | `tests/test_venues_approvals.py` | C | 8 (1 added in `c19e75b`) | 8 |
 | `tests/test_venues_ranking.py` | C | 8 (incl. 4 parametrised) | 8 |
 | `tests/test_venues_slots.py` | C | 9 (3 added in `49004bb`) | 9 |
 | **Lane C total** | | **25** | 25 |
-| **Overall** | | **130** | **130** |
+| **Overall** | | **134** | **134** |
 
 **Note:** while the optimiser re-run was in progress, 2 tests failed as expected:
 - `test_core_optimise.py::test_no_clashes_and_never_worse`
@@ -1172,6 +1254,14 @@ The tools are called directly, so no call to the Claude API and no credit is use
 | `test_the_department_answers_and_everyone_who_agreed_hears_back` | The **IT HOD → 403** and **the Dean → 403** (read-only); the CSE coordinator answers "planned" with "From next week"; **both students who agreed are notified** with the reply and see it on the concern |
 | `test_a_student_can_have_at_most_five_open_concerns` | Five concerns about five different real classes are accepted; **the sixth → 429** |
 
+### 11.8f `tests/test_core_sheets.py`: onboarding another college from Excel (4, added in `5242494`)
+| Test | What it checks · edge case |
+|---|---|
+| `test_the_blank_template_has_every_sheet_and_column` | The blank template is written and read back: **all 5 sheets**, no errors, and its **example rows are themselves valid** (they make 2 lessons) |
+| `test_a_new_college_goes_in_through_the_template_and_gets_a_clash_free_timetable` | The made-up sample goes in with no problems: 6 sections, 11 teachers, 8 period times. Every lab is a **2-period block for one lab group**. The generator finds a timetable, and the **independent validator finds no clash**. The teacher marked **"Fri 6-8" has no class then**. The Excel timetable is written |
+| `test_mistakes_are_explained_by_sheet_and_row_and_nothing_is_imported` | Bad rows added to the sample: an unknown teacher `ZZ`, a 3-hour lab, a lab group `G9` that doesn't exist, a lab as a home room, and `Someday 9` as unavailability. **Nothing is imported**, each mistake is explained in plain words, and **every message names its row** |
+| `test_a_missing_sheet_or_column_is_reported` | A workbook with only a half-filled Rooms sheet: "no 'Teachers' sheet" and "Rooms: missing column(s) Seats" |
+
 ### 11.9 `tests/test_dashboards_api.py`: Lane B (14)
 Runs against a fresh `build_college()` store (since `39212e3`, the real six-department college), with state in a temp file.
 
@@ -1245,11 +1335,12 @@ Runs against a fresh `build_college()` store (since `39212e3`, the real six-depa
   This run-through is Lane A's report; I did not repeat it here.
 - **`POST /api/generate` and `POST /api/compare/{dept}/run`** are only tested indirectly: the solver and optimiser output are tested, and the permission rules for generate are tested.
 - **Optimiser runs** themselves are not run in tests (they take minutes); the tests check the saved result.
+- **Excel onboarding with fewer than 8 periods:** not tested, and it loses classes in the Excel output (found here; see §6.8).
 
 ---
 
 ## 12. Timeline: how it was built
-From `git log` (88 commits up to `1bb36be`; 16 of them are this report). Commits per day: 21 Oct 15 · 22 Oct 14 · 26 Oct 45 · 27 Oct 14.
+From `git log` (90 commits up to `5242494`; 17 of them are this report). Commits per day: 21 Oct 15 · 22 Oct 14 · 26 Oct 45 · 27 Oct 16.
 
 ### Day 1: Wed 21 Oct, prototype (v0.1), demo at 4 PM
 - Scaffold, `CLAUDE.md`, plan.
@@ -1327,12 +1418,13 @@ From `git log` (88 commits up to `1bb36be`; 16 of them are this report). Commits
     - PLAN.md section 0 brought up to date
 - **Lane C, final:** elective audiences and student types also rule slot-finder times out; 3 new tests (`49004bb`).
 
-### Tue 27 Oct: deployment and student concerns
+### Tue 27 Oct: deployment, student concerns and Excel onboarding
 - **Deployed** to Render (`5a6a9bc`, `a557f04`, `2ac1a85`): Dockerfile, hosted mode (at first with no paid assistant and no optimiser re-runs), the live link in the README. Hugging Face Spaces was tried first.
 - **Student concerns** (`d173b37`): students report what makes a whole class miss classes; departments see counts per class without names and answer. Also **"Continue as"** on the sign-in page. 5 new tests.
 - **The AI assistant on the live site** (`76fb30e`): the project owner decided to turn it on and set `ANTHROPIC_API_KEY` on Render. Optimiser re-runs stay off.
 - **Department halls** (`da6859b`): a department's hall needs that department's HOD even when the timetable office books it; the office approves central halls only, and only a club's faculty advisor endorses its requests (`OWN_AUTHORITY`). 1 new permissions test (129), plus a venues test through the API (`c19e75b`, 130). Also checked through the API by Lane A (see §7.2). Then `1bb36be`: the office no longer gets an endorse inbox it can't act on (`endorse_venues` only for a club's faculty advisor).
 - **Permissions fix** (`d12f3f4`): the timetable office could raise student concerns, because the admin passed every rule. Now `STUDENTS_ONLY` (raise a concern, request a meeting) is refused for the admin, who sees and answers concerns instead. Tests updated (still 128).
+- **Onboarding another college from Excel** (`5242494`): a five-sheet template, plain-language checks by sheet and row, then generate, validate and write back as Excel; a made-up sample college (94 sessions, OPTIMAL in about 4 s, 0 clashes). 4 new tests (134). `openpyxl` added.
 - **Offered but not built** (the project owner chose concerns first): a rule editor where the HOD proposes new college rules from the app.
 - This report was committed alongside.
 
@@ -1390,8 +1482,9 @@ Optimise departments (here 300 s each for IT and ME; or `ALL`), writing `data/gn
 - **Optional:** copy `.env.example` to `.env` and add `ANTHROPIC_API_KEY` for the assistant (never commit `.env`).
 - **Demo mode** is on by default (`TIMEWEAVE_DEMO=1`). Sign in at `/login.html` by picking an account.
 - **Re-import CSE:** `python -m app.importers.fet` (FET HTML → `data/gndec/cse.json`) and `python -m app.importers.gndec_students` (needs the private lists).
+- **Another college from Excel:** `python -m app.importers.sheets data/colleges/demo_institute/demo_institute.xlsx` (checks, generates, validates, writes `timetable.xlsx`; add `--out <file>` to write elsewhere) and `python -m app.importers.sheets --template college_template.xlsx` (blank template). See §6.8.
 - **Generator demo:** `python -m app.solver` generates the synthetic seeded college from scratch and prints the status and the validator's result (since `dee7b1e`). The live GNDEC college has nothing to generate, because every class is imported.
-- **Requirements:** FastAPI, OR-Tools, the Anthropic SDK, pypdf, and the rest of `requirements.txt`.
+- **Requirements:** FastAPI, OR-Tools, the Anthropic SDK, pypdf, openpyxl (Excel, since `5242494`), and the rest of `requirements.txt`.
 
 ### 14.1 The live demo (deployed)
 - **Link:** **https://timeweave-3y2g.onrender.com**
@@ -1457,7 +1550,7 @@ Suggested, about 5 minutes. Built only from features listed above.
    - **CSE:** no-lunch days 44 → 0. Be honest: CSE's gain is smaller than in the CSE-only run, because CSE's first year and classes by other departments' teachers are now kept as published, so other departments are never hurt.
    - **Rules:** scroll to **"GNDEC's timetable rules"**: each college habit in plain words, and how often each version breaks it. Tell the story: an earlier CSE run left 6 D4 Fridays with only project + open elective; writing the rule down fixed it (6 → 0).
    - **Publishing:** it is refused if a rule is broken more often, or if a clash appears anywhere in the college. **Propose** as the HOD, then **Publish** as the admin; the validator re-checks the whole college.
-9. **Trust:** the independent validator, the independent college-rules check, 130 automated tests, and the audit log (`/audit.html` as the Dean) showing a refused action.
+9. **Trust:** the independent validator, the independent college-rules check, 134 automated tests, and the audit log (`/audit.html` as the Dean) showing a refused action.
 10. **Ask TimeWeave** (optional; uses API credit; works on the live link): "Will G17 be free at 12:30 on Friday?" Lane A's live check: "Is G17 free on Monday at 12:30?" answered correctly in about 6 s with the `room_status` tool.
 
 ---
@@ -1465,9 +1558,14 @@ Suggested, about 5 minutes. Built only from features listed above.
 ## 16. Known limitations and future work
 **Not built yet** (designed in `PLAN.md` / `docs/DESIGN.md`):
 - **Data in and out:**
-  - Excel/CSV import with row-level errors
+  - **Excel import with row-level errors and Excel export: built as a command-line proof** for a new college (`5242494`, §6.8). Still to do:
+    - an upload page (check → preview → use)
+    - a per-college grid instead of 5 days × 8 periods (and, until then, refusing or warning on fewer than 8 periods)
+    - per-college naming and buildings
+    - FET project-file (`.fet`) import
+    - CSV
+    - Excel export of GNDEC's own timetables
   - "check my existing timetable" upload
-  - Excel export
   - calendar feed (.ics)
 - **Editing:**
   - manual drag-and-drop editor with live clash warnings
@@ -1539,8 +1637,9 @@ Suggested, about 5 minutes. Built only from features listed above.
 | **6 → 0** | D4 Fridays with only project + open elective (an earlier CSE run vs now), fixed by writing the rule down |
 | **8** | roles, with a deny-by-default permission table and an audit log |
 | **46** | API routes |
-| **130 / 130** | automated tests passing |
-| **3** | parallel build lanes, 88 commits |
+| **Any college** | one Excel workbook in, a checked clash-free timetable out (made-up sample: 94 sessions, OPTIMAL in about 4 s, 0 clashes) |
+| **134 / 134** | automated tests passing |
+| **3** | parallel build lanes, 90 commits |
 
 ---
 
@@ -1562,7 +1661,7 @@ Suggested, about 5 minutes. Built only from features listed above.
 - **Not read:** `data/private/`
 
 **Commands (26 Oct 2026):**
-- `pytest -q` on `1bb36be`: **130 passed** (final); on `c19e75b`: 130; on `da6859b`: 129; on `d12f3f4`: 128; on `d173b37`: 128; on `2ac1a85`: 123; on `d3e1a9d`: 122; on `7a33645`: 118; on `89254d8`: 117; on `53e1f7f` + `dee7b1e`: 117; `test_first_year_is_linked_across_departments` passes on its own
+- `pytest -q` on `5242494`: **134 passed** (final); on `1bb36be`: 130; on `c19e75b`: 130; on `da6859b`: 129; on `d12f3f4`: 128; on `d173b37`: 128; on `2ac1a85`: 123; on `d3e1a9d`: 122; on `7a33645`: 118; on `89254d8`: 117; on `53e1f7f` + `dee7b1e`: 117; `test_first_year_is_linked_across_departments` passes on its own
 - first-year checks:
   - 94 linked sessions (ME 23, ECE 22, EE 49)
   - CSE D1-CS-A-A1: 5 hours at `39212e3` (temporary checkout) → 11 now
@@ -1577,9 +1676,15 @@ Suggested, about 5 minutes. Built only from features listed above.
 - `pytest -q` on commit `3acc154`: 87 passed
 - a Python check of `College.lab_pairs()` (86 pairs, 54 in CSE) and of the SC/ACC lab days in the optimised file
 - earlier: `pytest -q -rA` on the working tree before the re-run (85 passed, 2 failed as expected) and on a clean checkout of `aac5df1` (84 passed)
-- `pytest --collect-only -q` (87 tests at `3acc154`; 88 at `becb48e`; 95 at `32f1b45`; 116 at `39212e3`; 117 at `53e1f7f`; 118 at `7a33645`; 122 at `d3e1a9d`; 123 at `2ac1a85`; 128 at `d173b37` and `d12f3f4`; 129 at `da6859b`; 130 at `c19e75b` and `1bb36be`)
+- `pytest --collect-only -q` (87 tests at `3acc154`; 88 at `becb48e`; 95 at `32f1b45`; 116 at `39212e3`; 117 at `53e1f7f`; 118 at `7a33645`; 122 at `d3e1a9d`; 123 at `2ac1a85`; 128 at `d173b37` and `d12f3f4`; 129 at `da6859b`; 130 at `c19e75b` and `1bb36be`; 134 at `5242494`)
 - a Python check printing college counts, metrics and `compare` from `app.store.STORE`
 - `git log`, `git log --stat`, `git diff --stat`, `git status`
+
+**Excel onboarding (27 Oct, on `5242494`):**
+- read `app/importers/sheets.py`, `make_sample.py`, `tests/test_core_sheets.py` and the `CLAUDE.md` / `PLAN.md` changes
+- ran the sample with `--out` to a temporary folder (no repo file changed): OPTIMAL, 3.5 s, 0 clashes, 0 waiting
+- wrote the blank template to a temporary folder
+- in a temporary copy, set the sample's profile to 6 periods: 18 class-hours placed in periods 7–8
 
 **Deliberately not run:** `python -m app.optimise` (Lane A ran the optimiser) and `/api/chat` (API credit; Lane A's one live question is reported as theirs).
 
@@ -1598,7 +1703,8 @@ All numbers were checked here against the committed data files.
 
 ## 19. Pending
 **Resolved on 26–27 Oct:**
-- Final test totals: **130 / 130 pass** (re-run here on `1bb36be`; Lane A 91, B 14, C 25).
+- Final test totals: **134 / 134 pass** (re-run here on `5242494`; Lane A 95, B 14, C 25).
+- Excel onboarding (`5242494`): the code, tests and sample checked here (see Sources). The reason it was built (the project owner's question) is from Lane A.
 - Department halls (`da6859b`, `c19e75b`) and the endorse inbox (`1bb36be`): read in the diffs and the tests; the 73 / 4 split of bookable rooms counted here with `app.store.STORE`. The three API bookings (MBA Seminar Hall, HOD approval, Auditorium) are Lane A's check.
 - The assistant on the live site (`76fb30e`) and the admin's student-only exclusions (`d12f3f4`): read in the diffs and the tests. The live assistant answer is Lane A's check.
 - Student concerns: tests, permissions, the 6 endpoints, the 30% / 2-vote flag, the 200-character and 5-concern limits, all read in the code. The end-to-end browser run is Lane A's.
@@ -1613,5 +1719,6 @@ All numbers were checked here against the committed data files.
 
 **Still not verified independently here:**
 - Nothing in the data or tests.
+- **Excel onboarding with fewer than 8 periods:** classes are left out of the Excel output (see §6.8). Reported to Lane A; not fixed at `5242494`.
 - **The live site and `d12f3f4` / `da6859b` / `1bb36be`:** `d12f3f4` is on GitHub, but two read-only checks here on 27 Oct still showed the old permissions on the live site (the timetable office had `raise_concerns` and `request_meeting`). Render had not redeployed yet. Check once more before judging: sign in as the timetable office, and the Student concerns page should show no "Raise a concern" button.
 - My own descriptions of the UI come from the page source (labels, tabs, `x-show` rules). The browser behaviour of every role was verified by Lane A (above and §11.13).
