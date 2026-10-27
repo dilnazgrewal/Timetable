@@ -151,10 +151,15 @@ def metrics(college: College, entries: list[Entry], fixed: bool | None = None) -
         worst = max(worst, gap)
         lonely += len(slots) == 1
         no_lunch += all(p in slots for p in LUNCH_WINDOW)
+    hours = [load.get(t.id, 0) for t in college.teachers]
+    # "Taught in another department" stand-ins only block the hours a group spends elsewhere: not people, so no load
+    away = {r.id for r in college.rooms if r.kind == "Other department"}
+    stand_ins = {t.id for t in college.teachers if t.id.startswith("TBA-")}
+    stand_ins -= {tid for l in college.lessons if not set(l.rooms) <= away for tid in [l.teacher, *l.co_teachers]}
     teacher_load = sorted(
-        ({"id": t.id, "name": t.name, "dept": t.dept, "hours": load.get(t.id, 0)} for t in college.teachers),
+        ({"id": t.id, "name": t.name, "dept": t.dept, "hours": load.get(t.id, 0)}
+         for t in college.teachers if t.id not in stand_ins),
         key=lambda x: -x["hours"])
-    hours = [x["hours"] for x in teacher_load]
 
     def util(kinds: set[str]) -> float:
         rs = [r for r in college.rooms if r.kind in kinds]
