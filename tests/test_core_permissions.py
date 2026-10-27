@@ -63,9 +63,23 @@ def test_session_sign_in_and_out():
 
 # --- the permission table ------------------------------------------------------------------------------
 def test_admin_may_do_everything_and_unknown_actions_are_refused():
-    from app.auth import STUDENTS_ONLY
-    assert all(authorize(u("admin"), a) for a in PERMISSIONS if a not in STUDENTS_ONLY)
+    from app.auth import OWN_AUTHORITY, STUDENTS_ONLY
+    assert all(authorize(u("admin"), a) for a in PERMISSIONS if a not in STUDENTS_ONLY | OWN_AUTHORITY)
     assert not any(authorize(u("admin"), a) for a in STUDENTS_ONLY)  # a student's own requests and concerns
+
+
+def test_a_department_hall_needs_its_hod_even_when_the_office_books_it():
+    """The timetable office approves central halls only; a department's hall waits for that department's HOD."""
+    dept_hall = BookingRequest(id="x1", title="Talk", requester="admin", club=None, attendees=100, needs=[],
+                               date="2026-10-28", periods=[4], room="MBA Seminar Hall")  # belongs to CSE
+    central = BookingRequest(id="x2", title="Fest", requester="admin", club=None, attendees=500, needs=[],
+                             date="2026-10-28", periods=[4], room="Auditorium")
+    assert not authorize(u("admin"), "booking.approve", dept_hall) and authorize(u("hod-CSE"), "booking.approve", dept_hall)
+    assert authorize(u("admin"), "booking.approve", central) and not authorize(u("hod-CSE"), "booking.approve", central)
+    club_req = BookingRequest(id="x3", title="Workshop", requester="club-DMC", club="DMC", attendees=60, needs=[],
+                              date="2026-10-28", periods=[4], room="MBA Seminar Hall")
+    assert not authorize(u("admin"), "booking.endorse", club_req)  # only the club's faculty advisor
+    assert authorize(u(STORE.clubs["DMC"].advisor), "booking.endorse", club_req)
     assert not authorize(u("admin"), "no.such.action")
 
 

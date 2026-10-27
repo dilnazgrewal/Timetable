@@ -110,7 +110,11 @@ def _approve(user: User, req: object) -> bool:
     if not isinstance(req, BookingRequest):
         return False
     room = STORE.college.room_by_id.get(req.room)
-    return user.role == "hod" and room is not None and room.dept == user.dept  # central halls: admin only
+    if room is None:
+        return False
+    if room.dept and f"hod-{room.dept}" in STORE.users:  # a department's room: only that department's HOD
+        return user.role == "hod" and room.dept == user.dept
+    return user.role == "admin"  # central halls: the timetable office
 
 
 # action -> (what it allows, in words, for refusals; rule(user, resource) -> bool). Admin may do everything.
@@ -156,13 +160,16 @@ READ_ONLY = {"timetable.view", "rooms.view", "chat.ask", "concern.view", "leave.
 
 # things a person does about their own timetable as a student: the timetable office sees and answers them instead
 STUDENTS_ONLY = {"concern.raise", "meeting.request"}
+# someone else's authority: a department's hall needs its HOD, a club's request its faculty advisor. The timetable
+# office approves only what is its own (central halls), through the rule itself
+OWN_AUTHORITY = {"booking.approve", "booking.endorse"}
 
 
 def authorize(user: User, action: str, resource: object = None) -> bool:
     """Every permission rule lives in PERMISSIONS. Unknown actions are refused."""
     if action not in PERMISSIONS:
         return False
-    if user.role == "admin" and action not in STUDENTS_ONLY:
+    if user.role == "admin" and action not in STUDENTS_ONLY | OWN_AUTHORITY:
         return True
     return bool(PERMISSIONS[action][1](user, resource))
 
