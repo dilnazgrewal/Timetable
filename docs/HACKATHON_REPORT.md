@@ -2,16 +2,18 @@
 
 > **What this file is:** the complete, checked record of what TimeWeave is, what was built, how it works, the real GNDEC data it uses, the numbers, and every automated test with the edge case it covers. Use it as the source for the submission report (submission: **Tuesday 27 Oct 2026**).
 >
-> **How it was checked:** every claim comes from the repository (code, docs, git history), the test suite, or a command run on **Mon 26 Oct 2026**. Nothing is from memory. The commands are listed under [Sources](#18-sources). Anything that could not be confirmed yet is listed under [Pending](#19-pending).
+> **Live demo:** **https://timeweave-3y2g.onrender.com**. It runs on a free server: if it has been idle, the first visit takes about a minute to wake it. Sign in as any role; no password.
+>
+> **How it was checked:** every claim comes from the repository (code, docs, git history), the test suite, or a command run on **26–27 Oct 2026**. Nothing is from memory. The commands are listed under [Sources](#18-sources). Anything that could not be confirmed yet is listed under [Pending](#19-pending).
 >
 > **State of the repo when this was written:**
-> - Final numbers are from commit `d3e1a9d` (26 Oct 2026), after Lane A's full browser run-through of every role. The last data changes were `89254d8` (two same-named teachers kept apart: 5 teacher clashes in the published data) and `53e1f7f` (**first year linked across departments**).
+> - Final numbers are from commit `2ac1a85` (27 Oct 2026), after deployment (`5a6a9bc`, `a557f04`, `2ac1a85`). Before that came Lane A's full browser run-through of every role (`d3e1a9d`). The last data changes were `89254d8` (two same-named teachers kept apart: 5 teacher clashes in the published data) and `53e1f7f` (**first year linked across departments**).
 > - Before it:
 >   - `39212e3` imported and optimised the **real timetables of all six departments** (CSE, IT, ME, CE, ECE, EE)
 >   - `32f1b45` added College rules
 >   - `becb48e` added the lab-pair rule
 >   - `3acc154` imported D4's open elective from the FET *groups* page
-> - **All 122 tests pass** on `d3e1a9d`.
+> - **All 123 tests pass** on `2ac1a85`.
 
 ---
 
@@ -60,7 +62,9 @@ What it does:
 - **State:** in memory, persisted to JSON files.
 - **Chatbot:** Anthropic SDK, model `claude-opus-5-5` at low effort.
 
-**Tests:** **122 automated tests, all 122 pass** (commit `d3e1a9d`; see [11](#11-testing-every-test-and-the-edge-case-it-covers)).
+**Live demo:** https://timeweave-3y2g.onrender.com (Render, free tier; see §14.1).
+
+**Tests:** **123 automated tests, all 123 pass** (commit `2ac1a85`; see [11](#11-testing-every-test-and-the-edge-case-it-covers)).
 
 ---
 
@@ -368,6 +372,7 @@ Status as of commit `53e1f7f`. ✅ built and committed · ⬜ designed, not buil
 | A15 | Read-only Claude assistant with 5 date-aware tools; tools tested on the real data without calling the API (`dce71d3`) | ✅ |
 | A16 | Pages: sign-in, compare (college vs optimised, with a **department picker**: HODs see their own department, the Dean sees all), audit log; shared top bar | ✅ |
 | A17 | Demo reset (admin) | ✅ |
+| A18 | **Deployed** at https://timeweave-3y2g.onrender.com (Render, Docker). Hosted mode switches off the paid AI assistant and optimiser re-runs, with a friendly message, and hides their buttons via `TW.can` (`5a6a9bc`, `2ac1a85`) | ✅ |
 
 ### 5.2 Dashboards (Lane B, `index.html`, `/api/dash`)
 | # | Feature | Status |
@@ -925,7 +930,8 @@ Commands: `.venv/Scripts/python -m pytest -q -rA` and `pytest --collect-only -q`
 
 | Code state | Tests | Passed | Failed | Time |
 |---|---|---|---|---|
-| **Final: commit `d3e1a9d`** | 122 | **122** | **0** | 27 s |
+| **Final: commit `2ac1a85`** | 123 | **123** | **0** | 55 s |
+| Earlier: commit `d3e1a9d` (before the hosted-mode test) | 122 | 122 | 0 | 27 s |
 | Earlier: commit `7a33645` (before the 4 assistant-tool tests) | 118 | 118 | 0 | 23 s |
 | Earlier: commits `53e1f7f` to `89254d8` | 117 | 117 | 0 | 23–36 s |
 | Earlier: commit `39212e3` (before the first-year test) | 116 | 116 | 0 | 28 s |
@@ -937,7 +943,7 @@ Commands: `.venv/Scripts/python -m pytest -q -rA` and `pytest --collect-only -q`
 | File | Lane | Tests | Pass |
 |---|---|---|---|
 | `tests/test_validator.py` | A | 12 | 12 |
-| `tests/test_core_permissions.py` | A | 18 (incl. 5 parametrised; 1 added in `7a33645`) | 18 |
+| `tests/test_core_permissions.py` | A | 19 (incl. 5 parametrised; 1 added in `7a33645`, 1 in `5a6a9bc`) | 19 |
 | `tests/test_core_fet.py` | A | 7 (3 added in `3acc154`) | 7 |
 | `tests/test_core_students.py` | A | 6 | 6 |
 | `tests/test_core_store.py` | A | 4 | 4 |
@@ -946,13 +952,13 @@ Commands: `.venv/Scripts/python -m pytest -q -rA` and `pytest --collect-only -q`
 | `tests/test_core_rules.py` | A | 7 (added in `32f1b45`) | 7 |
 | `tests/test_core_departments.py` | A | 19 (18 added in `39212e3`, incl. 5 + 6 parametrised; 1 in `53e1f7f`) | 19 |
 | `tests/test_core_chat_tools.py` | A | 4 (added in `dce71d3`) | 4 |
-| **Lane A total** | | **84** | **84** |
+| **Lane A total** | | **85** | **85** |
 | `tests/test_dashboards_api.py` | B | **14** | 14 |
 | `tests/test_venues_approvals.py` | C | 7 | 7 |
 | `tests/test_venues_ranking.py` | C | 8 (incl. 4 parametrised) | 8 |
 | `tests/test_venues_slots.py` | C | 9 (3 added in `49004bb`) | 9 |
 | **Lane C total** | | **24** | 24 |
-| **Overall** | | **122** | **122** |
+| **Overall** | | **123** | **123** |
 
 **Note:** while the optimiser re-run was in progress, 2 tests failed as expected:
 - `test_core_optimise.py::test_no_clashes_and_never_worse`
@@ -993,7 +999,7 @@ These are "testing the tester": mutation tests inject each kind of mistake and c
 | `test_precheck_explains_overloaded_teacher` | Prechecks explain an impossible input in plain English (teacher available only Tuesday, max 3 a day, with 4 hours assigned) |
 | `test_unknown_lesson_flagged` | An entry for a lesson that doesn't exist is flagged |
 
-### 11.3 `tests/test_core_permissions.py`: role-based access (18)
+### 11.3 `tests/test_core_permissions.py`: role-based access (19)
 | Test | What it checks · edge case |
 |---|---|
 | `test_every_api_route_needs_sign_in_except_auth` | Walks **every** `/api` route of the app and checks that it depends on `current_user` (except `/api/auth/*`): no route is accidentally left open |
@@ -1008,6 +1014,7 @@ These are "testing the tester": mutation tests inject each kind of mistake and c
 | `test_capabilities_follow_the_table` | `/api/me.can` matches the table: a student can request meetings but not publish or approve; the admin has everything except the teacher-only items; HOD CSE can propose and substitute but not publish; the ME HOD sees **ME's own** optimised timetable but never CSE's |
 | `test_endpoint_refusals` | Real HTTP calls: student → 403 on compare, users, audit, demo reset; ME HOD → 403 on the CSE compare; CSE HOD → 403 on publish; Dean → 403 on propose but 200 on view; a student can read their own timetable |
 | `test_timetable_route_reports_published_clashes_apart` | *(added in `7a33645`)* `/api/timetable` (as the CSE HOD) answers 200 with entries; **`issues` is empty** (no clash caused by TimeWeave), and every entry of `published_issues` is a teacher clash from the college's own data |
+| `test_public_demo_switches_off_the_assistant_and_optimiser_runs` | *(added in `5a6a9bc`)* With `TIMEWEAVE_HOSTED=1` (the public link): `/api/me.can` has **no `chat` and no `optimised_run`**, but `optimised_propose` stays; `/api/chat` answers "switched off" **without calling the paid API**; re-running the optimiser gives **409**; the saved optimised comparison is still available |
 | `test_refusals_are_audited` | A refused demo reset by a student lands in the audit log with `allowed: false`, and the Dean sees it first in `/api/audit` |
 | `test_propose_publish_unpublish_adds_no_clash` | (renamed in `39212e3`) Coordinator proposes → admin notified → admin publishes → the independent validator finds **no clash anywhere in the college that wasn't already in the published data** → unpublish → exactly the published clashes again. Edge case seen for real: while the saved optimised file had 1 clash (during a CSE re-run), publish was refused with 409 |
 
@@ -1168,7 +1175,7 @@ Runs against a fresh `build_college()` store (since `39212e3`, the real six-depa
 ---
 
 ## 12. Timeline: how it was built
-From `git log` (73 commits by the end of 26 Oct, the last code commit being `d3e1a9d`; 10 of them are this report). Commits per day: 21 Oct 15 · 22 Oct 14 · 26 Oct 44.
+From `git log` (77 commits up to `2ac1a85`; 11 of them are this report). Commits per day: 21 Oct 15 · 22 Oct 14 · 26 Oct 45 · 27 Oct 3.
 
 ### Day 1: Wed 21 Oct, prototype (v0.1), demo at 4 PM
 - Scaffold, `CLAUDE.md`, plan.
@@ -1304,10 +1311,38 @@ Optimise departments (here 300 s each for IT and ME; or `ALL`), writing `data/gn
 - **Generator demo:** `python -m app.solver` generates the synthetic seeded college from scratch and prints the status and the validator's result (since `dee7b1e`). The live GNDEC college has nothing to generate, because every class is imported.
 - **Requirements:** FastAPI, OR-Tools, the Anthropic SDK, pypdf, and the rest of `requirements.txt`.
 
+### 14.1 The live demo (deployed)
+- **Link:** **https://timeweave-3y2g.onrender.com**
+- **Host:** Render, free tier (0.1 CPU, 512 MB). Built from the repo's `Dockerfile` (Python 3.12) with `TIMEWEAVE_HOSTED=1` and `TIMEWEAVE_DEMO=1`. The app uses about 150 MB and starts in about 7 s locally (figures from Lane A).
+- **Sleep:** the free server sleeps after 15 minutes idle, so the first visit then takes about a minute. **Open it a few minutes before judging.**
+- **Hosted mode:**
+  - The AI assistant (paid API) and optimiser re-runs (minutes of full CPU) are switched off. Both give a friendly message, and their buttons and links are hidden via `TW.can`.
+  - Everything else works, including demo sign-in for every role.
+  - A random session secret is used when `TIMEWEAVE_SECRET` isn't set, so sign-ins end on a restart.
+  - Demo changes (bookings, leave, meetings) reset when the server restarts.
+- **Checked here on 27 Oct (read-only requests):**
+  - `/`, `/login.html` and the demo account list answer 200
+  - `/api/me` without sign-in answers 401
+  - 464 demo accounts
+  - `/api/timetable`: `IMPORTED`, 0 issues, 5 published issues, 2,579 sessions
+  - HOD IT: no assistant, no re-run, can propose
+  - the timetable office sees all 6 departments
+- **Checked by Lane A on the live site:**
+  - a student's week has 22 classes
+  - a student gets 403 on the comparison
+  - 105 free rooms at Mon P5
+  - HOD IT sees only IT (student waiting 15 → 11); a re-run gives 409
+  - the CSE comparison page renders
+- **How we got there:** Hugging Face Spaces was tried first, but Docker Spaces now need a paid plan, so Render was used. `deploy/push_to_space.sh` (publishes to a Space without the binary files in `docs/progress`) is kept but unused.
+
 ---
 
 ## 15. Demo script
 Suggested, about 5 minutes. Built only from features listed above.
+
+**Where to run it:**
+- **Live link:** https://timeweave-3y2g.onrender.com. Open it a few minutes early to wake the free server. On the live link the AI assistant and optimiser re-runs are off; everything else works.
+- **Locally:** run it locally (§14) to show the assistant (step 9) or an optimiser re-run.
 
 1. **The problem** (30 s): hand-made timetables take weeks, still have problems, and students and teachers wait between classes. GNDEC's six real published timetables (2,579 classes a week) have:
    - about 1,000 teacher waiting periods a week
@@ -1334,7 +1369,7 @@ Suggested, about 5 minutes. Built only from features listed above.
    - **Rules:** scroll to **"GNDEC's timetable rules"**: each college habit in plain words, and how often each version breaks it. Tell the story: an earlier CSE run left 6 D4 Fridays with only project + open elective; writing the rule down fixed it (6 → 0).
    - **Publishing:** it is refused if a rule is broken more often, or if a clash appears anywhere in the college. **Propose** as the HOD, then **Publish** as the admin; the validator re-checks the whole college.
 8. **Trust:** the independent validator, the independent college-rules check, 122 automated tests, and the audit log (`/audit.html` as the Dean) showing a refused action.
-9. **Ask TimeWeave** (optional, uses API credit): "Will G17 be free at 12:30 on Friday?"
+9. **Ask TimeWeave** (optional; locally only, uses API credit; switched off on the live link): "Will G17 be free at 12:30 on Friday?"
 
 ---
 
@@ -1352,15 +1387,16 @@ Suggested, about 5 minutes. Built only from features listed above.
 - **Chatbot propose tools:** it is read-only today.
 - **Persistence:** in memory + JSON files, not SQLite/Postgres; no optimistic locking for two editors.
 - **Real sign-in:** Google sign-in restricted to the college domain is not built (demo mode only). It also needs a staff/student directory to map college emails to roles and student types.
-- **Hosting and alerts:** deployment (Render + Neon), room door QR page, live updates (SSE), PWA/push, email/WhatsApp notifications.
+- **Alerts and extras:** room door QR page, live updates (SSE), PWA/push, email/WhatsApp notifications.
+- **Deployment: done** (see §14.1). Still open: a database instead of JSON files (demo changes reset on restart), a paid or always-on server (the free one sleeps), and the AI assistant and optimiser re-runs on the hosted demo (switched off there).
 
 **Data gaps:**
 - **First-year weeks are still incomplete:** first year is now linked across departments (`53e1f7f`), so ME's, ECE's and EE's classes show up. But Applied Sciences (maths, physics, chemistry, English) doesn't publish a timetable, so those hours are missing for every first-year group. (From Lane A.)
 - **ME's "CSE A" … "CSE F"** (one subject, "EP&S", no year written) are left unlinked rather than guessed.
 - **No elective distribution lists for IT, ME, CE, ECE and EE.** Their electives and 3rd/4th-year group classes therefore stay as published, and their students are one type per lab group, guarded against same-year electives.
 - **Initials only:** 35 of 203 real teachers (CE publishes initials only) keep a name like "CE teacher (HVS)".
-- **Published errors:** the published timetables themselves contain 5 teacher double-bookings when put together (4 combined CSE/ME M.Tech classes listed by both departments, and 1 in CE's own export). The API lists them as `published_issues`.
-- **Same-name teachers:** teachers are merged across departments by name and initials, except when both records are on one department's own list. A same-named pair that appears in two different departments could still be merged wrongly; none is known. TimeWeave reports them and never adds to them, but can't fix them without knowing which listing is right.
+- **Published errors:** the published timetables themselves contain 5 teacher double-bookings when put together (4 combined CSE/ME M.Tech classes listed by both departments, and 1 in CE's own export). The API lists them as `published_issues`. TimeWeave reports them and never adds to them, but can't fix them without knowing which listing is right.
+- **Same-name teachers:** teachers are merged across departments by name and initials, except when both records are on one department's own list. A same-named pair that appears in two different departments could still be merged wrongly; none is known.
 - "Self Study · Library" slots are deliberately not imported (they are free periods, not classes).
 - Teachers' unavailability isn't known (none is assumed).
 - Elective-IV lab days rely on one student's confirmation.
@@ -1384,8 +1420,8 @@ Suggested, about 5 minutes. Built only from features listed above.
 **Open cross-lane request:** a `leave_board` capability for the Dean.
 
 **Security notes:**
-- The session secret has a development default; set `TIMEWEAVE_SECRET` in production.
-- Demo mode (`X-User` header) must be turned off (`TIMEWEAVE_DEMO=0`) for real use.
+- The session secret has a development default locally. When hosted without `TIMEWEAVE_SECRET`, a random secret is generated (`5a6a9bc`). Set `TIMEWEAVE_SECRET` for a permanent deployment.
+- Demo mode (no password; the `X-User` header) is on in the public demo on purpose, for judging. It must be turned off (`TIMEWEAVE_DEMO=0`) for real use.
 
 **Scale:** the six departments' final runs took 235–596 s each; the generator needed about 46 s for the seeded departments.
 
@@ -1394,6 +1430,7 @@ Suggested, about 5 minutes. Built only from features listed above.
 ## 17. Key numbers for slides
 | Number | What |
 |---|---|
+| **Live** | https://timeweave-3y2g.onrender.com (sign in as any role) |
 | **6** | real GNDEC department timetables imported and optimised (CSE, IT, ME, CE, ECE, EE) |
 | **2,579** | real weekly classes; 1,865 lessons; 203 teachers; 153 rooms |
 | **0** | new clashes anywhere in the college from any optimised department (proven by an independent validator that shares no code with the solver) |
@@ -1410,8 +1447,8 @@ Suggested, about 5 minutes. Built only from features listed above.
 | **6 → 0** | D4 Fridays with only project + open elective (an earlier CSE run vs now), fixed by writing the rule down |
 | **8** | roles, with a deny-by-default permission table and an audit log |
 | **40** | API routes |
-| **122 / 122** | automated tests passing |
-| **3** | parallel build lanes, 73 commits |
+| **123 / 123** | automated tests passing |
+| **3** | parallel build lanes, 77 commits |
 
 ---
 
@@ -1433,7 +1470,7 @@ Suggested, about 5 minutes. Built only from features listed above.
 - **Not read:** `data/private/`
 
 **Commands (26 Oct 2026):**
-- `pytest -q` on `d3e1a9d`: **122 passed** (final); on `7a33645`: 118; on `89254d8`: 117; on `53e1f7f` + `dee7b1e`: 117; `test_first_year_is_linked_across_departments` passes on its own
+- `pytest -q` on `2ac1a85`: **123 passed** (final); on `d3e1a9d`: 122; on `7a33645`: 118; on `89254d8`: 117; on `53e1f7f` + `dee7b1e`: 117; `test_first_year_is_linked_across_departments` passes on its own
 - first-year checks:
   - 94 linked sessions (ME 23, ECE 22, EE 49)
   - CSE D1-CS-A-A1: 5 hours at `39212e3` (temporary checkout) → 11 now
@@ -1448,7 +1485,7 @@ Suggested, about 5 minutes. Built only from features listed above.
 - `pytest -q` on commit `3acc154`: 87 passed
 - a Python check of `College.lab_pairs()` (86 pairs, 54 in CSE) and of the SC/ACC lab days in the optimised file
 - earlier: `pytest -q -rA` on the working tree before the re-run (85 passed, 2 failed as expected) and on a clean checkout of `aac5df1` (84 passed)
-- `pytest --collect-only -q` (87 tests at `3acc154`; 88 at `becb48e`; 95 at `32f1b45`; 116 at `39212e3`; 117 at `53e1f7f`; 118 at `7a33645`; 122 at `d3e1a9d`)
+- `pytest --collect-only -q` (87 tests at `3acc154`; 88 at `becb48e`; 95 at `32f1b45`; 116 at `39212e3`; 117 at `53e1f7f`; 118 at `7a33645`; 122 at `d3e1a9d`; 123 at `2ac1a85`)
 - a Python check printing college counts, metrics and `compare` from `app.store.STORE`
 - `git log`, `git log --stat`, `git diff --stat`, `git status`
 
@@ -1466,8 +1503,9 @@ All numbers were checked here against the committed data files.
 ---
 
 ## 19. Pending
-**Resolved on 26 Oct** (after commits `53e1f7f` and `dee7b1e`):
-- Final test totals: **122 / 122 pass** (re-run here; Lane A 84, B 14, C 24).
+**Resolved on 26–27 Oct:**
+- Final test totals: **123 / 123 pass** (re-run here on `2ac1a85`; Lane A 85, B 14, C 24).
+- The live deployment: answered and matched the local numbers (see §14.1).
 - Counts after the re-import in `d3e1a9d` (203 real teachers, 464 accounts, 64 sittable / 77 bookable rooms) and unchanged optimised results: checked here.
 - **The UI in a browser: verified by Lane A** in a full run-through of every role on 26 Oct (see §11.13). I did not click through it myself.
 - Clash counts after `89254d8` (5 teacher, 0 student, 0 room), the `/api/timetable` fields, and ECE's re-measured numbers: checked here.
