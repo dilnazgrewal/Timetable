@@ -51,6 +51,11 @@ def audit_page() -> FileResponse:
     return FileResponse(STATIC / "audit.html")  # Lane A: audit log (admin, Dean)
 
 
+@app.get("/concerns.html")
+def concerns_page() -> FileResponse:
+    return FileResponse(STATIC / "concerns.html")  # Lane A: students' timetable concerns
+
+
 @app.get("/favicon.ico")
 def favicon() -> Response:
     svg = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#4f46e5"/>'

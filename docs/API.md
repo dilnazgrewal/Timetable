@@ -67,6 +67,12 @@ Every lane codes against this file. **Lane A owns the "Core" and "Shared buildin
 | `GET /api/leave?on=YYYY-MM-DD&dept=` | `{date, leaves:[{leave, teacher_name, dept, classes}]}`. HODs see their department, teachers see themselves, admin sees all |
 | `POST /api/substitutions` | `{date, entry_key, teacher}` or `{date, entry_key, cancel:true}` (needs `override.create` for the class's department). Re-checks that the substitute is free (409 if not), replaces any earlier decision, and notifies the substitute, the absent teacher and the students. Returns `{override, message}` |
 
+| `GET /api/concerns/reasons` | reasons a student can give (`early`, `late`, `gap`, `no_break`, `streak`, `other`), which need a class, and `flag_share` (0.3) |
+| `POST /api/concerns {reason, day?, period?, text?}` | students: raise a concern about their own timetable. Timed reasons must name a class the student really has (else 400); the same concern (section, reason, time) becomes a vote (`merged: true`); at most 5 open per student (429) |
+| `GET /api/concerns/mine` | students: every concern of their section, with `agreed` |
+| `POST /api/concerns/{id}/vote?agree=true\|false` | students: "me too" / take it back, own section only |
+| `GET /api/concerns` | HOD / coordinator: their department; Dean, admin: all. Per class, biggest share first: `{id, section_name, reason_text, when, class, text, votes, share, flagged, status, reply}`, never who |
+| `POST /api/concerns/{id}/answer {status: seen\|planned\|not_possible, reply}` | the section's HOD / coordinator (admin): everyone who agreed is notified |
 | `GET /api/compare` | departments with an imported (real) timetable the caller may compare: `{departments: [{code, name, available, status}]}` (HOD / coordinator: their own; Dean, admin: all) |
 | `GET /api/compare/{dept}` | (that department's HOD / coordinator, Dean, admin) the department's published timetable vs TimeWeave's optimised version of the same lessons: `{available, dept, dept_name, publication: {status: draft\|proposed\|published, ...}, rules: [{id, type, strength, text, why, college, optimised, examples}], running, status, moved, pinned, metrics:{college, optimised}, clashes:{college, optimised}, sections, types, teachers, college:[entry], optimised:[entry]}`. `dept` is any of CSE, IT, ME, CE, ECE, EE (case-insensitive; `/api/compare/cse` still works) |
 | `POST /api/compare/{dept}/run?seconds=300` | re-run that department's optimiser in the background (its HOD / coordinator, admin; one run at a time); poll `GET /api/compare/{dept}` |

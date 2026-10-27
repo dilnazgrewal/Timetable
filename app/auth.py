@@ -122,6 +122,10 @@ PERMISSIONS: dict[str, tuple[str, object]] = {
                    lambda u, r: isinstance(r, Teacher) and (u.teacher_id == r.id or _dept_staff(u, r.dept))),
     "leave.view": ("see this teacher's leave",
                    lambda u, r: isinstance(r, Teacher) and (u.teacher_id == r.id or _dept_staff(u, r.dept) or u.role == "dean")),
+    # students' timetable concerns: students raise and agree; their department's staff see counts and answer
+    "concern.raise": ("report a timetable concern (students only)", lambda u, r: u.role == "student" and bool(u.student_type)),
+    "concern.view": ("see this department's student concerns", lambda u, r: _dept_staff(u, r) or u.role == "dean"),
+    "concern.answer": ("answer this department's student concerns", lambda u, r: _dept_staff(u, r)),
     # department timetable work (HOD and timetable coordinator of that department)
     "override.create": ("change this department's classes", lambda u, r: _dept_staff(u, r)),
     "optimise.view": ("see this department's optimised timetable", lambda u, r: _dept_staff(u, r) or u.role == "dean"),
@@ -141,7 +145,7 @@ PERMISSIONS: dict[str, tuple[str, object]] = {
     "accounts.view": ("see all accounts", lambda u, r: False),
     "demo.reset": ("reset the demo", lambda u, r: False),
 }
-READ_ONLY = {"timetable.view", "rooms.view", "chat.ask", "leave.view", "optimise.view", "insights.view", "audit.view",
+READ_ONLY = {"timetable.view", "rooms.view", "chat.ask", "concern.view", "leave.view", "optimise.view", "insights.view", "audit.view",
              "accounts.view"}
 
 
@@ -203,4 +207,7 @@ def capabilities(user: User) -> dict[str, bool]:
         "accounts": a("accounts.view"),
         "demo_reset": a("demo.reset"),
         "chat": a("chat.ask") and not HOSTED,
+        "raise_concerns": a("concern.raise"),
+        "view_concerns": a("concern.view", dept) or user.role in ("dean", "admin"),
+        "answer_concerns": a("concern.answer", dept) or user.role == "admin",
     }

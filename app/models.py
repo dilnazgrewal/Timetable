@@ -250,6 +250,37 @@ class MeetingRequest:
     created_at: str = ""
 
 
+# Why a class is hard to attend. Students pick one; the timetable office sees them counted per class.
+CONCERN_REASONS = {
+    "early": "The first class is too early to reach (long commute, traffic)",
+    "late": "The last class ends too late to get home",
+    "gap": "A long wait between classes",
+    "no_break": "No break for lunch",
+    "streak": "Too many classes in a row",
+    "other": "Something else",
+}
+CONCERN_TIMED = ("early", "late", "gap", "streak")  # about one class: the student must really have it then
+
+
+@dataclass
+class Concern:
+    """A timetable problem students of one section report ("8:30 on Monday is too early to reach"). One record per
+    section + reason + time; classmates add their vote ("me too") instead of a new one. Staff see counts, never names."""
+    id: str
+    section: str
+    reason: str  # key of CONCERN_REASONS
+    day: int | None = None
+    period: int | None = None
+    lesson: str | None = None  # the class it is about, when there is one at that time
+    text: str = ""  # the first student's own words (optional, short)
+    created_by: str = ""  # User.id, never shown to staff
+    created_at: str = ""
+    voters: list[str] = field(default_factory=list)  # User.ids, one vote each (the raiser included)
+    status: str = "open"  # open | seen | planned | not_possible
+    reply: str = ""
+    answered_by: str = ""
+
+
 @dataclass
 class Notification:
     id: str

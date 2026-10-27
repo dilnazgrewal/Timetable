@@ -26,6 +26,19 @@
     <b>Sign in with your college Google account</b> <span class="text-xs">(@gndec.ac.in, coming soon)</span>
   </button>
 
+  <template x-if="demo && recentList().length">
+    <section class="mt-6 rounded-xl border bg-white p-4">
+      <h2 class="font-semibold mb-2">Continue as</h2>
+      <div class="flex flex-wrap gap-2">
+        <template x-for="u in recentList()" :key="u.id">
+          <button @click="signIn(u.id)" class="rounded-lg border px-3 py-1.5 text-sm text-left hover:bg-indigo-50 max-w-full">
+            <span class="font-medium" x-text="u.name.replace(/^Student · /, '')"></span>
+            <span class="text-xs text-slate-400" x-text="' · ' + (accounts.role_names[u.role] || u.role)"></span>
+          </button>
+        </template>
+      </div>
+    </section>
+  </template>
   <template x-if="demo">
     <section class="mt-6 rounded-xl border bg-white p-4">
       <div class="flex items-center gap-2 mb-1">
@@ -164,12 +177,23 @@ function loginApp() {
       const q = this.q.toLowerCase();
       return all.filter(u => !q || u.name.toLowerCase().includes(q) || (u.dept || '').toLowerCase().includes(q)).slice(0, 200);
     },
+    recentList() {
+      let ids = [];
+      try { ids = JSON.parse(localStorage.getItem('tw-recent') || '[]'); } catch {}
+      const all = Object.entries(this.accounts.roles).flatMap(([role, us]) => us.map(u => ({ ...u, role })));
+      return ids.map(id => all.find(u => u.id === id)).filter(Boolean);
+    },
     async signIn(id) {
       this.error = '';
       const r = await fetch('/api/auth/demo-login', { method: 'POST', credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user: id }) });
       if (!r.ok) { this.error = (await r.json().catch(() => ({}))).detail || 'Could not sign in.'; return; }
-      try { localStorage.setItem('tw-user', id); } catch {}
+      try {
+        localStorage.setItem('tw-user', id);
+        // demo: the last few accounts, so switching back is one click (and always the same account)
+        const recent = JSON.parse(localStorage.getItem('tw-recent') || '[]').filter(x => x !== id);
+        localStorage.setItem('tw-recent', JSON.stringify([id, ...recent].slice(0, 6)));
+      } catch {}
       location.href = this.next();
     },
   };

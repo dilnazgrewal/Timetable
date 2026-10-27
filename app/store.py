@@ -18,7 +18,7 @@ from dataclasses import asdict, dataclass, field
 from datetime import date, datetime
 from pathlib import Path
 
-from app.models import (DAYS, ApprovalStep, BookingRequest, Club, College, Entry, MeetingRequest,
+from app.models import (DAYS, ApprovalStep, BookingRequest, Club, College, Concern, Entry, MeetingRequest,
                         Notification, Override, User)
 from app.validator import metrics, split_issues, validate
 
@@ -74,6 +74,7 @@ class Store:
         self.overrides: list[Override] = []
         self.bookings: list[BookingRequest] = []
         self.meetings: list[MeetingRequest] = []
+        self.concerns: list[Concern] = []  # students' timetable concerns (see app/api/core.py)
         self.notifications: list[Notification] = []
         self.users: dict[str, User] = {}
         self.clubs: dict[str, Club] = {}
@@ -175,6 +176,7 @@ class Store:
                 "overrides": [asdict(o) for o in self.overrides],
                 "bookings": [asdict(b) for b in self.bookings],
                 "meetings": [asdict(m) for m in self.meetings],
+                "concerns": [asdict(c) for c in self.concerns],
                 "notifications": [asdict(n) for n in self.notifications],
                 "audit": self.audit,
                 "published": self.published,
@@ -200,6 +202,7 @@ class Store:
                 self.bookings = [BookingRequest(**{**b, "steps": [ApprovalStep(**s) for s in b.get("steps", [])]})
                                  for b in raw.get("bookings", [])]
                 self.meetings = [MeetingRequest(**m) for m in raw.get("meetings", [])]
+                self.concerns = [Concern(**c) for c in raw.get("concerns", [])]
                 self.notifications = [Notification(**n) for n in raw.get("notifications", [])]
             except Exception:
                 pass
@@ -237,6 +240,7 @@ class Store:
         """Demo reset: drop all overrides, requests and notifications (keeps the base timetable)."""
         with self.lock:
             self.overrides, self.bookings, self.meetings, self.notifications = [], [], [], []
+            self.concerns = []
             self.save()
 
 

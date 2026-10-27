@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TimeWeave · Timetable concerns</title>
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script src="/static/js/shell.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+<style>
+  [x-cloak] { display: none !important; }
+  body { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+</style>
+</head>
+<!-- Lane A owns this page: students report what in their timetable makes them miss classes; staff see it per class. -->
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+<div class="max-w-5xl mx-auto px-4"><div id="tw-shell"></div></div>
+<main x-data="concernsApp()" x-init="init()" x-cloak class="max-w-5xl mx-auto px-4 pb-16">
+  <h1 class="text-xl font-bold mt-2">Timetable concerns</h1>
+
+  <!-- students: raise a concern, agree with classmates -->
+  <template x-if="can.raise_concerns">
+    <div>
+      <p class="text-sm text-slate-500 max-w-3xl">Is something in your timetable making you miss classes or wait for hours?
+        Tell your department. Concerns that many classmates share get looked at first. Your name is never shown, only how many agree.</p>
+
+      <section class="mt-4 rounded-xl border bg-white p-4">
+        <h2 class="font-semibold">Raise a concern</h2>
+        <div class="mt-3 grid gap-2">
+          <template x-for="r in reasons" :key="r.key">
+            <label class="flex items-start gap-2 text-sm cursor-pointer">
+              <input type="radio" name="reason" :value="r.key" x-model="form.reason" class="mt-1">
+              <span x-text="r.text"></span>
+            </label>
+          </template>
+        </div>
+        <div x-show="form.reason" class="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <label class="text-xs text-slate-500">Day
+            <select x-model.number="form.day" @change="form.period = null" class="mt-0.5 w-full border rounded-lg px-2 py-1.5 bg-white text-sm text-slate-800">
+              <option :value="null" x-text="needsDay() ? 'Choose…' : 'Any day'"></option>
+              <template x-for="(d, i) in days" :key="i"><option :value="i" x-text="d"></option></template>
+            </select></label>
+          <label x-show="needsClass()" class="text-xs text-slate-500 sm:col-span-2">Which class
+            <select x-model.number="form.period" class="mt-0.5 w-full border rounded-lg px-2 py-1.5 bg-white text-sm text-slate-800">
+              <option :value="null">Choose…</option>
+              <template x-for="c in classesOn(form.day)" :key="c.key">
+                <option :value="c.start" x-text="`${periods[c.start].start} · ${c.name}`"></option>
+              </template>
+            </select></label>
+        </div>
+        <label x-show="form.reason" class="mt-2 block text-xs text-slate-500">In your own words (optional)
+          <input x-model="form.text" maxlength="200" placeholder="e.g. My bus from Khanna reaches college at 9:10"
+                 class="mt-0.5 w-full border rounded-lg px-2 py-1.5 text-sm text-slate-800"></label>
+        <div class="mt-3 flex items-center gap-3">
+          <button @click="raise()" :disabled="!ready()" class="rounded-lg bg-indigo-600 text-white px-4 py-2 text-sm font-semibold disabled:opacity-50">Send to my department</button>
+          <span class="text-sm" :class="msgOk ? 'text-emerald-700' : 'text-red-700'" x-text="msg"></span>
+        </div>
+      </section>
+
+      <h2 class="font-semibold mt-6">In your section</h2>
+      <template x-if="loaded && !items.length"><p class="text-sm text-slate-400 mt-1">No concerns yet.</p></template>
+      <div class="mt-2 grid gap-2">
+        <template x-for="c in items" :key="c.id">
+          <div class="rounded-xl border bg-white p-3 flex flex-wrap items-start gap-3">
+            <div class="flex-1 min-w-[14rem]">
+              <div class="text-sm font-medium" x-text="c.reason_text"></div>
+              <div class="text-xs text-slate-500" x-text="[c.when, c.class].filter(Boolean).join(' · ')"></div>
+              <div x-show="c.text" class="text-xs text-slate-600 mt-1 italic" x-text="'“' + c.text + '”'"></div>
+              <div x-show="c.reply" class="text-xs mt-1 text-indigo-800" x-text="'Department: ' + c.reply"></div>
+            </div>
+            <span class="text-xs px-2 py-0.5 rounded-full" :class="statusClass(c.status)" x-text="statusText(c.status)"></span>
+            <div class="text-right">
+              <div class="text-sm"><b x-text="c.votes"></b> <span class="text-slate-500" x-text="c.votes === 1 ? 'agrees' : 'agree'"></span></div>
+              <button @click="vote(c, !c.agreed)" class="mt-1 text-xs rounded-lg border px-2 py-1"
+                      :class="c.agreed ? 'bg-indigo-50 border-indigo-300 text-indigo-800' : 'hover:bg-slate-50'"
+                      x-text="c.agreed ? '✓ You agree (take back)' : 'Me too'"></button>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+  </template>
+
+  <!-- staff: concerns per class, biggest share first -->
+  <template x-if="!can.raise_concerns && can.view_concerns">
+    <div>
+      <p class="text-sm text-slate-500 max-w-3xl">What students say makes them miss classes, counted per class (names are never shown).
+        <b>Worth acting on</b> = at least <span x-text="Math.round(flag * 100) + '%'"></span> of the section's groups agree.
+        One student's concern still shows, lower down.</p>
+      <template x-if="loaded && !items.length"><p class="text-sm text-slate-400 mt-4">No concerns yet.</p></template>
+      <div class="mt-3 grid gap-2">
+        <template x-for="c in items" :key="c.id">
+          <div class="rounded-xl border bg-white p-3" :class="c.flagged ? 'border-amber-300' : ''">
+            <div class="flex flex-wrap items-start gap-3">
+              <div class="flex-1 min-w-[14rem]">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="font-semibold text-sm" x-text="c.section_name"></span>
+                  <span x-show="c.flagged" class="text-[10px] uppercase font-semibold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">worth acting on</span>
+                  <span class="text-xs px-2 py-0.5 rounded-full" :class="statusClass(c.status)" x-text="statusText(c.status)"></span>
+                </div>
+                <div class="text-sm mt-0.5" x-text="c.reason_text"></div>
+                <div class="text-xs text-slate-500" x-text="[c.when, c.class].filter(Boolean).join(' · ')"></div>
+                <div x-show="c.text" class="text-xs text-slate-600 mt-1 italic" x-text="'“' + c.text + '”'"></div>
+              </div>
+              <div class="w-40">
+                <div class="text-sm"><b x-text="c.votes"></b> agree · <span x-text="Math.round(c.share * 100) + '%'"></span></div>
+                <div class="h-2 rounded bg-slate-100 mt-1"><div class="h-2 rounded" :class="c.flagged ? 'bg-amber-500' : 'bg-indigo-400'"
+                     :style="`width:${Math.min(100, Math.round(c.share * 100))}%`"></div></div>
+              </div>
+            </div>
+            <div x-show="can.answer_concerns" class="mt-2 flex flex-wrap items-center gap-2">
+              <select x-model="c._status" class="border rounded-lg px-2 py-1 text-sm bg-white">
+                <option value="seen">Seen</option><option value="planned">Planning a change</option><option value="not_possible">Can't change</option>
+              </select>
+              <input x-model="c._reply" maxlength="300" placeholder="Reply to the students (optional)" class="flex-1 min-w-[12rem] border rounded-lg px-2 py-1 text-sm">
+              <button @click="answer(c)" class="rounded-lg bg-indigo-600 text-white px-3 py-1 text-sm">Send</button>
+            </div>
+            <div x-show="!can.answer_concerns && c.reply" class="text-xs mt-1 text-indigo-800" x-text="'Reply: ' + c.reply"></div>
+          </div>
+        </template>
+      </div>
+    </div>
+  </template>
+</main>
+<script>
+function concernsApp() {
+  return {
+    can: {}, user: null, reasons: [], items: [], loaded: false, flag: 0.3, days: [], periods: [], week: [],
+    form: { reason: '', day: null, period: null, text: '' }, msg: '', msgOk: true,
+    async init() {
+      this.user = await TW.ready; this.can = TW.can;
+      const meta = await TW.api('/api/meta'); this.days = meta.days; this.periods = meta.periods;
+      const r = await TW.api('/api/concerns/reasons'); this.reasons = r.reasons; this.flag = r.flag_share;
+      if (this.can.raise_concerns) {
+        this.week = (await TW.api(`/api/students/${encodeURIComponent(this.user.student_type)}/timetable`)).items;
+      }
+      await this.load();
+    },
+    async load() {
+      if (this.can.raise_concerns) this.items = (await TW.api('/api/concerns/mine')).items;
+      else if (this.can.view_concerns) this.items = (await TW.api('/api/concerns')).items.map(c => ({ ...c, _status: c.status === 'open' ? 'seen' : c.status, _reply: c.reply }));
+      this.loaded = true;
+    },
+    reason() { return this.reasons.find(r => r.key === this.form.reason); },
+    needsClass() { return !!this.reason()?.needs_class; },
+    needsDay() { return this.needsClass() || this.form.reason === 'no_break'; },
+    classesOn(d) { return d === null || d === '' ? [] : this.week.filter(c => c.day === d && c.kind === 'class').sort((a, b) => a.start - b.start); },
+    ready() { return this.form.reason && (!this.needsDay() || this.form.day !== null) && (!this.needsClass() || this.form.period !== null); },
+    async raise() {
+      try {
+        const r = await TW.api('/api/concerns', { method: 'POST', body: JSON.stringify(this.form) });
+        this.msgOk = true;
+        this.msg = r.merged ? 'A classmate already raised this: your vote was added.' : 'Sent to your department.';
+        this.form = { reason: '', day: null, period: null, text: '' };
+        await this.load();
+      } catch (e) { this.msgOk = false; this.msg = e.message; }
+    },
+    async vote(c, agree) {
+      try { await TW.api(`/api/concerns/${c.id}/vote?agree=${agree}`, { method: 'POST' }); await this.load(); }
+      catch (e) { alert(e.message); }
+    },
+    async answer(c) {
+      try { await TW.api(`/api/concerns/${c.id}/answer`, { method: 'POST', body: JSON.stringify({ status: c._status, reply: c._reply || '' }) }); await this.load(); }
+      catch (e) { alert(e.message); }
+    },
+    statusText(s) { return { open: 'New', seen: 'Seen', planned: 'Change planned', not_possible: "Can't change" }[s] || s; },
+    statusClass(s) { return { open: 'bg-slate-100 text-slate-700', seen: 'bg-sky-100 text-sky-800', planned: 'bg-emerald-100 text-emerald-800', not_possible: 'bg-red-100 text-red-700' }[s]; },
+  };
+}
+</script>
+</body>
+</html>

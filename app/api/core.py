@@ -13,7 +13,7 @@ from pydantic import BaseModel
 
 from app.auth import DEMO_MODE, HOSTED, ROLES, authorize, capabilities, current_user, require
 from app.chat import Assistant
-from app.models import DAYS, FEATURES, LUNCH_WINDOW, PERIODS, Entry, User
+from app.models import CONCERN_REASONS, CONCERN_TIMED, DAYS, FEATURES, LUNCH_WINDOW, PERIODS, Concern, Entry, User
 from app.solver import solve
 from app import optimise
 from app import rules as college_rules
@@ -546,3 +546,151 @@ def compare_unpublish(dept: str, user: User = Depends(current_user)) -> dict:
     for u in _publication_users(d):
         STORE.notify(u, f"The {d} timetable is back to the college's original version.", "/")
     return {"publication": {"status": "draft"}}
+
+
+# --- students' timetable concerns ("8:30 on Monday is too early to reach") ------------------------------
+CONCERN_FLAG = 0.3  # share of a section that makes a concern worth the timetable office's attention
+
+
+class ConcernIn(BaseModel):
+    reason: str
+    day: int | None = None
+    period: int | None = None
+    text: str = ""
+
+
+def _class_at(type_id: str, day: int, period: int):
+    """The class a student of this type has at that time in the regular week, or None."""
+    return next((o for o in STORE.week() if o.kind == "class" and o.day == day and period in o.slots
+                 and STORE.attends(type_id, o)), None)
+
+
+def _concern_view(c: Concern, user: User | None = None) -> dict:
+    col = STORE.college
+    sec = col.section_by_id.get(c.section)
+    # demo sign-in has one account per group / combination of choices; with real sign-in this is the class size
+    accounts = sum(1 for u in STORE.users.values() if u.role == "student" and u.section == c.section) or 1
+    lesson = col.lesson_by_id.get(c.lesson) if c.lesson else None
+    when = (f"{DAYS[c.day]} {PERIODS[c.period][1]}" if c.day is not None and c.period is not None
+            else DAYS[c.day] if c.day is not None else "")
+    out = {"id": c.id, "section": c.section, "section_name": sec.name if sec else c.section,
+           "dept": sec.dept if sec else "", "reason": c.reason, "reason_text": CONCERN_REASONS.get(c.reason, c.reason),
+           "day": c.day, "period": c.period, "when": when, "class": f"{lesson.name} ({lesson.code})" if lesson else "",
+           "text": c.text, "votes": len(c.voters), "share": round(len(c.voters) / accounts, 2), "status": c.status,
+           "reply": c.reply, "created_at": c.created_at}
+    out["flagged"] = out["share"] >= CONCERN_FLAG and out["votes"] >= 2  # enough of the class: worth acting on
+    if user is not None:
+        out["agreed"] = user.id in c.voters
+    return out
+
+
+@router.get("/concerns/reasons")
+def concern_reasons() -> dict:
+    return {"reasons": [{"key": k, "text": v, "needs_class": k in CONCERN_TIMED} for k, v in CONCERN_REASONS.items()],
+            "flag_share": CONCERN_FLAG}
+
+
+@router.get("/concerns/mine")
+def concerns_mine(user: User = Depends(current_user)) -> dict:
+    """A student's section: every concern raised there (to add 'me too'), newest first."""
+    require(user, "concern.raise")
+    mine = [c for c in STORE.concerns if c.section == user.section]
+    return {"section": user.section, "items": [_concern_view(c, user) for c in mine[::-1]]}
+
+
+@router.post("/concerns")
+def concern_raise(body: ConcernIn, user: User = Depends(current_user)) -> dict:
+    """Raise a concern about one's own timetable. The same concern (section, reason, time) already raised by a
+    classmate gets this student's vote instead of a second record."""
+    require(user, "concern.raise")
+    if body.reason not in CONCERN_REASONS:
+        raise HTTPException(400, "Pick one of the listed reasons.")
+    if body.day is not None and not 0 <= body.day < len(DAYS):
+        raise HTTPException(400, "Pick a weekday.")
+    timed = body.reason in CONCERN_TIMED
+    lesson = None
+    if timed:
+        if body.day is None or body.period is None or not 0 <= body.period < len(PERIODS):
+            raise HTTPException(400, "Pick the day and the class this is about.")
+        o = _class_at(user.student_type, body.day, body.period)
+        if o is None:  # only real problems: the class must be in the student's own timetable
+            raise HTTPException(400, f"You have no class on {DAYS[body.day]} at {PERIODS[body.period][1]}.")
+        lesson = o.lesson
+    elif body.reason == "no_break" and body.day is None:
+        raise HTTPException(400, "Pick the day with no break.")
+    period = body.period if timed else None
+    with STORE.lock:
+        same = next((c for c in STORE.concerns if c.section == user.section and c.reason == body.reason
+                     and c.day == body.day and c.period == period and c.status != "not_possible"), None)
+        if same is not None:
+            if user.id not in same.voters:
+                same.voters.append(user.id)
+            STORE.save()
+            return {"merged": True, "concern": _concern_view(same, user)}
+        if sum(1 for c in STORE.concerns if c.created_by == user.id and c.status in ("open", "seen")) >= 5:
+            raise HTTPException(429, "You already have 5 open concerns. Agree with your classmates' ones instead.")
+        c = Concern(f"c{len(STORE.concerns) + 1}", user.section, body.reason, body.day, period, lesson,
+                    body.text.strip()[:200], user.id, now_iso(), [user.id])
+        STORE.concerns.append(c)
+        STORE.save()
+    return {"merged": False, "concern": _concern_view(c, user)}
+
+
+@router.post("/concerns/{concern_id}/vote")
+def concern_vote(concern_id: str, agree: bool = True, user: User = Depends(current_user)) -> dict:
+    """'Me too' (or take it back) for a concern of one's own section."""
+    require(user, "concern.raise")
+    c = next((c for c in STORE.concerns if c.id == concern_id), None)
+    if c is None or c.section != user.section:
+        raise HTTPException(404, "No such concern in your section.")
+    if agree and c.reason in CONCERN_TIMED and _class_at(user.student_type, c.day, c.period) is None:
+        raise HTTPException(400, "You don't have that class, so this concern isn't yours to agree with.")
+    with STORE.lock:
+        if agree and user.id not in c.voters:
+            c.voters.append(user.id)
+        elif not agree and user.id in c.voters:
+            c.voters.remove(user.id)
+        STORE.save()
+    return {"concern": _concern_view(c, user)}
+
+
+@router.get("/concerns")
+def concerns_all(user: User = Depends(current_user)) -> dict:
+    """For the timetable office (all), the Dean (all, read-only) and HODs / coordinators (their department):
+    concerns counted per class, biggest share first. Never who raised or agreed."""
+    col = STORE.college
+    if user.role in ("admin", "dean"):
+        mine = list(STORE.concerns)
+    else:
+        require(user, "concern.view", user.dept)
+        mine = [c for c in STORE.concerns if (s := col.section_by_id.get(c.section)) and s.dept == user.dept]
+    items = sorted((_concern_view(c) for c in mine),
+                   key=lambda x: (x["status"] in ("planned", "not_possible"), -x["share"], -x["votes"]))
+    return {"items": items, "flag_share": CONCERN_FLAG}
+
+
+class ConcernAnswer(BaseModel):
+    status: str
+    reply: str = ""
+
+
+@router.post("/concerns/{concern_id}/answer")
+def concern_answer(concern_id: str, body: ConcernAnswer, user: User = Depends(current_user)) -> dict:
+    """Seen / planned / not possible, with a reply; everyone who agreed is notified."""
+    c = next((c for c in STORE.concerns if c.id == concern_id), None)
+    if c is None:
+        raise HTTPException(404, "No such concern.")
+    sec = STORE.college.section_by_id.get(c.section)
+    require(user, "concern.answer", sec.dept if sec else None)
+    if body.status not in ("seen", "planned", "not_possible"):
+        raise HTTPException(400, "status must be seen, planned or not_possible")
+    with STORE.lock:
+        c.status, c.reply, c.answered_by = body.status, body.reply.strip()[:300], user.name
+        STORE.save()
+    word = {"seen": "has seen", "planned": "is planning a change for", "not_possible": "can't change the timetable for"}
+    view = _concern_view(c)
+    for v in c.voters:
+        STORE.notify(v, f"Your department {word[body.status]} your concern: {view['reason_text'].lower()}"
+                        + (f" ({view['when']})" if view["when"] else "") + (f'. Reply: "{c.reply}"' if c.reply else "."),
+                     "/concerns.html")
+    return {"concern": view}

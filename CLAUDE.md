@@ -24,7 +24,7 @@ It is built to be adaptable to any college: a college profile plus importers, wi
 - **Frontend:** plain HTML pages with Tailwind (CDN) and Alpine.js (CDN), no build step, mobile-first.
   - `static/index.html`: timetable and dashboards
   - `static/venues.html`: venues and events
-  - `static/login.html`: sign-in; `static/compare.html`: optimised CSE; `static/audit.html`: audit log
+  - `static/login.html`: sign-in; `static/compare.html`: optimised timetables; `static/concerns.html`: student concerns; `static/audit.html`: audit log
   - `static/js/shell.js`: shared top bar, `TW.api()` and `TW.can`
 - **State:** `app/store.py` `STORE`, in memory.
   - `data/solution.json` holds the base timetable (committed).
@@ -56,7 +56,7 @@ Each lane **only edits the files it owns**. Shared files are owned by Lane A.
 
 | Lane | Owns |
 |---|---|
-| **A. Core and data** | `app/models.py`, `app/rules.py`, `app/store.py`, `app/auth.py`, `app/substitutions.py`, `app/optimise.py`, `app/static/compare.html`, `app/static/login.html`, `app/static/audit.html`, `app/main.py`, `app/seed.py`, `app/solver.py`, `app/validator.py`, `app/chat.py`, `app/importers/*`, `data/gndec/*`, `app/api/core.py`, `app/static/js/shell.js`, `.claude/launch.json`, `docs/API.md` (Core and Shared sections), `PLAN.md`, `CLAUDE.md`, `README.md`, `tests/test_core_*`, `tests/test_validator.py` |
+| **A. Core and data** | `app/models.py`, `app/rules.py`, `app/store.py`, `app/auth.py`, `app/substitutions.py`, `app/optimise.py`, `app/static/compare.html`, `app/static/login.html`, `app/static/audit.html`, `app/static/concerns.html`, `app/main.py`, `app/seed.py`, `app/solver.py`, `app/validator.py`, `app/chat.py`, `app/importers/*`, `data/gndec/*`, `app/api/core.py`, `app/static/js/shell.js`, `.claude/launch.json`, `docs/API.md` (Core and Shared sections), `PLAN.md`, `CLAUDE.md`, `README.md`, `tests/test_core_*`, `tests/test_validator.py` |
 | **B. Dashboards UI** | `app/static/index.html`, `app/static/js/dashboards.js`, `app/static/css/*`, `app/api/dashboards.py`, `docs/API.md` (Lane B section), `tests/test_dashboards_*` |
 | **C. Venues and events** | `app/static/venues.html`, `app/static/js/venues.js`, `app/venues/*`, `app/api/venues.py`, `docs/API.md` (Lane C section), `tests/test_venues_*` |
 
@@ -105,6 +105,12 @@ Rules for every lane:
   - other departments' classes count as fixed for shared teachers and rooms
 - **Teachers:** full names come from each department's teachers page (`fet_dept.teacher_names()`; CE publishes only initials). One person with two records (named in full by one department, by initials in their own) is merged.
 - **Published data that is already wrong is never made worse.** Put together, the published timetables list 32 teacher double-bookings, mostly one combined class written in two departments' timetables; CE's own export double-books one teacher. No optimised department may add a clash anywhere in the college (`test_core_departments.py`).
+
+## Student concerns
+- `/concerns.html`: students report what in their timetable makes them miss classes (too early to reach, ends too late, long wait, no break, too many in a row). A timed concern must name a class the student really has; classmates add "me too" instead of duplicates; at most 5 open per student.
+- Staff (HOD / coordinator for their department; Dean, timetable office for all) see concerns counted per class, biggest share first; ≥ 30% of the section's groups (and at least 2) is "worth acting on". Names are never shown.
+- Answers (seen / planned / can't change, with a reply) notify everyone who agreed. `Concern` in `app/models.py`, stored in `STORE.concerns` (state.json); permissions `concern.raise / view / answer`.
+- Demo sign-in has one account per group / combination of choices, so a share is "of the section's groups"; with real sign-in it is of the class.
 
 ## College rules (each college's own timetable habits)
 - Written per college in `data/<college>/rules.json`, read by `app/rules.py` into `College.rules`. `app/rules.py` has no solver code: it is the independent rule check, used by the API, `optimise.save()` and the tests (the optimiser builds its own constraints from the same rules).

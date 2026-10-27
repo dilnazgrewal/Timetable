@@ -24,6 +24,10 @@
     async signIn(id) {  // demo mode
       await TW.api('/api/auth/demo-login', { method: 'POST', body: JSON.stringify({ user: id }) });
       remember(id);
+      try {  // the sign-in page offers these as "Continue as"
+        const recent = JSON.parse(localStorage.getItem('tw-recent') || '[]').filter(x => x !== id);
+        localStorage.setItem('tw-recent', JSON.stringify([id, ...recent].slice(0, 6)));
+      } catch {}
     },
     async setUser(id) { await TW.signIn(id); location.reload(); },
     async signOut() { remember(null); await TW.api('/api/auth/logout', { method: 'POST' }).catch(() => {}); location.href = '/login.html'; },
@@ -53,6 +57,7 @@
       ['/compare.html', 'Optimised timetables', c.optimised_view],
       ['/#rooms', 'Free rooms', c.free_rooms],
       ['/venues.html', 'Venues & events', c.request_venue || c.approve_venues || c.endorse_venues || c.slot_finder],
+      ['/concerns.html', 'Concerns', c.raise_concerns || c.view_concerns],
       ['/audit.html', 'Audit log', c.audit],
       ['/#ask', 'Ask ✨', c.chat],
     ].filter(l => l[2]);
