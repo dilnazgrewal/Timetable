@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+import secrets
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -19,7 +20,9 @@ STATIC = Path(__file__).resolve().parent / "static"
 
 app = FastAPI(title="TimeWeave")
 # signed session cookie = who is signed in (set TIMEWEAVE_SECRET in production)
-app.add_middleware(SessionMiddleware, secret_key=os.getenv("TIMEWEAVE_SECRET", "timeweave-dev-secret-change-me"),
+# public demo without TIMEWEAVE_SECRET: a random secret (sign-ins end when the server restarts, which is fine)
+_secret = os.getenv("TIMEWEAVE_SECRET") or (secrets.token_hex(32) if core.HOSTED else "timeweave-dev-secret-change-me")
+app.add_middleware(SessionMiddleware, secret_key=_secret,
                    session_cookie="tw_session", same_site="lax", max_age=7 * 24 * 3600)
 app.include_router(core.auth_router)  # Lane A: /api/auth/... (sign-in, no session needed)
 app.include_router(core.router)  # Lane A: /api/...

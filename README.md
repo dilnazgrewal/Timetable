@@ -1,3 +1,14 @@
+---
+title: TimeWeave
+emoji: 🗓️
+colorFrom: indigo
+colorTo: blue
+sdk: docker
+app_port: 7860
+pinned: false
+short_description: GNDEC's real timetables, optimised; free rooms, venues
+---
+
 # TimeWeave: clash-free college timetables
 
 TimeWeave generates the whole college's weekly timetable in seconds with Google OR-Tools **CP-SAT**. Every result is checked by an **independent validator** that shares no code with the solver. The solver also minimises the idle gaps students sit through between lectures.

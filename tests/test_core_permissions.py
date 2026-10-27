@@ -178,3 +178,17 @@ def test_timetable_route_reports_published_clashes_apart():
     body = r.json()
     assert body["ready"] and body["issues"] == [] and body["entries"]
     assert all(c.startswith("CLASH Teacher") for c in body["published_issues"])
+
+
+def test_public_demo_switches_off_the_assistant_and_optimiser_runs(monkeypatch):
+    """TIMEWEAVE_HOSTED=1 (the public link): no paid API calls, no minutes-long optimiser runs; the rest works."""
+    import app.api.core as core
+    import app.auth as auth
+
+    monkeypatch.setattr(auth, "HOSTED", True)
+    monkeypatch.setattr(core, "HOSTED", True)
+    can = as_("hod-CSE").get("/api/me").json()["can"]
+    assert not can["chat"] and not can["optimised_run"] and can["optimised_propose"]
+    assert "switched off" in as_("hod-CSE").post("/api/chat", json={"messages": [{"role": "user", "content": "hi"}]}).json()["answer"]
+    assert as_("hod-CSE").post("/api/compare/cse/run").status_code == 409
+    assert as_("hod-CSE").get("/api/compare/cse").json()["available"]

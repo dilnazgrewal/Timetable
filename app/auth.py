@@ -19,6 +19,8 @@ from fastapi import Header, HTTPException, Request
 from app.models import BookingRequest, Club, College, MeetingRequest, Teacher, User
 
 DEMO_MODE = os.getenv("TIMEWEAVE_DEMO", "1") != "0"
+# public demo link (TIMEWEAVE_HOSTED=1): no assistant (it uses a paid API) and no optimiser runs (minutes of full CPU)
+HOSTED = os.getenv("TIMEWEAVE_HOSTED", "0") == "1"
 ROLES = {
     "student": "Student", "teacher": "Teacher", "club": "Club lead", "org": "Visitor / T&P",
     "coordinator": "Timetable coordinator", "hod": "HOD", "dean": "Dean (read-only)", "admin": "Timetable office (admin)",
@@ -192,7 +194,7 @@ def capabilities(user: User) -> dict[str, bool]:
         "approve_venues": user.role in ("hod", "admin"),
         "slot_finder": a("slotfinder.use"),
         "optimised_view": a("optimise.view", dept or "CSE") or user.role == "dean",  # their department; Dean: all
-        "optimised_run": a("optimise.run", dept or "CSE"),
+        "optimised_run": a("optimise.run", dept or "CSE") and not HOSTED,
         "optimised_propose": a("optimise.propose", dept or "CSE"),
         "publish": a("timetable.publish"),
         "generate": a("timetable.generate"),
@@ -200,5 +202,5 @@ def capabilities(user: User) -> dict[str, bool]:
         "audit": a("audit.view"),
         "accounts": a("accounts.view"),
         "demo_reset": a("demo.reset"),
-        "chat": a("chat.ask"),
+        "chat": a("chat.ask") and not HOSTED,
     }

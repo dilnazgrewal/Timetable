@@ -11,7 +11,7 @@ import anthropic
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 
-from app.auth import DEMO_MODE, ROLES, authorize, capabilities, current_user, require
+from app.auth import DEMO_MODE, HOSTED, ROLES, authorize, capabilities, current_user, require
 from app.chat import Assistant
 from app.models import DAYS, FEATURES, LUNCH_WINDOW, PERIODS, Entry, User
 from app.solver import solve
@@ -245,6 +245,9 @@ class ChatRequest(BaseModel):
 
 @router.post("/chat")
 def chat(req: ChatRequest, user: User = Depends(current_user)) -> dict:
+    if HOSTED:
+        return {"answer": "The assistant is switched off on this public demo because it uses a paid API. "
+                          "The team can show it live.", "tools_used": []}
     if not (os.getenv("ANTHROPIC_API_KEY") or os.getenv("ANTHROPIC_AUTH_TOKEN")):
         return {"answer": "The assistant isn't configured: add ANTHROPIC_API_KEY to the .env file.", "tools_used": []}
     try:
@@ -435,6 +438,9 @@ def compare_run(dept: str, seconds: float = 300, user: User = Depends(current_us
     """Re-run the optimiser in the background (takes minutes); the page polls /api/compare/{dept}."""
     d = _dept(dept)
     require(user, "optimise.run", d)
+    if HOSTED:
+        raise HTTPException(409, "Re-running the optimiser is switched off on this public demo (it needs minutes of full "
+                                 "computer power). The saved optimised timetables are shown.")
     if _run["dept"]:
         raise HTTPException(409, f"The optimiser is already running (for {_run['dept']}).")
 
