@@ -100,9 +100,17 @@ def _generate(college, profile) -> dict:
     from app.solver import solve
     from app.validator import metrics, split_issues, validate
 
-    res = solve(college, time_limit=15 if HOSTED else 20, workers=2 if HOSTED else 8)
+    limit, workers = (15, 2) if HOSTED else (20, 8)
+    # a clash-free timetable first (about a second), then improve it with the time left: on a slow server the
+    # improving search alone can use the whole limit without settling on any timetable
+    res = solve(college, time_limit=limit, workers=workers, optimize=False)
     if not res.entries:
         return {"ok": False, "problems": res.problems or ["No timetable fits these classes, teachers and rooms."]}
+    if limit - res.seconds >= 2:
+        better = solve(college, time_limit=limit - res.seconds, workers=workers)
+        if better.entries:
+            better.seconds += res.seconds
+            res = better
     clashes, _ = split_issues(validate(college, res.entries))
     m = metrics(college, res.entries)
     periods = profile["period_times"]

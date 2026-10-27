@@ -52,7 +52,6 @@ CLASSES = [
     ["2ECE2", "ECED", 2, 60, "E-202", "G1, G2"], ["2MEE1", "MED", 2, 60, "G-101", "G1, G2"],
     ["2MEE2", "MED", 2, 60, "G-102", "G1, G2"],
 ]
-CSED_LABS, ECED_LABS = "CSED Lab 1, CSED Lab 2, CSED Lab 3", "ECED Analog Lab, ECED Digital Lab"
 # section without its number -> [(code, name, teachers by section number (cycled), hours, lab rooms or None for theory)]
 CURRICULUM = {
     "2COE": [("UCS301", "Data Structures", ("AV", "AV", "MR"), 4, None),
@@ -60,14 +59,14 @@ CURRICULUM = {
              ("UCS310", "Database Management Systems", ("SM", "SM", "GS"), 3, None),
              ("UMA021", "Discrete Mathematical Structures", ("RJ", "RJ", "MA"), 3, None),
              ("UHU005", "Humanities for Engineers", ("NK",), 2, None),
-             ("UCS301 Lab", "Data Structures Lab", ("TA", "KS", "TA"), 2, CSED_LABS),
-             ("UCS310 Lab", "Database Management Systems Lab", ("IJ", "IJ", "KS"), 2, CSED_LABS)],
+             ("UCS301 Lab", "Data Structures Lab", ("TA", "KS", "TA"), 2, "CSED Lab 1"),
+             ("UCS310 Lab", "Database Management Systems Lab", ("IJ", "IJ", "KS"), 2, "CSED Lab 2")],
     "3COE": [("UCS414", "Computer Networks", ("MR", "GS"), 3, None),
              ("UCS503", "Software Engineering", ("GS", "SM"), 3, None),
              ("UCS415", "Design & Analysis of Algorithms", ("TA", "AV"), 4, None),
              ("UCS521", "Artificial Intelligence", ("RB",), 3, None),
-             ("UCS414 Lab", "Computer Networks Lab", ("KS", "IJ"), 2, CSED_LABS),
-             ("UCS415 Lab", "Algorithms Lab", ("TA", "MR"), 2, CSED_LABS)],
+             ("UCS414 Lab", "Computer Networks Lab", ("KS", "IJ"), 2, "CSED Lab 3"),
+             ("UCS415 Lab", "Algorithms Lab", ("TA", "MR"), 2, "CSED Lab 3")],
     "2ECE": [("UEC301", "Analog Electronic Circuits", ("NS",), 4, None),
              ("UEC302", "Signals and Systems", ("PW",), 3, None),
              ("UEC303", "Digital Electronics", ("HV",), 3, None),
