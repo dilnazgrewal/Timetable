@@ -7,13 +7,13 @@
 > **How it was checked:** every claim comes from the repository (code, docs, git history), the test suite, or a command run on **26–27 Oct 2026**. Nothing is from memory. The commands are listed under [Sources](#18-sources). Anything that could not be confirmed yet is listed under [Pending](#19-pending).
 >
 > **State of the repo when this was written:**
-> - Final numbers are from commit `9aaef0c` (27 Oct 2026): **the sign-in page asks which college**, and another college can **set itself up on the website** from one Excel workbook (`/onboard.html`). Before it came **onboarding another college from Excel** on the command line (`5242494`: a template, plain-language checks, then generate and validate; proven on a made-up sample college) and its shorter-day fix (`d5ad645`). Before those, `1bb36be` stopped showing the timetable office an endorse inbox it can't act on, and `c19e75b` added a venues test. The four code commits before those are **student concerns** (`d173b37`), the **AI assistant switched on for the live site** (`76fb30e`), the timetable office no longer raising concerns or requesting meetings as a student (`d12f3f4`), and **a department's hall needing its own HOD even when the office books it** (`da6859b`). Before them came deployment (`5a6a9bc`, `a557f04`, `2ac1a85`). Before that came Lane A's full browser run-through of every role (`d3e1a9d`). The last data changes were `89254d8` (two same-named teachers kept apart: 5 teacher clashes in the published data) and `53e1f7f` (**first year linked across departments**).
+> - Final numbers are from commit `87126a8` (27 Oct 2026), which makes the "every route needs sign-in" test real again. Just before it, `9aaef0c`: **the sign-in page asks which college**, and another college can **set itself up on the website** from one Excel workbook (`/onboard.html`). Before it came **onboarding another college from Excel** on the command line (`5242494`: a template, plain-language checks, then generate and validate; proven on a made-up sample college) and its shorter-day fix (`d5ad645`). Before those, `1bb36be` stopped showing the timetable office an endorse inbox it can't act on, and `c19e75b` added a venues test. The four code commits before those are **student concerns** (`d173b37`), the **AI assistant switched on for the live site** (`76fb30e`), the timetable office no longer raising concerns or requesting meetings as a student (`d12f3f4`), and **a department's hall needing its own HOD even when the office books it** (`da6859b`). Before them came deployment (`5a6a9bc`, `a557f04`, `2ac1a85`). Before that came Lane A's full browser run-through of every role (`d3e1a9d`). The last data changes were `89254d8` (two same-named teachers kept apart: 5 teacher clashes in the published data) and `53e1f7f` (**first year linked across departments**).
 > - Before it:
 >   - `39212e3` imported and optimised the **real timetables of all six departments** (CSE, IT, ME, CE, ECE, EE)
 >   - `32f1b45` added College rules
 >   - `becb48e` added the lab-pair rule
 >   - `3acc154` imported D4's open elective from the FET *groups* page
-> - **All 138 tests pass** on `9aaef0c`.
+> - **All 138 tests pass** on `87126a8`.
 
 ---
 
@@ -65,7 +65,7 @@ What it does:
 
 **Live demo:** https://timeweave-3y2g.onrender.com (Render, free tier; see §14.1).
 
-**Tests:** **138 automated tests, all 138 pass** (commit `9aaef0c`; see [11](#11-testing-every-test-and-the-edge-case-it-covers)).
+**Tests:** **138 automated tests, all 138 pass** (commit `87126a8`; see [11](#11-testing-every-test-and-the-edge-case-it-covers)).
 
 ---
 
@@ -1103,7 +1103,8 @@ Commands: `.venv/Scripts/python -m pytest -q -rA` and `pytest --collect-only -q`
 
 | Code state | Tests | Passed | Failed | Time |
 |---|---|---|---|---|
-| **Final: commit `9aaef0c`** | 138 | **138** | **0** | 51 s |
+| **Final: commit `87126a8`** | 138 | **138** | **0** | 62 s |
+| Earlier: commit `9aaef0c` (same tests; the sign-in guard then checked no routes) | 138 | 138 | 0 | 51 s |
 | Earlier: commit `d5ad645` (before the 3 website onboarding tests) | 135 | 135 | 0 | 28 s |
 | Earlier: commit `5242494` (before the shorter-day test) | 134 | 134 | 0 | 26 s |
 | Earlier: commit `1bb36be` (before the 4 Excel onboarding tests) | 130 | 130 | 0 | 49 s |
@@ -1186,7 +1187,7 @@ These are "testing the tester": mutation tests inject each kind of mistake and c
 ### 11.3 `tests/test_core_permissions.py`: role-based access (20)
 | Test | What it checks · edge case |
 |---|---|
-| `test_every_api_route_needs_sign_in_except_auth` | **Caveat found on 27 Oct (see below the table).** Meant to walk **every** `/api` route of the app and check that it depends on `current_user` (except `/api/auth/*`): no route is accidentally left open |
+| `test_every_api_route_needs_sign_in_except_auth` | Walks **every** `/api` route of the app, **including those inside included routers** (since `87126a8`), and checks that each depends on `current_user`, directly or through its router. Exempt on purpose: `/api/auth/*` and `/api/onboard/*` (`NO_SIGN_IN`). **It must find more than 40 routes** (50 today), so it can't pass by finding none. *Edge case found on 27 Oct:* on FastAPI 0.156.8 the old loop found 0 routes and passed trivially (§11.13). Lane A checked that the fixed test fails when a router without sign-in is added; re-checked here the same way, in memory only |
 | `test_no_sign_in_is_401` ×5 | `/api/meta`, `/api/me`, `/api/timetable`, `/api/free-rooms`, `/api/notifications` return **401** with no sign-in |
 | `test_session_sign_in_and_out` | The demo account list is open; signing in as an unknown user gives 404; signing in as the Dean works and `/api/me` shows `audit` but not `publish`; after logout `/api/me` gives 401 |
 | `test_admin_may_do_everything_and_unknown_actions_are_refused` | The admin passes every rule **except four**: the two student-only actions (`concern.raise`, `meeting.request`; `d12f3f4`), which it never passes, and the two `OWN_AUTHORITY` ones (`booking.approve`, `booking.endorse`; `da6859b`), tested in the next test. Since `da6859b` the check that an **unknown action is refused even for the admin** (deny by default) sits at the end of the next test |
@@ -1382,13 +1383,13 @@ Runs against a fresh `build_college()` store (since `39212e3`, the real six-depa
   This run-through is Lane A's report; I did not repeat it here.
 - **`POST /api/generate` and `POST /api/compare/{dept}/run`** are only tested indirectly: the solver and optimiser output are tested, and the permission rules for generate are tested.
 - **Optimiser runs** themselves are not run in tests (they take minutes); the tests check the saved result.
-- **The "every route needs sign-in" guard checks nothing on this FastAPI version** (found on 27 Oct, at `9aaef0c`). In FastAPI 0.156.8, `app.routes` wraps each included router in an `_IncludedRouter`, so the test's loop finds **0** `/api` routes and passes trivially. A walk inside the routers found **50 `/api` routes**, and every one needs sign-in except `/api/auth/*` (3) and `/api/onboard/*` (4), both on purpose. So nothing is open by accident today, but the test would not catch a future mistake. Reported to Lane A.
+- **The "every route needs sign-in" guard: fixed in `87126a8`.** Found on 27 Oct at `9aaef0c`: in FastAPI 0.156.8, `app.routes` wraps each included router in an `_IncludedRouter`, so the test's loop found **0** `/api` routes and passed without checking anything. A walk inside the routers found 50 `/api` routes, and none was open by accident (only `/api/auth/*` and `/api/onboard/*`, both on purpose). Lane A fixed the test the same morning (see §11.3).
 - **The onboarding page itself** (`/onboard.html`) has no browser test; Lane A clicked through it with the sample college.
 
 ---
 
 ## 12. Timeline: how it was built
-From `git log` (95 commits up to `9aaef0c`; 20 of them are this report). Commits per day: 21 Oct 15 · 22 Oct 14 · 26 Oct 45 · 27 Oct 21.
+From `git log` (97 commits up to `87126a8`; 21 of them are this report). Commits per day: 21 Oct 15 · 22 Oct 14 · 26 Oct 45 · 27 Oct 23.
 
 ### Day 1: Wed 21 Oct, prototype (v0.1), demo at 4 PM
 - Scaffold, `CLAUDE.md`, plan.
@@ -1473,6 +1474,7 @@ From `git log` (95 commits up to `9aaef0c`; 20 of them are this report). Commits
 - **Department halls** (`da6859b`): a department's hall needs that department's HOD even when the timetable office books it; the office approves central halls only, and only a club's faculty advisor endorses its requests (`OWN_AUTHORITY`). 1 new permissions test (129), plus a venues test through the API (`c19e75b`, 130). Also checked through the API by Lane A (see §7.2). Then `1bb36be`: the office no longer gets an endorse inbox it can't act on (`endorse_venues` only for a club's faculty advisor).
 - **Permissions fix** (`d12f3f4`): the timetable office could raise student concerns, because the admin passed every rule. Now `STUDENTS_ONLY` (raise a concern, request a meeting) is refused for the admin, who sees and answers concerns instead. Tests updated (still 128).
 - **Onboarding another college from Excel** (`5242494`): a five-sheet template, plain-language checks by sheet and row, then generate, validate and write back as Excel; a made-up sample college (94 sessions, OPTIMAL in about 4 s, 0 clashes). 4 new tests (134). `openpyxl` added.
+- **Sign-in guard test made real** (`87126a8`): this report's check found it checked no routes on the newer FastAPI; Lane A fixed it (same 138 tests).
 - **Which college, and onboarding on the website** (`9aaef0c`): the sign-in page asks "GNDEC Ludhiana" or "Set up a different college"; `/onboard.html` and `/api/onboard/*` (no sign-in, nothing stored, bounded). Lane A found and fixed a disabled-buttons bug while clicking through. 3 new tests (138).
 - **Shorter college day fixed** (`d5ad645`): this report's check found that a 6-period college lost classes from its Excel output. Lane A fixed it: periods after the college's day are unavailable to every teacher, and unavailability outside the day is refused. 1 new test (135).
 - **Offered but not built** (the project owner chose concerns first): a rule editor where the HOD proposes new college rules from the app.
@@ -1691,7 +1693,7 @@ Suggested, about 5 minutes. Built only from features listed above.
 | **50** | API routes |
 | **Any college** | one Excel workbook in, a checked clash-free timetable out, on the website with no account (made-up sample: 94 sessions, OPTIMAL in about 4 s, 0 clashes) |
 | **138 / 138** | automated tests passing |
-| **3** | parallel build lanes, 95 commits |
+| **3** | parallel build lanes, 97 commits |
 
 ---
 
@@ -1713,7 +1715,7 @@ Suggested, about 5 minutes. Built only from features listed above.
 - **Not read:** `data/private/`
 
 **Commands (26 Oct 2026):**
-- `pytest -q` on `9aaef0c`: **138 passed** (final); on `d5ad645`: 135; on `5242494`: 134; on `1bb36be`: 130; on `c19e75b`: 130; on `da6859b`: 129; on `d12f3f4`: 128; on `d173b37`: 128; on `2ac1a85`: 123; on `d3e1a9d`: 122; on `7a33645`: 118; on `89254d8`: 117; on `53e1f7f` + `dee7b1e`: 117; `test_first_year_is_linked_across_departments` passes on its own
+- `pytest -q` on `87126a8`: **138 passed** (final); on `9aaef0c`: 138; on `d5ad645`: 135; on `5242494`: 134; on `1bb36be`: 130; on `c19e75b`: 130; on `da6859b`: 129; on `d12f3f4`: 128; on `d173b37`: 128; on `2ac1a85`: 123; on `d3e1a9d`: 122; on `7a33645`: 118; on `89254d8`: 117; on `53e1f7f` + `dee7b1e`: 117; `test_first_year_is_linked_across_departments` passes on its own
 - first-year checks:
   - 94 linked sessions (ME 23, ECE 22, EE 49)
   - CSE D1-CS-A-A1: 5 hours at `39212e3` (temporary checkout) → 11 now
@@ -1728,7 +1730,7 @@ Suggested, about 5 minutes. Built only from features listed above.
 - `pytest -q` on commit `3acc154`: 87 passed
 - a Python check of `College.lab_pairs()` (86 pairs, 54 in CSE) and of the SC/ACC lab days in the optimised file
 - earlier: `pytest -q -rA` on the working tree before the re-run (85 passed, 2 failed as expected) and on a clean checkout of `aac5df1` (84 passed)
-- `pytest --collect-only -q` (87 tests at `3acc154`; 88 at `becb48e`; 95 at `32f1b45`; 116 at `39212e3`; 117 at `53e1f7f`; 118 at `7a33645`; 122 at `d3e1a9d`; 123 at `2ac1a85`; 128 at `d173b37` and `d12f3f4`; 129 at `da6859b`; 130 at `c19e75b` and `1bb36be`; 134 at `5242494`; 135 at `d5ad645`; 138 at `9aaef0c`)
+- `pytest --collect-only -q` (87 tests at `3acc154`; 88 at `becb48e`; 95 at `32f1b45`; 116 at `39212e3`; 117 at `53e1f7f`; 118 at `7a33645`; 122 at `d3e1a9d`; 123 at `2ac1a85`; 128 at `d173b37` and `d12f3f4`; 129 at `da6859b`; 130 at `c19e75b` and `1bb36be`; 134 at `5242494`; 135 at `d5ad645`; 138 at `9aaef0c` and `87126a8`)
 - a Python check printing college counts, metrics and `compare` from `app.store.STORE`
 - `git log`, `git log --stat`, `git diff --stat`, `git status`
 
@@ -1742,6 +1744,7 @@ Suggested, about 5 minutes. Built only from features listed above.
 - read `app/api/onboard.py`, `app/static/onboard.html`, the `login.html`, `main.py`, `sheets.py`, `docs/API.md` and `CLAUDE.md` changes, and `tests/test_core_onboard_web.py`
 - through the API (TestClient, public-server settings): the sample's result, a 2 MB+ upload (413), and GNDEC's timetable unchanged
 - a walk of every route inside the included routers: 50 `/api` routes, the only open ones being `/api/auth/*` and `/api/onboard/*`
+- on `87126a8`: the fixed guard test run directly, once as is (passes) and once after adding a router without sign-in in memory (fails, as it should)
 
 **Deliberately not run:** `python -m app.optimise` (Lane A ran the optimiser) and `/api/chat` (API credit; Lane A's one live question is reported as theirs).
 
@@ -1760,7 +1763,8 @@ All numbers were checked here against the committed data files.
 
 ## 19. Pending
 **Resolved on 26–27 Oct:**
-- Final test totals: **138 / 138 pass** (re-run here on `9aaef0c`; Lane A 99, B 14, C 25).
+- Final test totals: **138 / 138 pass** (re-run here on `87126a8`; Lane A 99, B 14, C 25).
+- **The sign-in guard test** (found checking nothing at `9aaef0c`): **fixed in `87126a8`**. Re-checked here: it finds 50 `/api` routes, passes, and fails when an unprotected router is added in memory (no file changed).
 - Website onboarding (`9aaef0c`): the code, the tests and the API checked here; the browser click-through and the disabled-buttons fix are Lane A's.
 - Excel onboarding (`5242494`): the code, tests and sample checked here (see Sources). The reason it was built (the project owner's question) is from Lane A.
 - Excel onboarding with fewer than 8 periods: **fixed in `d5ad645`** and re-checked here (0 class-hours outside a 6-period day; the new test passes).
@@ -1779,6 +1783,5 @@ All numbers were checked here against the committed data files.
 
 **Still not verified independently here:**
 - Nothing in the data or tests.
-- **The sign-in guard test** (`test_every_api_route_needs_sign_in_except_auth`) checks no routes on FastAPI 0.156.8 (§11.13). Today no route is open by accident (walked by hand here). Reported to Lane A; not fixed at `9aaef0c`.
 - **Website onboarding on the live site:** not deployed yet (needs a push, then Render redeploys).
 - My own descriptions of the UI come from the page source (labels, tabs, `x-show` rules). The browser behaviour of every role was verified by Lane A (above and §11.13).
