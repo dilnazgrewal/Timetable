@@ -11,6 +11,11 @@ short_description: GNDEC's real timetables, optimised; free rooms, venues
 
 # TimeWeave: clash-free college timetables
 
+**Live demo:** https://timeweave-3y2g.onrender.com (free server: if it has been idle, the first visit takes about a minute to wake it).
+Sign in as any role (Student, Teacher, HOD, Timetable office); no password in demo mode. On the public demo the AI
+assistant and optimiser re-runs are switched off (paid API, minutes of computing); everything else works, and demo
+changes reset when the server restarts. Deployed from this repo's `Dockerfile` on Render (`TIMEWEAVE_HOSTED=1`).
+
 TimeWeave generates the whole college's weekly timetable in seconds with Google OR-Tools **CP-SAT**. Every result is checked by an **independent validator** that shares no code with the solver. The solver also minimises the idle gaps students sit through between lectures.
 
 Scope today:
