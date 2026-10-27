@@ -7,13 +7,13 @@
 > **How it was checked:** every claim comes from the repository (code, docs, git history), the test suite, or a command run on **26–27 Oct 2026**. Nothing is from memory. The commands are listed under [Sources](#18-sources). Anything that could not be confirmed yet is listed under [Pending](#19-pending).
 >
 > **State of the repo when this was written:**
-> - Final numbers are from commit `2ac1a85` (27 Oct 2026), after deployment (`5a6a9bc`, `a557f04`, `2ac1a85`). Before that came Lane A's full browser run-through of every role (`d3e1a9d`). The last data changes were `89254d8` (two same-named teachers kept apart: 5 teacher clashes in the published data) and `53e1f7f` (**first year linked across departments**).
+> - Final numbers are from commit `d173b37` (27 Oct 2026), which adds **student concerns**. Before it came deployment (`5a6a9bc`, `a557f04`, `2ac1a85`). Before that came Lane A's full browser run-through of every role (`d3e1a9d`). The last data changes were `89254d8` (two same-named teachers kept apart: 5 teacher clashes in the published data) and `53e1f7f` (**first year linked across departments**).
 > - Before it:
 >   - `39212e3` imported and optimised the **real timetables of all six departments** (CSE, IT, ME, CE, ECE, EE)
 >   - `32f1b45` added College rules
 >   - `becb48e` added the lab-pair rule
 >   - `3acc154` imported D4's open elective from the FET *groups* page
-> - **All 123 tests pass** on `2ac1a85`.
+> - **All 128 tests pass** on `d173b37`.
 
 ---
 
@@ -52,7 +52,7 @@ What it does:
 | **Optimised real timetables, every department** | Re-optimises each department's own timetable. It keeps the same lessons, teachers, groups and rooms, changes only the times, is never worse than the college's version on any measure, and **adds no clash anywhere in the college** (teachers and rooms are shared between departments). Each department proposes its own; the timetable office publishes. |
 | **College rules** | Each college writes down its own timetable habits (e.g. "a teacher's lab for two groups goes on two days", "nothing after JPAL", "a real class every working day") in a JSON file. The optimiser obeys them, an independent checker counts every break, and publishing is refused if a rule is broken more often than in the college's own timetable. |
 | **Real students** | Models students as real **combinations of choices** ("student types", built from CSE's elective distribution lists; elsewhere one per lab group, guarded against electives that may share students), so no real student ever gets two classes at once. |
-| **Everyday campus problems** | Free rooms to sit in (by building and floor), find a teacher's free slots and request a meeting, Now/Next card, leave with ranked substitutes, venue booking with approvals, an event slot finder for a whole batch. |
+| **Everyday campus problems** | Free rooms to sit in (by building and floor), find a teacher's free slots and request a meeting, Now/Next card, leave with ranked substitutes, venue booking with approvals, an event slot finder for a whole batch, and **student concerns** (a class tells its department what makes it miss classes, e.g. an 8:30 start for students who commute; votes, not names). |
 | **Roles** | 8 roles with sign-in, a server-side permission table (deny by default) and an audit log. |
 | **AI assistant** | A read-only Claude assistant answering timetable questions from live data through 5 tools. It can never change anything. |
 
@@ -64,7 +64,7 @@ What it does:
 
 **Live demo:** https://timeweave-3y2g.onrender.com (Render, free tier; see §14.1).
 
-**Tests:** **123 automated tests, all 123 pass** (commit `2ac1a85`; see [11](#11-testing-every-test-and-the-edge-case-it-covers)).
+**Tests:** **128 automated tests, all 128 pass** (commit `d173b37`; see [11](#11-testing-every-test-and-the-edge-case-it-covers)).
 
 ---
 
@@ -372,6 +372,7 @@ Status as of commit `53e1f7f`. ✅ built and committed · ⬜ designed, not buil
 | A15 | Read-only Claude assistant with 5 date-aware tools; tools tested on the real data without calling the API (`dce71d3`) | ✅ |
 | A16 | Pages: sign-in, compare (college vs optimised, with a **department picker**: HODs see their own department, the Dean sees all), audit log; shared top bar | ✅ |
 | A17 | Demo reset (admin) | ✅ |
+| A19 | **Student concerns** (`/concerns.html`): students raise a concern about a real class of theirs (too early, too late, long wait, no lunch, too many in a row, other); classmates vote "me too"; department staff see counts per class without names and answer; everyone who agreed is notified (`d173b37`) | ✅ |
 | A18 | **Deployed** at https://timeweave-3y2g.onrender.com (Render, Docker). Hosted mode switches off the paid AI assistant and optimiser re-runs, with a friendly message, and hides their buttons via `TW.can` (`5a6a9bc`, `2ac1a85`) | ✅ |
 
 ### 5.2 Dashboards (Lane B, `index.html`, `/api/dash`)
@@ -768,11 +769,11 @@ It has **no write tools**.
 
 | Role | Can | Cannot |
 |---|---|---|
-| **Student** | view timetables, My timetable (their student type), free rooms, find a teacher, request a meeting, Now/Next, ask the assistant | book venues, use the slot finder, see the optimised timetable, approve anything |
+| **Student** | view timetables, My timetable (their student type), free rooms, find a teacher, request a meeting, Now/Next, ask the assistant, **raise and vote on concerns** about their own classes | book venues, use the slot finder, see the optimised timetable, approve anything |
 | **Teacher** | My timetable, reply to their own meeting requests, mark their own leave, request venues (no advisor step), slot finder, cancel own bookings | mark a colleague's leave, change classes, approve venues |
-| **Coordinator** (department timetable) | everything for **their own** department: substitutions (`override.create`), mark leave for department teachers, view / re-run / **propose** their department's optimised timetable, insights; books like a teacher | approve venues, publish, see or act on other departments |
+| **Coordinator** (department timetable) | everything for **their own** department: substitutions (`override.create`), mark leave for department teachers, view / re-run / **propose** their department's optimised timetable, insights, **see and answer their department's student concerns**; books like a teacher | approve venues, publish, see or act on other departments |
 | **HOD** | same as the coordinator, plus **approve bookings of rooms their department owns** | publish, regenerate, approve central halls, act on other departments |
-| **Dean** (read-only) | every department's timetable, **every department's** optimised view, insights, leave board, **audit log**, slot finder | change anything: propose, override, publish, book, request meetings |
+| **Dean** (read-only) | every department's timetable, **every department's** optimised view, insights, leave board, **audit log**, slot finder, every department's student concerns | change anything: propose, override, publish, book, request meetings, answer concerns |
 | **Club lead** | request venues (goes to the faculty advisor first), slot finder, cancel own requests | endorse or approve its own request |
 | **Org** (visitor / T&P) | request venues (no advisor step), slot finder, book for a batch audience | approve |
 | **Admin** (timetable office) | everything: **regenerate**, **publish/unpublish**, approve **central halls**, see all accounts, demo reset, audit log | (none) |
@@ -789,13 +790,63 @@ It has **no write tools**.
    - Every student and teacher of that department is notified.
 3. **Go back to the college's version** (unpublish) returns to `draft` and notifies everyone again.
 
-### 7.4 Audit log
+### 7.4 Student concerns (`/concerns.html`, commit `d173b37`)
+**Why** (from the project owner, via Lane A):
+- She commutes 40–50 km, and traffic makes her miss the 8:30 class.
+- Students had no way to tell the timetable office about a problem the whole class shares.
+- The office won't change a timetable for one student, but will for a whole class.
+
+**Students** ("Concerns" in the top bar) pick a reason:
+
+| Reason (`code`) | Needs a class? |
+|---|---|
+| The first class is too early to reach: long commute, traffic (`early`) | yes |
+| The last class ends too late to get home (`late`) | yes |
+| A long wait between classes (`gap`) | yes |
+| Too many classes in a row (`streak`) | yes |
+| No break for lunch (`no_break`) | a day |
+| Something else (`other`) | no |
+
+For a time-based reason the student picks the class from **their own timetable**, and may add their own words (up to 200 characters).
+
+**Only real, useful concerns:**
+- **Real classes only:** a time-based concern must name a class the student really has; otherwise 400 (e.g. "no class on Tuesday at 8:30").
+- **Votes, not duplicates:** the same concern (section + reason + time) raised again becomes a **"me too" vote**. Each student has one vote and can take it back.
+- **A limit:** at most **5 open concerns** per student (429: "Agree with your classmates' ones instead").
+- **Students only:** teachers, HODs and others get 403.
+
+**Staff:**
+- **Who sees what:** the HOD and the timetable coordinator see their department; the Dean and the timetable office see all.
+- **How they're counted:** per class, biggest share first, with the class, time, reason, the students' words, votes and share.
+- **"Worth acting on"** means at least **30% of the section** and at least **2 votes**.
+- **Never who:** voter names are never shown.
+
+**Answers:**
+- The answer is one of *seen*, *planning a change* or *can't change*, plus a reply.
+- Everyone who agreed is notified (🔔) and sees the reply on the concern.
+- The HOD of another department and the Dean can't answer.
+
+**Permissions** (`app/auth.py`):
+- actions `concern.raise` (students), `concern.view` (department staff, Dean), `concern.answer` (department staff)
+- capabilities `raise_concerns`, `view_concerns`, `answer_concerns`
+
+**Storage:** the `Concern` model in `app/models.py`, kept in `STORE.concerns` and saved in `data/state.json`.
+
+**Demo caveat:** demo sign-in has one account per group or combination, so the share is "of the section's demo accounts". With real sign-in it would be of the class. Example: D4 CS A, 2 of 12 combinations = 17%.
+
+**Checked by Lane A in the browser, end to end:**
+1. The project owner's account raises "Mon 8:30, Open elective II: my bus from Khanna reaches at 9:10".
+2. A classmate clicks **Me too**, giving 2 agree.
+3. The CSE HOD sees "D4 CS A · 2 agree · 17%" with no names, and answers "Planning a change".
+4. The student sees the reply and gets the 🔔 notification.
+
+### 7.5 Audit log
 - **What is logged:** every privileged action through `require()` (everything except pure reads), **allowed or refused**, with time, user, role, action and target.
 - **Retention:** the newest 2000 entries are kept, saved in `data/state.json`.
 - **Where to see it:** `/audit.html` (admin and Dean).
 
-### 7.5 The UI never decides
-- `GET /api/me` returns `can`, a dictionary of 23 capabilities (e.g. `request_meeting`, `approve_venues`, `publish`).
+### 7.6 The UI never decides
+- `GET /api/me` returns `can`, a dictionary of 26 capabilities (e.g. `request_meeting`, `approve_venues`, `publish`).
 - Pages show and hide tabs and buttons from `TW.can`, never from role names. The server is the gate.
 
 ---
@@ -803,7 +854,8 @@ It has **no write tools**.
 ## 8. Pages and screens
 | Page | Who | What's on it |
 |---|---|---|
-| `/login.html` | everyone | Demo sign-in ("no password, for judging") with four roles: Student, Teacher, HOD, Timetable office. Extra duties (club lead, coordinator, Dean, T&P, visitor) are shown next to names. Students choose department → year → section → group and subjects (pre-filled, only real combinations) → **Show my timetable**; club leads have quick links. Others search by name or department. |
+| `/login.html` | everyone | Demo sign-in ("no password, for judging") with four roles: Student, Teacher, HOD, Timetable office. Extra duties (club lead, coordinator, Dean, T&P, visitor) are shown next to names. Students choose department → year → section → group and subjects (pre-filled, only real combinations) → **Show my timetable**; club leads have quick links. Others search by name or department. **"Continue as"** lists recently used accounts (in this browser), so switching back is one click (`d173b37`). |
+| `/concerns.html` (Lane A; "Concerns" in the top bar) | students; department staff, Dean, admin | Students: raise a concern about one of their own classes, "Me too" on classmates' concerns, see replies. Staff: concerns per class, biggest share first, "worth acting on" flags, no names; answer seen / planning a change / can't change |
 | `/` (`index.html`, Lane B) | everyone signed in | **Timetable** tab: views and filters, week / dated week, Print / Save PDF. When every department is imported (today), it shows the data source and **"See the optimised timetables →"** instead of the real-vs-generated panel and the **Regenerate** button (`cabdf9e`); both appear only for a college with generated departments. **Find a teacher** (`#teacher`): day view, Request meeting. **Free rooms** (`#rooms`): Right now, building/floor, near me. **Meetings** (`#meetings`). **Substitutions** (`#subs`): leave board, candidates, Assign, Cancel class. **Teacher load** (`#load`). **Ask** (`#ask`, chatbot). **Mark leave**. **Now/Next** card. Phone layout with day tabs. |
 | `/venues.html` (Lane C) | staff, clubs, orgs (by capability) | `#book` Book a venue (requirement form → ranked venues → request), `#requests` My requests with timeline, `#inbox` Approvals (endorse/approve/reject), `#slots` Event slot finder ("Find common free time", "Nearly free", "Book this") |
 | `/compare.html` (Lane A; "Optimised timetables" in the top bar) | each department's HOD/coordinator (their own department), Dean and admin (all six) | **Department picker**; college vs optimised timetable by section, student (group and electives) or teacher; before/after numbers (incl. "Same lab for two groups on one day"); **"GNDEC's timetable rules"**: each rule in plain words, must/prefer, and how often each version breaks it; Propose / Publish / Go back |
@@ -813,12 +865,12 @@ It has **no write tools**.
 ---
 
 ## 9. API summary
-Full contract: `docs/API.md`. The app has **40 API routes**:
+Full contract: `docs/API.md`. The app has **46 API routes**:
 
 | Group | Routes | Paths |
 |---|---|---|
 | Auth (`/api/auth/*`) | 3 | demo-accounts (students with year, section name, choices and count), demo-login, logout |
-| Core (`/api/*`) | 23 | meta, me, users, audit, timetable, effective, generate, free-rooms, notifications (+read), demo/reset, chat, leave (POST/GET), substitutions, **compare** (departments I may compare), **compare/{dept}** (+run, propose, publish, unpublish), students/types, students/{type}/timetable |
+| Core (`/api/*`) | 29 | meta, me, users, audit, timetable, effective, generate, free-rooms, notifications (+read), demo/reset, chat, leave (POST/GET), substitutions, **compare** (departments I may compare), **compare/{dept}** (+run, propose, publish, unpublish), students/types, students/{type}/timetable, **concerns** (reasons, mine, raise, vote, list, answer) |
 | Dashboards (`/api/dash/*`) | 7 | ping, views, teacher/{id}/free, meetings (POST/GET), meetings/{id}/reply, now |
 | Venues (`/api/venues/*`) | 7 | list, rank, requests (POST/GET), requests/{id}/decide, requests/{id}/cancel, slot-finder |
 
@@ -930,7 +982,8 @@ Commands: `.venv/Scripts/python -m pytest -q -rA` and `pytest --collect-only -q`
 
 | Code state | Tests | Passed | Failed | Time |
 |---|---|---|---|---|
-| **Final: commit `2ac1a85`** | 123 | **123** | **0** | 55 s |
+| **Final: commit `d173b37`** | 128 | **128** | **0** | 23 s |
+| Earlier: commit `2ac1a85` (before the 5 concerns tests) | 123 | 123 | 0 | 55 s |
 | Earlier: commit `d3e1a9d` (before the hosted-mode test) | 122 | 122 | 0 | 27 s |
 | Earlier: commit `7a33645` (before the 4 assistant-tool tests) | 118 | 118 | 0 | 23 s |
 | Earlier: commits `53e1f7f` to `89254d8` | 117 | 117 | 0 | 23–36 s |
@@ -952,13 +1005,14 @@ Commands: `.venv/Scripts/python -m pytest -q -rA` and `pytest --collect-only -q`
 | `tests/test_core_rules.py` | A | 7 (added in `32f1b45`) | 7 |
 | `tests/test_core_departments.py` | A | 19 (18 added in `39212e3`, incl. 5 + 6 parametrised; 1 in `53e1f7f`) | 19 |
 | `tests/test_core_chat_tools.py` | A | 4 (added in `dce71d3`) | 4 |
-| **Lane A total** | | **85** | **85** |
+| `tests/test_core_concerns.py` | A | 5 (added in `d173b37`) | 5 |
+| **Lane A total** | | **90** | **90** |
 | `tests/test_dashboards_api.py` | B | **14** | 14 |
 | `tests/test_venues_approvals.py` | C | 7 | 7 |
 | `tests/test_venues_ranking.py` | C | 8 (incl. 4 parametrised) | 8 |
 | `tests/test_venues_slots.py` | C | 9 (3 added in `49004bb`) | 9 |
 | **Lane C total** | | **24** | 24 |
-| **Overall** | | **123** | **123** |
+| **Overall** | | **128** | **128** |
 
 **Note:** while the optimiser re-run was in progress, 2 tests failed as expected:
 - `test_core_optimise.py::test_no_clashes_and_never_worse`
@@ -1099,6 +1153,15 @@ The tools are called directly, so no call to the Claude API and no credit is use
 | `test_free_rooms_and_teacher_slots` | Free rooms on Mon 12:30 exist and **never include the stand-ins** ("OTHER DEPARTMENT", "APPLIED SCIENCES"); an IT teacher has free periods on Wednesday |
 | `test_bad_input_is_reported_not_crashing` | **"Sunday"** and an **unknown room** come back as an error message to the model, not a crash |
 
+### 11.8e `tests/test_core_concerns.py`: student concerns (5, added in `d173b37`)
+| Test | What it checks · edge case |
+|---|---|
+| `test_a_concern_is_about_a_class_the_student_really_has` | "Mon 8:30, my bus from Khanna reaches at 9:10" is accepted and names the open elective; **no class on Tuesday at 8:30 → 400**; an early-start concern without a class → 400; **no-break without a day → 400**; an unknown reason → 400; **a teacher or an HOD raising one → 403** |
+| `test_classmates_add_votes_instead_of_duplicates` | A classmate raising the same concern becomes **a vote** (`merged`, 2 votes, still one concern); **voting twice changes nothing**; taking the vote back drops it to 1; **a student of another section can't vote → 404** |
+| `test_staff_see_counts_per_class_never_names` | The CSE HOD sees one concern with 2 votes and a share between 0 and 1, and **no voter, author or "agreed" field**; the **IT HOD sees nothing** (another department); the timetable office and the Dean see it; **a student can't list them → 403** |
+| `test_the_department_answers_and_everyone_who_agreed_hears_back` | The **IT HOD → 403** and **the Dean → 403** (read-only); the CSE coordinator answers "planned" with "From next week"; **both students who agreed are notified** with the reply and see it on the concern |
+| `test_a_student_can_have_at_most_five_open_concerns` | Five concerns about five different real classes are accepted; **the sixth → 429** |
+
 ### 11.9 `tests/test_dashboards_api.py`: Lane B (14)
 Runs against a fresh `build_college()` store (since `39212e3`, the real six-department college), with state in a temp file.
 
@@ -1175,7 +1238,7 @@ Runs against a fresh `build_college()` store (since `39212e3`, the real six-depa
 ---
 
 ## 12. Timeline: how it was built
-From `git log` (77 commits up to `2ac1a85`; 11 of them are this report). Commits per day: 21 Oct 15 · 22 Oct 14 · 26 Oct 45 · 27 Oct 3.
+From `git log` (80 commits up to `d173b37`; 13 of them are this report). Commits per day: 21 Oct 15 · 22 Oct 14 · 26 Oct 45 · 27 Oct 6.
 
 ### Day 1: Wed 21 Oct, prototype (v0.1), demo at 4 PM
 - Scaffold, `CLAUDE.md`, plan.
@@ -1252,6 +1315,11 @@ From `git log` (77 commits up to `2ac1a85`; 11 of them are this report). Commits
     - a favicon
     - PLAN.md section 0 brought up to date
 - **Lane C, final:** elective audiences and student types also rule slot-finder times out; 3 new tests (`49004bb`).
+
+### Tue 27 Oct: deployment and student concerns
+- **Deployed** to Render (`5a6a9bc`, `a557f04`, `2ac1a85`): Dockerfile, hosted mode (no paid assistant or optimiser re-runs), the live link in the README. Hugging Face Spaces was tried first.
+- **Student concerns** (`d173b37`): students report what makes a whole class miss classes; departments see counts per class without names and answer. Also **"Continue as"** on the sign-in page. 5 new tests.
+- **Offered but not built** (the project owner chose concerns first): a rule editor where the HOD proposes new college rules from the app.
 - This report was committed alongside.
 
 ### Cross-lane requests (`docs/REQUESTS.md`)
@@ -1342,7 +1410,7 @@ Suggested, about 5 minutes. Built only from features listed above.
 
 **Where to run it:**
 - **Live link:** https://timeweave-3y2g.onrender.com. Open it a few minutes early to wake the free server. On the live link the AI assistant and optimiser re-runs are off; everything else works.
-- **Locally:** run it locally (§14) to show the assistant (step 9) or an optimiser re-run.
+- **Locally:** run it locally (§14) to show the assistant (step 10) or an optimiser re-run.
 
 1. **The problem** (30 s): hand-made timetables take weeks, still have problems, and students and teachers wait between classes. GNDEC's six real published timetables (2,579 classes a week) have:
    - about 1,000 teacher waiting periods a week
@@ -1356,20 +1424,24 @@ Suggested, about 5 minutes. Built only from features listed above.
    - **For a first-year student** (e.g. CSE D1 A, group A1), show that the week now includes ECE's BEEE lectures and lab: 11 hours instead of 5, because first year is linked across departments.
    - Show the **Now/Next** card and **Free rooms → Right now** by building and floor.
 3. **Find a teacher → Request meeting** in a free period. Switch to that teacher, accept, and the student gets a 🔔.
-4. **Teacher marks leave.** As the CSE HOD, open **Substitutions**: ranked substitutes with reasons. Assign one; the student's timetable shows the substitute for that date only.
-5. **Venues as the Digital Marketing Club:**
+4. **Student concerns** (the project owner's own story):
+   - As the D4 CS A student, open **Concerns**. Raise "The first class is too early to reach" about **Mon 8:30, Open elective II**, with "my bus from Khanna reaches at 9:10".
+   - Switch to a classmate ("Continue as" makes switching back one click) and press **Me too**.
+   - As the CSE HOD: "D4 CS A · 2 agree" with no names. Answer **Planning a change**; the students get the 🔔 and see the reply.
+5. **Teacher marks leave.** As the CSE HOD, open **Substitutions**: ranked substitutes with reasons. Assign one; the student's timetable shows the substitute for that date only.
+6. **Venues as the Digital Marketing Club:**
    - Book a venue for 100 people with projector + sound: ranked rooms with reasons.
    - Request → faculty advisor endorses → HOD approves → the hall disappears from Free rooms.
-6. **Event slot finder as T&P:** D4 CS for a 2-hour talk: slots where every group is free, venues attached, lunch protected, and "nearly free" times showing who would miss which class. **Book this** notifies the batch.
-7. **Optimised timetables, every department** (`/compare.html`):
+7. **Event slot finder as T&P:** D4 CS for a 2-hour talk: slots where every group is free, venues attached, lunch protected, and "nearly free" times showing who would miss which class. **Book this** notifies the batch.
+8. **Optimised timetables, every department** (`/compare.html`):
    - **As the Dean:** the department picker lists all six. Show EE (student waiting periods 25 → 0, teacher waiting periods 129 → 62) and ECE (15 → 0, 105 → 52).
    - **As the IT HOD:** only IT is listed.
    - **The whole college:** teacher waiting periods 1,007 → 600 (−40%), student waiting periods 263 → 188, with **no new clash anywhere in the college**. Same lessons, times only.
    - **CSE:** no-lunch days 44 → 0. Be honest: CSE's gain is smaller than in the CSE-only run, because CSE's first year and classes by other departments' teachers are now kept as published, so other departments are never hurt.
    - **Rules:** scroll to **"GNDEC's timetable rules"**: each college habit in plain words, and how often each version breaks it. Tell the story: an earlier CSE run left 6 D4 Fridays with only project + open elective; writing the rule down fixed it (6 → 0).
    - **Publishing:** it is refused if a rule is broken more often, or if a clash appears anywhere in the college. **Propose** as the HOD, then **Publish** as the admin; the validator re-checks the whole college.
-8. **Trust:** the independent validator, the independent college-rules check, 123 automated tests, and the audit log (`/audit.html` as the Dean) showing a refused action.
-9. **Ask TimeWeave** (optional; locally only, uses API credit; switched off on the live link): "Will G17 be free at 12:30 on Friday?"
+9. **Trust:** the independent validator, the independent college-rules check, 128 automated tests, and the audit log (`/audit.html` as the Dean) showing a refused action.
+10. **Ask TimeWeave** (optional; locally only, uses API credit; switched off on the live link): "Will G17 be free at 12:30 on Friday?"
 
 ---
 
@@ -1385,8 +1457,11 @@ Suggested, about 5 minutes. Built only from features listed above.
   - **minimal-change repair** with a diff preview
   - a general change engine for all edits (today the only "apply" paths are overrides, substitutions, bookings and propose/publish)
 - **Chatbot propose tools:** it is read-only today.
+- **A rule editor:** HODs proposing new college rules from the app (offered; student concerns were built first). Today rules are added in `data/gndec/rules.json`.
 - **Persistence:** in memory + JSON files, not SQLite/Postgres; no optimistic locking for two editors.
-- **Real sign-in:** Google sign-in restricted to the college domain is not built (demo mode only). It also needs a staff/student directory to map college emails to roles and student types.
+- **Real sign-in:** Google sign-in restricted to the college domain is not built (demo mode only). It also needs a staff/student directory to map college emails to roles and student types. With real sign-in (one account per person) two more demo effects go away:
+  - **Switching accounts:** coming back to the student form can sign you in as a different combination (it pre-fills the most common one). That once made an accepted meeting seem missing. "Continue as" works around this in the demo.
+  - **Concern shares:** they are counted over the section's demo accounts, not its real students.
 - **Alerts and extras:** room door QR page, live updates (SSE), PWA/push, email/WhatsApp notifications.
 - **Deployment: done** (see §14.1). Still open: a database instead of JSON files (demo changes reset on restart), a paid or always-on server (the free one sleeps), and the AI assistant and optimiser re-runs on the hosted demo (switched off there).
 
@@ -1446,9 +1521,9 @@ Suggested, about 5 minutes. Built only from features listed above.
 | **10** | GNDEC timetable rules written down; every one kept at least as well as the college does |
 | **6 → 0** | D4 Fridays with only project + open elective (an earlier CSE run vs now), fixed by writing the rule down |
 | **8** | roles, with a deny-by-default permission table and an audit log |
-| **40** | API routes |
-| **123 / 123** | automated tests passing |
-| **3** | parallel build lanes, 77 commits |
+| **46** | API routes |
+| **128 / 128** | automated tests passing |
+| **3** | parallel build lanes, 80 commits |
 
 ---
 
@@ -1470,7 +1545,7 @@ Suggested, about 5 minutes. Built only from features listed above.
 - **Not read:** `data/private/`
 
 **Commands (26 Oct 2026):**
-- `pytest -q` on `2ac1a85`: **123 passed** (final); on `d3e1a9d`: 122; on `7a33645`: 118; on `89254d8`: 117; on `53e1f7f` + `dee7b1e`: 117; `test_first_year_is_linked_across_departments` passes on its own
+- `pytest -q` on `d173b37`: **128 passed** (final); on `2ac1a85`: 123; on `d3e1a9d`: 122; on `7a33645`: 118; on `89254d8`: 117; on `53e1f7f` + `dee7b1e`: 117; `test_first_year_is_linked_across_departments` passes on its own
 - first-year checks:
   - 94 linked sessions (ME 23, ECE 22, EE 49)
   - CSE D1-CS-A-A1: 5 hours at `39212e3` (temporary checkout) → 11 now
@@ -1485,7 +1560,7 @@ Suggested, about 5 minutes. Built only from features listed above.
 - `pytest -q` on commit `3acc154`: 87 passed
 - a Python check of `College.lab_pairs()` (86 pairs, 54 in CSE) and of the SC/ACC lab days in the optimised file
 - earlier: `pytest -q -rA` on the working tree before the re-run (85 passed, 2 failed as expected) and on a clean checkout of `aac5df1` (84 passed)
-- `pytest --collect-only -q` (87 tests at `3acc154`; 88 at `becb48e`; 95 at `32f1b45`; 116 at `39212e3`; 117 at `53e1f7f`; 118 at `7a33645`; 122 at `d3e1a9d`; 123 at `2ac1a85`)
+- `pytest --collect-only -q` (87 tests at `3acc154`; 88 at `becb48e`; 95 at `32f1b45`; 116 at `39212e3`; 117 at `53e1f7f`; 118 at `7a33645`; 122 at `d3e1a9d`; 123 at `2ac1a85`; 128 at `d173b37`)
 - a Python check printing college counts, metrics and `compare` from `app.store.STORE`
 - `git log`, `git log --stat`, `git diff --stat`, `git status`
 
@@ -1504,7 +1579,8 @@ All numbers were checked here against the committed data files.
 
 ## 19. Pending
 **Resolved on 26–27 Oct:**
-- Final test totals: **123 / 123 pass** (re-run here on `2ac1a85`; Lane A 85, B 14, C 24).
+- Final test totals: **128 / 128 pass** (re-run here on `d173b37`; Lane A 90, B 14, C 24).
+- Student concerns: tests, permissions, the 6 endpoints, the 30% / 2-vote flag, the 200-character and 5-concern limits, all read in the code. The end-to-end browser run is Lane A's.
 - The live deployment: answered and matched the local numbers (see §14.1).
 - Counts after the re-import in `d3e1a9d` (203 real teachers, 464 accounts, 64 sittable / 77 bookable rooms) and unchanged optimised results: checked here.
 - **The UI in a browser: verified by Lane A** in a full run-through of every role on 26 Oct (see §11.13). I did not click through it myself.
