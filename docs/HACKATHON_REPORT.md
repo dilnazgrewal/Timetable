@@ -1368,7 +1368,7 @@ Suggested, about 5 minutes. Built only from features listed above.
    - **CSE:** no-lunch days 44 → 0. Be honest: CSE's gain is smaller than in the CSE-only run, because CSE's first year and classes by other departments' teachers are now kept as published, so other departments are never hurt.
    - **Rules:** scroll to **"GNDEC's timetable rules"**: each college habit in plain words, and how often each version breaks it. Tell the story: an earlier CSE run left 6 D4 Fridays with only project + open elective; writing the rule down fixed it (6 → 0).
    - **Publishing:** it is refused if a rule is broken more often, or if a clash appears anywhere in the college. **Propose** as the HOD, then **Publish** as the admin; the validator re-checks the whole college.
-8. **Trust:** the independent validator, the independent college-rules check, 122 automated tests, and the audit log (`/audit.html` as the Dean) showing a refused action.
+8. **Trust:** the independent validator, the independent college-rules check, 123 automated tests, and the audit log (`/audit.html` as the Dean) showing a refused action.
 9. **Ask TimeWeave** (optional; locally only, uses API credit; switched off on the live link): "Will G17 be free at 12:30 on Friday?"
 
 ---
