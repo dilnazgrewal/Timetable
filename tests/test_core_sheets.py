@@ -78,3 +78,27 @@ def test_a_missing_sheet_or_column_is_reported(tmp_path):
     _, errors = sheets.read_workbook(path)
     assert any("no 'Teachers' sheet" in e for e in errors)
     assert any("Rooms: missing column(s) Seats" in e for e in errors)
+
+
+def test_a_shorter_college_day_keeps_every_class_inside_it(tmp_path):
+    """A college with 6 periods (09:00-15:00): nothing may land in periods 7-8, and every class reaches the Excel."""
+    six = [["College", "Short-day college"], ["Days", "Mon, Tue, Wed, Thu, Fri"],
+           ["Periods", "09:00-10:00, 10:00-11:00, 11:00-12:00, 12:00-13:00, 13:00-14:00, 14:00-15:00"],
+           sample.PROFILE[3]]
+    teachers = [t if t[0] != "AK" else [*t[:3], "Fri 5-6"] for t in sample.TEACHERS]  # "Fri 6-8" doesn't exist here
+    wb, _ = workbook(tmp_path, Profile=six, Teachers=teachers)
+    college, profile, problems = sheets.build_college(wb)
+    assert problems == [] and len(profile["period_times"]) == 6
+    res = solve(college, time_limit=30)
+    assert res.entries and split_issues(validate(college, res.entries))[0] == []
+    assert max(q for e in res.entries for q in e.slots) <= 5  # inside the 6-period day
+    out = tmp_path / "timetable.xlsx"
+    sheets.write_timetable(out, college, res.entries, profile["period_times"])
+    from openpyxl import load_workbook
+    written = sum(len(c.value.split("\n")) for ws in load_workbook(out) for row in ws.iter_rows(min_row=2, min_col=2)
+                  for c in row if c.value)
+    expected = sum(e.duration * sum(1 for s in college.sections if set(college.lesson_by_id[e.lesson].batches) & set(s.groups))
+                   for e in res.entries)
+    assert written == expected  # no class lost from the output
+    wb, _ = workbook(tmp_path, Profile=six, Teachers=teachers[:-1] + [["LB", "Pf. Lovepreet Bains", "EC", "Mon 7-8"]])
+    assert any("periods are 1 to 6" in p for p in sheets.build_college(wb)[2])  # a time the college doesn't have

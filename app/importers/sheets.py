@@ -37,7 +37,7 @@ HELP = {  # first row under the header in the blank template: what goes in each 
                 ["Departments", "CS = Computer Science; EC = Electronics"]],
     "Rooms": [["R101", "Classroom", 60, "Main Block", "First", "CS", "yes", "yes"],
               ["Lab-1", "Lab", 32, "Main Block", "Ground", "CS", "no", "no"]],
-    "Teachers": [["AK", "Dr. A. Kumar", "CS", "Fri 6-8"]],
+    "Teachers": [["AK", "Dr. A. Kumar", "CS", "Fri 5-6"]],
     "Classes": [["CS-2A", "CS", 2, 60, "R101", "G1, G2"]],
     "Lessons": [["DS", "Data Structures", "AK", "CS-2A", "", "Theory", 4, ""],
                 ["DS Lab", "Data Structures Lab", "AK", "CS-2A", "G1", "Lab", 2, "Lab-1"]],
@@ -105,7 +105,7 @@ def _int(v) -> int | None:
         return None
 
 
-def _unavailable(text: str) -> tuple[list[tuple[int, int]], str | None]:
+def _unavailable(text: str, n_periods: int = SOLVER_PERIODS) -> tuple[list[tuple[int, int]], str | None]:
     """'Fri 6-8; Tue 1' -> [(4, 5), (4, 6), (4, 7), (1, 0)]  (periods are 1-based in the sheet)."""
     out = []
     for part in [p.strip() for p in re.split(r"[;,]", text or "") if p.strip()]:
@@ -114,8 +114,8 @@ def _unavailable(text: str) -> tuple[list[tuple[int, int]], str | None]:
             return [], f"'{part}' should look like 'Fri 6-8' or 'Tue 1'"
         day = DAYS.index(m.group(1).title()[:3])
         a, b = int(m.group(2)), int(m.group(3) or m.group(2))
-        if not 1 <= a <= b <= SOLVER_PERIODS:
-            return [], f"'{part}': periods are 1 to {SOLVER_PERIODS}"
+        if not 1 <= a <= b <= n_periods:
+            return [], f"'{part}': periods are 1 to {n_periods}"
         out += [(day, p - 1) for p in range(a, b + 1)]
     return out, None
 
@@ -130,6 +130,7 @@ def build_college(wb: Workbook) -> tuple[College | None, dict, list[str]]:
     periods = [p.strip() for p in str(profile.get("periods") or "").split(",") if p.strip()]
     if not periods or len(periods) > SOLVER_PERIODS or not all(re.match(r"^\d{1,2}:\d{2}-\d{1,2}:\d{2}$", p) for p in periods):
         errors.append(f"Profile: Periods should be like '09:00-10:00, 10:00-11:00' (1 to {SOLVER_PERIODS} of them).")
+    n_periods = len(periods) if periods and len(periods) <= SOLVER_PERIODS else SOLVER_PERIODS
     depts = {}
     for part in str(profile.get("departments") or "").split(";"):
         if "=" in part:
@@ -160,7 +161,9 @@ def build_college(wb: Workbook) -> tuple[College | None, dict, list[str]]:
     teachers: dict[str, Teacher] = {}
     for r, row in wb.rows.get("Teachers", []):
         tid = str(row["Code"] or "")
-        off, problem = _unavailable(str(row["Not available"] or ""))
+        off, problem = _unavailable(str(row["Not available"] or ""), n_periods)
+        # a shorter college day: the periods after it don't exist, so nobody teaches then
+        off = sorted(set(off) | {(d, q) for d in range(len(DAYS)) for q in range(n_periods, SOLVER_PERIODS)})
         if not tid or not row["Name"]:
             errors.append(f"Teachers row {r}: a teacher needs a Code and a Name.")
         elif tid in teachers:
